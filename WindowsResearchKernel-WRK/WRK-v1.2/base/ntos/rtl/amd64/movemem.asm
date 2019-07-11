@@ -6,15 +6,11 @@
 ; You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 ; If you do not agree to the terms, do not use the code.
 
-
 ; Module Name:
-
 ;   movemem.asm
 
 ; Abstract:
-
-;   This module implements functions to fill, copy , and compare blocks of
-;   memory.
+;   This module implements functions to fill, copy , and compare blocks of memory.
 
 
 
@@ -25,36 +21,16 @@ include ksamd64.inc
         subttl "Compare Memory"
 
 
-; SIZE_T
-; RtlCompareMemory (
-;     IN PVOID Source1,
-;     IN PVOID Source2,
-;     IN SIZE_T Length
-;     )
-
+; SIZE_T RtlCompareMemory (IN PVOID Source1, IN PVOID Source2, IN SIZE_T Length)
 ; Routine Description:
-
-;   This function compares two unaligned blocks of memory and returns the
-;   number of bytes that compared equal.
-
+;   This function compares two unaligned blocks of memory and returns the number of bytes that compared equal.
 ; Arguments:
-
-;   Source1 (rcx) - Supplies a pointer to the first block of memory to
-;       compare.
-
-;   Source2 (rdx) - Supplies a pointer to the second block of memory to
-;       compare.
-
-;   Length (r8) - Supplies the Length, in bytes, of the memory to be
-;       compared.
-
+;   Source1 (rcx) - Supplies a pointer to the first block of memory to compare.
+;   Source2 (rdx) - Supplies a pointer to the second block of memory to compare.
+;   Length (r8) - Supplies the Length, in bytes, of the memory to be compared.
 ; Return Value:
-
 ;   The number of bytes that compared equal is returned as the function
-;   value. If all bytes compared equal, then the length of the original
-;   block of memory is returned.
-
-
+;   value. If all bytes compared equal, then the length of the original block of memory is returned.
 
 CmFrame struct
         SavedRsi dq ?                   ; saved nonvolatile registers
@@ -134,35 +110,17 @@ RlCM60: mov     rax, r8                 ;
         subttl  "Compare Memory 32-bits"
 
 
-; SIZE_T
-; RtlCompareMemoryUlong (
-;     IN PVOID Source,
-;     IN SIZE_T Length,
-;     IN ULONG Pattern
-;     )
-
+; SIZE_T RtlCompareMemoryUlong (IN PVOID Source, IN SIZE_T Length, IN ULONG Pattern)
 ; Routine Description:
-
-;   This function compares a block of dword aligned memory with a specified
-;   pattern 32-bits at a time.
-
-;   N.B. The low two bits of the length are assumed to be zero and are
-;        ignored.
-
+;   This function compares a block of dword aligned memory with a specified pattern 32-bits at a time.
+;   N.B. The low two bits of the length are assumed to be zero and are ignored.
 ; Arguments:
-
 ;   Source (rcx) - Supplies a pointer to the block of memory to compare.
-
 ;   Length (rdx) - Supplies the length, in bytes, of the memory to compare.       compare.
-
 ;   Pattern (r8d) - Supplies the pattern to be compared against.
-
 ; Return Value:
-
 ;   The number of bytes that compared equal is returned as the function
-;   value. If all bytes compared equal, then the length of the original
-;   block of memory is returned.
-
+;   value. If all bytes compared equal, then the length of the original block of memory is returned.
 
 
         NESTED_ENTRY RtlCompareMemoryUlong, _TEXT$00
@@ -191,30 +149,13 @@ RlCU10: lea     rax, [rdx*4]            ; compute successful compare in bytes
         subttl  "Copy Memory NonTemporal"
 
 
-; VOID
-; RtlCopyMemoryNonTemporal (
-;     OUT VOID UNALIGNED *Destination,
-;     IN CONST VOID UNALIGNED * Sources,
-;     IN SIZE_T Length
-;     )
-
+; VOID RtlCopyMemoryNonTemporal (OUT VOID UNALIGNED *Destination, IN CONST VOID UNALIGNED * Sources, IN SIZE_T Length)
 ; Routine Description:
-
-;   This function copies nonoverlapping from one buffer to another using
-;   nontemporal moves that do not pollute the cache.
-
+;   This function copies nonoverlapping from one buffer to another using nontemporal moves that do not pollute the cache.
 ; Arguments:
-
 ;   Destination (rcx) - Supplies a pointer to the destination buffer.
-
 ;   Sources (rdx) - Supplies a pointer to the source buffer.
-
 ;   Length (r8) - Supplies the length, in bytes, of the copy operation.
-
-; Return Value:
-
-;   None.
-
 
 
 CACHE_BLOCK equ 01000h                  ; nontemporal move block size
@@ -323,30 +264,13 @@ RlNT80: mov     al, [rdx + rcx]         ; move bytes
         subttl  "Fill Memory"
 
 
-; VOID
-; RtlFillMemory (
-;     IN VOID UNALIGNED *Destination,
-;     IN SIZE_T Length,
-;     IN UCHAR Fill
-;     )
-
+; VOID RtlFillMemory (IN VOID UNALIGNED *Destination, IN SIZE_T Length, IN UCHAR Fill)
 ; Routine Description:
-
 ;   This function fills a block of unaligned memory with a specified pattern.
-
 ; Arguments:
-
 ;   Destination (rcx) - Supplies a pointer to the memory to fill.
-
 ;   Length (rdx) - Supplies the length, in bytes, of the memory to fill.
-
 ;   Fill (r8b) - Supplies the value to fill memory with.
-
-; Return Value:
-
-;   None.
-
-
 
         LEAF_ENTRY RtlFillMemory, _TEXT$00
 
@@ -358,28 +282,12 @@ RlNT80: mov     al, [rdx + rcx]         ; move bytes
         subttl  "Prefetch Memory NonTemporal"
 
 
-; VOID
-; RtlPrefetchMemoryNonTemporal (
-;     IN CONST PVOID Source,
-;     IN SIZE_T Length
-;     )
-
+; VOID RtlPrefetchMemoryNonTemporal (IN CONST PVOID Source, IN SIZE_T Length)
 ; Routine Description:
-
-;   This function prefetches memory at Source, for Length bytes into the
-;   closest cache to the processor.
-
+;   This function prefetches memory at Source, for Length bytes into the closest cache to the processor.
 ; Arguments:
-
 ;   Source (rcx) - Supplies a pointer to the memory to be prefetched.
-
 ;   Length (rdx) - Supplies the length, in bytes, of the operation.
-
-; Return Value:
-
-;   None.
-
-
 
         LEAF_ENTRY RtlPrefetchMemoryNonTemporal, _TEXT$00
 
@@ -394,27 +302,12 @@ RlPF10: prefetchnta 0[rcx]              ; prefetch line
         subttl  "Zero Memory"
 
 
-; VOID
-; RtlZeroMemory (
-;     IN VOID UNALIGNED *Destination,
-;     IN SIZE_T Length
-;     )
-
+; VOID RtlZeroMemory (IN VOID UNALIGNED *Destination, IN SIZE_T Length)
 ; Routine Description:
-
 ;   This function fills a block of unaligned memory with zero.
-
 ; Arguments:
-
 ;   Destination (rcx) - Supplies a pointer to the memory to fill.
-
 ;   Length (rdx) - Supplies the length, in bytes, of the memory to fill.
-
-; Return Value:
-
-;   None.
-
-
 
         LEAF_ENTRY RtlZeroMemory, _TEXT$00
 
@@ -425,4 +318,3 @@ RlPF10: prefetchnta 0[rcx]              ; prefetch line
         LEAF_END RtlZeroMemory, _TEXT$00
 
         end
-

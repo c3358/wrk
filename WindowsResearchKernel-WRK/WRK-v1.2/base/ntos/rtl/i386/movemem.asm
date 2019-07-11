@@ -1,21 +1,15 @@
         title  "User Mode Zero and Move Memory functions"
 
-
 ; Copyright (c) Microsoft Corporation. All rights reserved.
 
 ; You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 ; If you do not agree to the terms, do not use the code.
 
-
 ; Module Name:
-
 ;    movemem.asm
 
 ; Abstract:
-
 ;    This module implements functions to zero and copy blocks of memory
-
-
 
 .386p
         .xlist
@@ -71,36 +65,16 @@ _TEXT$00   SEGMENT PARA PUBLIC 'CODE'
         subttl "RtlCompareMemory"
 
 
-; ULONG
-; RtlCompareMemory (
-;    IN PVOID Source1,
-;    IN PVOID Source2,
-;    IN ULONG Length
-;    )
-
+; ULONG RtlCompareMemory (IN PVOID Source1, IN PVOID Source2, IN ULONG Length)
 ; Routine Description:
-
-;    This function compares two blocks of memory and returns the number
-;    of bytes that compared equal.
-
+;    This function compares two blocks of memory and returns the number of bytes that compared equal.
 ; Arguments:
-
-;    Source1 (esp+4) - Supplies a pointer to the first block of memory to
-;       compare.
-
-;    Source2 (esp+8) - Supplies a pointer to the second block of memory to
-;       compare.
-
-;    Length (esp+12) - Supplies the Length, in bytes, of the memory to be
-;       compared.
-
+;    Source1 (esp+4) - Supplies a pointer to the first block of memory to compare.
+;    Source2 (esp+8) - Supplies a pointer to the second block of memory to compare.
+;    Length (esp+12) - Supplies the Length, in bytes, of the memory to be compared.
 ; Return Value:
-
 ;    The number of bytes that compared equal is returned as the function
-;    value. If all bytes compared equal, then the length of the original
-;    block of memory is returned.
-
-
+;    value. If all bytes compared equal, then the length of the original block of memory is returned.
 
 RcmSource1      equ     [esp+12]
 RcmSource2      equ     [esp+16]
