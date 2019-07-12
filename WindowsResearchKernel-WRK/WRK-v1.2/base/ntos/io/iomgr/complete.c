@@ -85,10 +85,7 @@ Return Value:
 }
 
 
-NTSTATUS NtOpenIoCompletion(__out PHANDLE IoCompletionHandle, 
-                            __in ACCESS_MASK DesiredAccess,
-                            __in POBJECT_ATTRIBUTES ObjectAttributes
-)
+NTSTATUS NtOpenIoCompletion(__out PHANDLE IoCompletionHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes)
 /*
 Routine Description:
     This function opens a handle to an I/O completion object with the specified desired access.
@@ -137,12 +134,11 @@ Return Value:
 }
 
 
-NTSTATUS NtQueryIoCompletion(
-    __in HANDLE IoCompletionHandle,
-    __in IO_COMPLETION_INFORMATION_CLASS IoCompletionInformationClass,
-    __out_bcount(IoCompletionInformationLength) PVOID IoCompletionInformation,
-    __in ULONG IoCompletionInformationLength,
-    __out_opt PULONG ReturnLength
+NTSTATUS NtQueryIoCompletion(__in HANDLE IoCompletionHandle,
+                             __in IO_COMPLETION_INFORMATION_CLASS IoCompletionInformationClass,
+                             __out_bcount(IoCompletionInformationLength) PVOID IoCompletionInformation,
+                             __in ULONG IoCompletionInformationLength,
+                             __out_opt PULONG ReturnLength
 )
 /*
 Routine Description:
@@ -208,10 +204,16 @@ Return Value:
 }
 
 
-NTSTATUS NtSetIoCompletion(__in HANDLE IoCompletionHandle, __in PVOID KeyContext, __in_opt PVOID ApcContext, __in NTSTATUS IoStatus, __in ULONG_PTR IoStatusInformation)
+NTSTATUS NtSetIoCompletion(__in HANDLE IoCompletionHandle, 
+                           __in PVOID KeyContext, 
+                           __in_opt PVOID ApcContext,
+                           __in NTSTATUS IoStatus, 
+                           __in ULONG_PTR IoStatusInformation
+)
 /*
 Routine Description:
-    This function allows the caller to queue an Irp to an I/O completion port and specify all of the information that is returned out the other end using NtRemoveIoCompletion.
+    This function allows the caller to queue an Irp to an I/O completion port and 
+    specify all of the information that is returned out the other end using NtRemoveIoCompletion.
 Arguments:
     IoCompletionHandle - Supplies a handle to the io completion port that the caller intends to queue a completion packet to
     KeyContext - Supplies the key context that is returned during a call to NtRemoveIoCompletion
@@ -237,12 +239,12 @@ Return Value:
 }
 
 
-NTSTATUS NtRemoveIoCompletion(
-    __in HANDLE IoCompletionHandle,
-    __out PVOID *KeyContext,
-    __out PVOID *ApcContext,
-    __out PIO_STATUS_BLOCK IoStatusBlock,
-    __in_opt PLARGE_INTEGER Timeout)
+NTSTATUS NtRemoveIoCompletion(__in HANDLE IoCompletionHandle,
+                              __out PVOID* KeyContext,
+                              __out PVOID* ApcContext,
+                              __out PIO_STATUS_BLOCK IoStatusBlock,
+                              __in_opt PLARGE_INTEGER Timeout
+)
     /*
     Routine Description:
         This function removes an entry from an I/O completion object.
@@ -340,10 +342,17 @@ NTSTATUS NtRemoveIoCompletion(
 }
 
 
-NTKERNELAPI NTSTATUS IoSetIoCompletion(IN PVOID IoCompletion, IN PVOID KeyContext, IN PVOID ApcContext, IN NTSTATUS IoStatus, IN ULONG_PTR IoStatusInformation, IN BOOLEAN Quota)
+NTKERNELAPI NTSTATUS IoSetIoCompletion(IN PVOID IoCompletion,
+                                       IN PVOID KeyContext, 
+                                       IN PVOID ApcContext,
+                                       IN NTSTATUS IoStatus, 
+                                       IN ULONG_PTR IoStatusInformation,
+                                       IN BOOLEAN Quota
+)
 /*
 Routine Description:
-    This function allows the caller to queue an Irp to an I/O completion port and specify all of the information that is returned out the other end using NtRemoveIoCompletion.
+    This function allows the caller to queue an Irp to an I/O completion port and 
+    specify all of the information that is returned out the other end using NtRemoveIoCompletion.
 Arguments:
     IoCompletion - Supplies a a pointer to the completion port that the caller intends to queue a completion packet to.
     KeyContext - Supplies the key context that is returned during a call to NtRemoveIoCompletion.
