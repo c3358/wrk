@@ -1575,9 +1575,8 @@ AllocateVad:
                     // This must be treated as terminal now - so the app doesn't later see zeroes when referencing this page.
 
                     // N.B.  There are no race conditions with the user deleting/substituting this mapping from another thread as the address space mutex is still held.
-
-                    // Unmap the large page view.
-                    MiUnmapViewOfSection(Process, VirtualAddress, UNMAP_ADDRESS_SPACE_HELD);
+                    
+                    MiUnmapViewOfSection(Process, VirtualAddress, UNMAP_ADDRESS_SPACE_HELD);// Unmap the large page view.
 
                     // Unmap the small page view.
                     MiUnmapViewOfSection(Process, NullCapturedBase, UNMAP_ADDRESS_SPACE_HELD);
@@ -1594,15 +1593,15 @@ AllocateVad:
             VirtualAddress = (PVOID)((PCHAR)VirtualAddress + PAGE_SIZE);
             SmallVirtualAddress = (PVOID)((PCHAR)SmallVirtualAddress + PAGE_SIZE);
         }
-
-        // Unmap the small page view.
-        MiUnmapViewOfSection(Process, NullCapturedBase, UNMAP_ADDRESS_SPACE_HELD);
+        
+        MiUnmapViewOfSection(Process, NullCapturedBase, UNMAP_ADDRESS_SPACE_HELD);// Unmap the small page view.
 
         // If the new pages had been used to hold code in a previous life we must ensure the instruction cache is kept coherent.
         // The data copy above is not sufficient on platforms where the I-cache & D-cache are not kept coherent in hardware so sweep it here for them.
         KeSweepIcacheRange(TRUE, StartingAddress, ((ULONG_PTR)EndingAddress - (ULONG_PTR)StartingAddress));
     } else if (ControlArea->u.Flags.FloppyMedia) {
-        // The image resides on a floppy disk, in-page all pages from the floppy and mark them as modified so they migrate to the paging file rather than reread them from the floppy disk which may have been removed.
+        // The image resides on a floppy disk, in-page all pages from the floppy and 
+        // mark them as modified so they migrate to the paging file rather than reread them from the floppy disk which may have been removed.
         ProtoPte = Vad->FirstPrototypePte;
 
         // This could get an in-page error from the floppy.

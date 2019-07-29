@@ -119,7 +119,8 @@ Arguments:
 
     CommitReduction = 0;
 
-    // Get the address creation mutex to block multiple threads from creating or deleting address space at the same time and get the working set mutex so virtual address descriptors can be inserted and walked.
+    // Get the address creation mutex to block multiple threads from creating or 
+    // deleting address space at the same time and get the working set mutex so virtual address descriptors can be inserted and walked.
     // Block APCs to prevent page faults while we own the working set mutex.
     LOCK_ADDRESS_SPACE(Process);
 
@@ -482,7 +483,8 @@ ErrorReturn2:
 ULONG MiIsEntireRangeCommitted(IN PVOID StartingAddress, IN PVOID EndingAddress, IN PMMVAD Vad, IN PEPROCESS Process)
 /*
 Routine Description:
-    This routine examines the range of pages from the starting address up to and including the ending address and returns TRUE if every page in the range is committed, FALSE otherwise.
+    This routine examines the range of pages from the starting address up to and including the ending address and 
+    returns TRUE if every page in the range is committed, FALSE otherwise.
 Arguments:
     StartingAddress - Supplies the starting address of the range.
     EndingAddress - Supplies the ending address of the range.
@@ -511,7 +513,8 @@ Environment:
     PointerPte = MiGetPteAddress(StartingAddress);
     LastPte = MiGetPteAddress(EndingAddress);
 
-    // Set the Va to the starting address + 8, this solves problems associated with address 0 (NULL) being used as a valid virtual address and NULL in the VAD commitment field indicating no pages are committed.
+    // Set the Va to the starting address + 8, this solves problems associated with address 0 (NULL) being used as a valid virtual address and 
+    // NULL in the VAD commitment field indicating no pages are committed.
     Va = (PVOID)((PCHAR)StartingAddress + 8);
     while (PointerPte <= LastPte) {
         if (MiIsPteOnPdeBoundary(PointerPte) || (FirstTime)) {
@@ -673,7 +676,8 @@ Environment:
     }
 
     // Decommit each page by setting the PTE to be explicitly decommitted.
-    // The PTEs cannot be deleted all at once as this would set the PTEs to zero which would auto-evaluate as committed if referenced by another thread when a page table page is being in-paged.
+    // The PTEs cannot be deleted all at once as this would set the PTEs to zero which would auto-evaluate as committed if referenced by 
+    // another thread when a page table page is being in-paged.
     PointerPde = MiGetPdeAddress(StartingAddress);
     PointerPte = MiGetPteAddress(StartingAddress);
     Va = StartingAddress;
@@ -779,7 +783,8 @@ Environment:
                         Pfn2 = MI_PFN_ELEMENT(PageTableFrameIndex);
                         MiDecrementShareCountInline(Pfn2, PageTableFrameIndex);
 
-                        // Check the reference count for the page, if the reference count is zero, move the page to the free list, if the reference count is not zero, ignore this page.
+                        // Check the reference count for the page, if the reference count is zero, 
+                        // move the page to the free list, if the reference count is not zero, ignore this page.
                         // When the reference count goes to zero, it will be placed on the free list.
                         if (Pfn1->u3.e2.ReferenceCount == 0) {
                             MiUnlinkPageFromList(Pfn1);
