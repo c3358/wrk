@@ -3048,8 +3048,7 @@ Warning:
             (CreateOptions & FILE_DELETE_ON_CLOSE && (!(DesiredAccess & DELETE))) ||
 
             // Likewise, ensure that if one of the synchronous I/O modes is specified that the other one is not specified as well.
-            ((CreateOptions & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)) ==
-            (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)) ||
+            ((CreateOptions & (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)) == (FILE_SYNCHRONOUS_IO_ALERT | FILE_SYNCHRONOUS_IO_NONALERT)) ||
 
             // If this create or open is for a directory operation, check that all of the other flags, dispositions,
             // and desired access parameters were also specified correctly.

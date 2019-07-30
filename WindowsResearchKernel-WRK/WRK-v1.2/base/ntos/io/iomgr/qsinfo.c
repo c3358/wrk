@@ -446,7 +446,8 @@ NTSTATUS NtSetInformationFile(
     __out PIO_STATUS_BLOCK IoStatusBlock,
     __in_bcount(Length) PVOID FileInformation,
     __in ULONG Length,
-    __in FILE_INFORMATION_CLASS FileInformationClass)
+    __in FILE_INFORMATION_CLASS FileInformationClass
+    )
     /*
     Routine Description:
         This service changes the provided information about a specified file.
@@ -537,7 +538,8 @@ NTSTATUS NtSetInformationFile(
         return status;
     }
 
-    // Get the address of the target device object.  If this file represents a device that was opened directly, then simply use the device or its attached device(s) directly.
+    // Get the address of the target device object.  
+    // If this file represents a device that was opened directly, then simply use the device or its attached device(s) directly.
     if (!(fileObject->Flags & FO_DIRECT_DEVICE_OPEN)) {
         deviceObject = IoGetRelatedDeviceObject(fileObject);
     } else {
@@ -577,7 +579,8 @@ NTSTATUS NtSetInformationFile(
                 return GetExceptionCode();
             }
 
-            if ((fileObject->Flags & FO_NO_INTERMEDIATE_BUFFERING && (deviceObject->SectorSize && (currentByteOffset.LowPart & (deviceObject->SectorSize - 1)))) || currentByteOffset.HighPart < 0) {
+            if ((fileObject->Flags & FO_NO_INTERMEDIATE_BUFFERING && (deviceObject->SectorSize && (currentByteOffset.LowPart & (deviceObject->SectorSize - 1)))) || 
+            currentByteOffset.HighPart < 0) {
                 status = STATUS_INVALID_PARAMETER;
             } else {
                 // Set the current file position information.
