@@ -5,24 +5,17 @@ Copyright (c) Microsoft Corporation. All rights reserved.
 You may only use this code if you agree to the terms of the Windows Research Kernel Source Code License agreement (see License.txt).
 If you do not agree to the terms, do not use the code.
 
-
 Module Name:
-
     exboosts.h
 
 Abstract:
-
-    This file contains all of the Priority boots numbers used by the NT
-    executive.
-
+    This file contains all of the Priority boots numbers used by the NT executive.
 */
 
 // begin_ntddk begin_wdm begin_ntifs begin_ntosp
 
 // Priority increment definitions.  The comment for each definition gives
-// the names of the system services that use the definition when satisfying
-// a wait.
-
+// the names of the system services that use the definition when satisfying a wait.
 
 
 // Priority increment used when satisfying a wait on an executive event
@@ -162,9 +155,6 @@ Abstract:
 #define TIMER_APC_INCREMENT             0
 
 
-// Priority increment used to get slow exclusive eresource holders
-// moving again.
-
-
+// Priority increment used to get slow exclusive eresource holders moving again.
 #define ERESOURCE_INCREMENT             4
 

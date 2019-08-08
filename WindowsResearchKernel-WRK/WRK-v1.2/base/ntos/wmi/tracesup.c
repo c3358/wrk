@@ -1600,10 +1600,8 @@ NTSTATUS FASTCALL WmipNotifyLogger(IN PWMI_LOGGER_CONTEXT LoggerContext)
         return STATUS_SEMAPHORE_LIMIT_EXCEEDED;
     }
 
-    {
         KeReleaseSemaphore(&LoggerContext->LoggerSemaphore, 0, 1, FALSE);
         return STATUS_SUCCESS;
-    }
 }
 
 
