@@ -70,23 +70,23 @@ Return Value:
 }
 
 
-NTSTATUS NtCreateSemaphore(
-    __out PHANDLE SemaphoreHandle,
-    __in ACCESS_MASK DesiredAccess,
-    __in_opt POBJECT_ATTRIBUTES ObjectAttributes,
-    __in LONG InitialCount,
-    __in LONG MaximumCount)
-    /*
-    Routine Description:
-        This function creates a semaphore object, sets its initial count to the
-        specified value, sets its maximum count to the specified value, and opens a handle to the object with the specified desired access.
-    Arguments:
-        SemaphoreHandle - Supplies a pointer to a variable that will receive the semaphore object handle.
-        DesiredAccess - Supplies the desired types of access for the semaphore object.
-        ObjectAttributes - Supplies a pointer to an object attributes structure.
-        InitialCount - Supplies the initial count of the semaphore object.
-        MaximumCount - Supplies the maximum count of the semaphore object.
-    */
+NTSTATUS NtCreateSemaphore(__out PHANDLE SemaphoreHandle,
+                           __in ACCESS_MASK DesiredAccess,
+                           __in_opt POBJECT_ATTRIBUTES ObjectAttributes,
+                           __in LONG InitialCount,
+                           __in LONG MaximumCount
+)
+/*
+Routine Description:
+    This function creates a semaphore object, sets its initial count to the
+    specified value, sets its maximum count to the specified value, and opens a handle to the object with the specified desired access.
+Arguments:
+    SemaphoreHandle - Supplies a pointer to a variable that will receive the semaphore object handle.
+    DesiredAccess - Supplies the desired types of access for the semaphore object.
+    ObjectAttributes - Supplies a pointer to an object attributes structure.
+    InitialCount - Supplies the initial count of the semaphore object.
+    MaximumCount - Supplies the maximum count of the semaphore object.
+*/
 {
     HANDLE Handle;
     KPROCESSOR_MODE PreviousMode;
@@ -112,7 +112,8 @@ NTSTATUS NtCreateSemaphore(
     // Allocate semaphore object.
     Status = ObCreateObject(PreviousMode, ExSemaphoreObjectType, ObjectAttributes, PreviousMode, NULL, sizeof(KSEMAPHORE), 0, 0, &Semaphore);
 
-    // If the semaphore object was successfully allocated, then initialize the semaphore object and attempt to insert the semaphore object in the current process' handle table.
+    // If the semaphore object was successfully allocated, 
+    // then initialize the semaphore object and attempt to insert the semaphore object in the current process' handle table.
     if (NT_SUCCESS(Status)) {
         KeInitializeSemaphore((PKSEMAPHORE)Semaphore, InitialCount, MaximumCount);
         Status = ObInsertObject(Semaphore, NULL, DesiredAccess, 0, NULL, &Handle);
@@ -128,7 +129,8 @@ NTSTATUS NtCreateSemaphore(
                 {
                     NOTHING;
                 }
-            } else {
+            }
+            else {
                 *SemaphoreHandle = Handle;
             }
         }
@@ -177,7 +179,8 @@ Arguments:
             {
                 NOTHING;
             }
-        } else {
+        }
+        else {
             *SemaphoreHandle = Handle;
         }
     }
@@ -186,13 +189,11 @@ Arguments:
 }
 
 
-NTSTATUS
-NtQuerySemaphore(
-    __in HANDLE SemaphoreHandle,
-    __in SEMAPHORE_INFORMATION_CLASS SemaphoreInformationClass,
-    __out_bcount(SemaphoreInformationLength) PVOID SemaphoreInformation,
-    __in ULONG SemaphoreInformationLength,
-    __out_opt PULONG ReturnLength
+NTSTATUS NtQuerySemaphore(__in HANDLE SemaphoreHandle,
+                          __in SEMAPHORE_INFORMATION_CLASS SemaphoreInformationClass,
+                          __out_bcount(SemaphoreInformationLength) PVOID SemaphoreInformation,
+                          __in ULONG SemaphoreInformationLength,
+                          __out_opt PULONG ReturnLength
 )
 /*
 Routine Description:
@@ -258,7 +259,8 @@ Arguments:
             {
                 NOTHING;
             }
-        } else {
+        }
+        else {
             Information->CurrentCount = Count;
             Information->MaximumCount = Maximum;
             if (ARGUMENT_PRESENT(ReturnLength)) {
@@ -330,7 +332,8 @@ Arguments:
                 {
                     NOTHING;
                 }
-            } else {
+            }
+            else {
                 *PreviousCount = Count;
             }
         }

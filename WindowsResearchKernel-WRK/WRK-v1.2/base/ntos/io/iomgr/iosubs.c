@@ -5534,17 +5534,14 @@ Return Value:
     }
 
     // If this is one of those special error popup codes that CSRSS expects to be called with a correct set of arguments, disallow from a driver
-    if (ErrorStatus == STATUS_VDM_HARD_ERROR || 
-		ErrorStatus == STATUS_UNHANDLED_EXCEPTION || 
-		ErrorStatus == STATUS_SERVICE_NOTIFICATION) {
+    if (ErrorStatus == STATUS_VDM_HARD_ERROR || ErrorStatus == STATUS_UNHANDLED_EXCEPTION || ErrorStatus == STATUS_SERVICE_NOTIFICATION) {
         return FALSE;
     }
 
     //  If this request is going to be sent to the hard error thread, 
 	//  and there are more than 25 entries already in the queue, don't add any more.
     //  We'll do another safe check later on.
-    if (!ARGUMENT_PRESENT(Thread) && 
-		(KeReadStateSemaphore(&IopHardError.WorkQueueSemaphore) >= IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS)) {
+    if (!ARGUMENT_PRESENT(Thread) && (KeReadStateSemaphore(&IopHardError.WorkQueueSemaphore) >= IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS)) {
         return FALSE;
     } else {
         if (IopHardError.NumPendingApcPopups > IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS) {
