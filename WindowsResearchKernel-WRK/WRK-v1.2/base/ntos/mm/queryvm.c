@@ -19,13 +19,12 @@ NTSTATUS MiGetWorkingSetInfo(IN PMEMORY_WORKING_SET_INFORMATION WorkingSetInfo, 
 NTSTATUS MiGetWorkingSetInfoList(__in PMEMORY_WORKING_SET_EX_INFORMATION WorkingSetInfo, __in SIZE_T Length, __in PEPROCESS Process);
 
 
-NTSTATUS NtQueryVirtualMemory(
-    __in HANDLE ProcessHandle,
-    __in PVOID BaseAddress,
-    __in MEMORY_INFORMATION_CLASS MemoryInformationClass,
-    __out_bcount(MemoryInformationLength) PVOID MemoryInformation,
-    __in SIZE_T MemoryInformationLength,
-    __out_opt PSIZE_T ReturnLength
+NTSTATUS NtQueryVirtualMemory(__in HANDLE ProcessHandle,
+                              __in PVOID BaseAddress,
+                              __in MEMORY_INFORMATION_CLASS MemoryInformationClass,
+                              __out_bcount(MemoryInformationLength) PVOID MemoryInformation,
+                              __in SIZE_T MemoryInformationLength,
+                              __out_opt PSIZE_T ReturnLength
 )
 /*
 Routine Description:
@@ -74,6 +73,7 @@ Arguments:
                 MEM_PRIVATE - The pages within the region are private.
                 MEM_MAPPED - The pages within the region are mapped into the view of a section.
                 MEM_IMAGE - The pages within the region are mapped into the view of an image section.
+
     MemoryInformationLength - Specifies the length in bytes of the memory information buffer.
     ReturnLength - An optional pointer which, if specified, receives the number of bytes placed in the process information buffer.
 Environment:
@@ -104,10 +104,8 @@ Environment:
     PVOID HighestVadAddress;
     PVOID HighestUserAddress;
 
-    // Make sure the user's buffer is large enough for the requested operation.
-
-    // Check argument validity.
-    switch (MemoryInformationClass) {
+    // Make sure the user's buffer is large enough for the requested operation.    
+    switch (MemoryInformationClass) {// Check argument validity.
     case MemoryBasicInformation:
         if (MemoryInformationLength < sizeof(MEMORY_BASIC_INFORMATION)) {
             return STATUS_INFO_LENGTH_MISMATCH;
@@ -137,8 +135,7 @@ Environment:
             if (ARGUMENT_PRESENT(ReturnLength)) {
                 ProbeForWriteUlong_ptr(ReturnLength);
             }
-        } except(EXCEPTION_EXECUTE_HANDLER)
-        {// If an exception occurs during the probe or capture of the initial values,
+        } except(EXCEPTION_EXECUTE_HANDLER) {// If an exception occurs during the probe or capture of the initial values,
             return GetExceptionCode();// then handle the exception and return the exception code as the status value.
         }
     }
@@ -154,7 +151,7 @@ Environment:
     if (ProcessHandle == NtCurrentProcess()) {
         TargetProcess = PsGetCurrentProcessByThread(CurrentThread);
     } else {
-        Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_QUERY_INFORMATION, PsProcessType, PreviousMode, (PVOID *)&TargetProcess, NULL);
+        Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_QUERY_INFORMATION, PsProcessType, PreviousMode, (PVOID*)& TargetProcess, NULL);
         if (!NT_SUCCESS(Status)) {
             return Status;
         }
@@ -195,15 +192,13 @@ Environment:
                     *ReturnLength = sizeof(MEMORY_BASIC_INFORMATION);
                 }
 
-                if (PAGE_ALIGN(BaseAddress) == (PVOID)MM_SHARED_USER_DATA_VA) {
-                    // This is the page that is double mapped between user mode and kernel mode.
+                if (PAGE_ALIGN(BaseAddress) == (PVOID)MM_SHARED_USER_DATA_VA) {// This is the page that is double mapped between user mode and kernel mode.                    
                     ((PMEMORY_BASIC_INFORMATION)MemoryInformation)->AllocationBase = (PVOID)MM_SHARED_USER_DATA_VA;
                     ((PMEMORY_BASIC_INFORMATION)MemoryInformation)->Protect = PAGE_READONLY;
                     ((PMEMORY_BASIC_INFORMATION)MemoryInformation)->RegionSize = PAGE_SIZE;
                     ((PMEMORY_BASIC_INFORMATION)MemoryInformation)->State = MEM_COMMIT;
                 }
-            } except(EXCEPTION_EXECUTE_HANDLER)
-            {
+            } except(EXCEPTION_EXECUTE_HANDLER) {
                 NOTHING;// Just return success.
             }
 
@@ -215,7 +210,6 @@ Environment:
             ObDereferenceObject(TargetProcess);
         }
 #endif
-
         return Status;
     }
 
@@ -223,7 +217,7 @@ Environment:
     if (ProcessHandle == NtCurrentProcess()) {
         TargetProcess = PsGetCurrentProcessByThread(CurrentThread);
     } else {
-        Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_QUERY_INFORMATION, PsProcessType, PreviousMode, (PVOID *)&TargetProcess, NULL);
+        Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_QUERY_INFORMATION, PsProcessType, PreviousMode, (PVOID*)& TargetProcess, NULL);
         if (!NT_SUCCESS(Status)) {
             return Status;
         }
@@ -262,7 +256,8 @@ Environment:
 
         try {
             if (ARGUMENT_PRESENT(ReturnLength)) {
-                *ReturnLength = ((((PMEMORY_WORKING_SET_INFORMATION)MemoryInformation)->NumberOfEntries - 1) * sizeof(ULONG_PTR)) + sizeof(MEMORY_WORKING_SET_INFORMATION);
+                *ReturnLength = ((((PMEMORY_WORKING_SET_INFORMATION)MemoryInformation)->NumberOfEntries - 1) * sizeof(ULONG_PTR)) +
+                    sizeof(MEMORY_WORKING_SET_INFORMATION);
             }
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
@@ -280,9 +275,8 @@ Environment:
     }
 
     LOCK_ADDRESS_SPACE(TargetProcess);// Get working set mutex and block APCs.
-
-    // Make sure the address space was not deleted, if so, return an error.
-    if (TargetProcess->Flags & PS_PROCESS_FLAGS_VM_DELETED) {
+    
+    if (TargetProcess->Flags & PS_PROCESS_FLAGS_VM_DELETED) {// Make sure the address space was not deleted, if so, return an error.
         UNLOCK_ADDRESS_SPACE(TargetProcess);
         if (Attached == TRUE) {
             KeUnstackDetachProcess(&ApcState);
@@ -368,8 +362,7 @@ Environment:
                 if (ARGUMENT_PRESENT(ReturnLength)) {
                     *ReturnLength = sizeof(MEMORY_BASIC_INFORMATION);
                 }
-            } except(EXCEPTION_EXECUTE_HANDLER)
-            {// Just return success if the BasicInfo was successfully filled in.                
+            } except(EXCEPTION_EXECUTE_HANDLER) {// Just return success if the BasicInfo was successfully filled in.                
                 if (Found == FALSE) {
                     return GetExceptionCode();
                 }
@@ -432,9 +425,8 @@ Environment:
     }
 
     Info.RegionSize = ((PCHAR)Va - (PCHAR)Info.BaseAddress);
-
-    // A range has been found, release the mutexes, detach from the target process and return the information.
-    UNLOCK_ADDRESS_SPACE(TargetProcess);
+    
+    UNLOCK_ADDRESS_SPACE(TargetProcess);// A range has been found, release the mutexes, detach from the target process and return the information.
 
     if (Attached == TRUE) {
         KeUnstackDetachProcess(&ApcState);
@@ -449,8 +441,7 @@ Environment:
             if (ARGUMENT_PRESENT(ReturnLength)) {
                 *ReturnLength = sizeof(MEMORY_BASIC_INFORMATION);
             }
-        } except(EXCEPTION_EXECUTE_HANDLER)
-        {
+        } except(EXCEPTION_EXECUTE_HANDLER) {
             if (Found == FALSE) {// Just return success if the BasicInfo was successfully filled in.
                 return GetExceptionCode();
             }
@@ -478,8 +469,7 @@ Environment:
     if (ARGUMENT_PRESENT(ReturnLength)) {
         try {
             *ReturnLength = LocalReturnLength;
-        } except(EXCEPTION_EXECUTE_HANDLER)
-        {
+        } except(EXCEPTION_EXECUTE_HANDLER) {
             Status = GetExceptionCode();
         }
     }
@@ -488,7 +478,7 @@ Environment:
 }
 
 
-ULONG MiQueryAddressState(IN PVOID Va, IN PMMVAD Vad, IN PEPROCESS TargetProcess, OUT PULONG ReturnedProtect, OUT PVOID *NextVaToQuery)
+ULONG MiQueryAddressState(IN PVOID Va, IN PMMVAD Vad, IN PEPROCESS TargetProcess, OUT PULONG ReturnedProtect, OUT PVOID* NextVaToQuery)
 /*
 Return Value:
     Returns the state (MEM_COMMIT, MEM_RESERVE, MEM_PRIVATE).
@@ -625,7 +615,10 @@ Environment:
                     // The PointerPte contents may have changed if MiGetPageProtection had to release the working set pushlock, 
                     // thus we snapped it prior and can continue to use the old copy regardless.
                     //  Note also that the page table page containing PointerPte may now have been paged out as well.
-                    if ((PteContents.u.Soft.Valid == 0) && (PteContents.u.Soft.Prototype == 1) && (Vad->u.VadFlags.PrivateMemory == 0) && (Vad->ControlArea != NULL)) {
+                    if ((PteContents.u.Soft.Valid == 0) &&
+                        (PteContents.u.Soft.Prototype == 1) &&
+                        (Vad->u.VadFlags.PrivateMemory == 0) &&
+                        (Vad->ControlArea != NULL)) {
                         // Make sure the prototype PTE is committed.
                         // Note that the prototype PTE itself may be paged out, thus the process working set pushlock must be released before accessing it.
                         ProtoPte = MiGetProtoPteAddress(Vad, MI_VA_TO_VPN(Va));
@@ -926,7 +919,7 @@ NTSTATUS MiGetWorkingSetInfoList(IN PMEMORY_WORKING_SET_EX_INFORMATION WorkingSe
         if (Process->PhysicalVadRoot != NULL) {
             // This process has a \Device\PhysicalMemory VAD 
             // so it must be checked to see if the current address resides in it since the PFN cannot be safely examined if it is one of these.
-            SearchResult = MiFindNodeOrParent(Process->PhysicalVadRoot, MI_VA_TO_VPN(VirtualAddress), (PMMADDRESS_NODE *)&PhysicalView);
+            SearchResult = MiFindNodeOrParent(Process->PhysicalVadRoot, MI_VA_TO_VPN(VirtualAddress), (PMMADDRESS_NODE*)& PhysicalView);
             if ((SearchResult == TableFoundNode) && (PhysicalView->VadType == VadDevicePhysicalMemory)) {
                 ASSERT((ULONG)PhysicalView->Vad->u.VadFlags.VadType == (ULONG)PhysicalView->VadType);
 
