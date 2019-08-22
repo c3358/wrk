@@ -167,16 +167,16 @@ VOID DbgkpWakeTarget(IN PDEBUG_EVENT DebugEvent)
 
     Thread = DebugEvent->Thread;
 
-    if ((DebugEvent->Flags&DEBUG_EVENT_SUSPEND) != 0) {
+    if ((DebugEvent->Flags & DEBUG_EVENT_SUSPEND) != 0) {
         PsResumeThread(DebugEvent->Thread, NULL);
     }
 
-    if (DebugEvent->Flags&DEBUG_EVENT_RELEASE) {
+    if (DebugEvent->Flags & DEBUG_EVENT_RELEASE) {
         ExReleaseRundownProtection(&Thread->RundownProtect);
     }
 
     // If we have an actual thread waiting then wake it up else free the memory.
-    if ((DebugEvent->Flags&DEBUG_EVENT_NOWAIT) == 0) {
+    if ((DebugEvent->Flags & DEBUG_EVENT_NOWAIT) == 0) {
         KeSetEvent(&DebugEvent->ContinueEvent, 0, FALSE); // Wake up waiting process
     } else {
         DbgkpFreeDebugEvent(DebugEvent);
@@ -245,7 +245,7 @@ VOID DbgkpCloseObject(IN PEPROCESS Process,
             if (Deref) {
                 DbgkpMarkProcessPeb(Process);
                 // If the caller wanted process deletion on debugger dying (old interface) then kill off the process.
-                if (DebugObject->Flags&DEBUG_OBJECT_KILL_ON_CLOSE) {
+                if (DebugObject->Flags & DEBUG_OBJECT_KILL_ON_CLOSE) {
                     PsTerminateProcess(Process, STATUS_DEBUGGER_INACTIVE);
                 }
                 ObDereferenceObject(DebugObject);
@@ -281,9 +281,9 @@ Arguments:
     if (SourceProcess->DebugPort != NULL) {
         ExAcquireFastMutex(&DbgkpProcessDebugPortMutex);
         DebugObject = SourceProcess->DebugPort;
-        if (DebugObject != NULL && (SourceProcess->Flags&PS_PROCESS_FLAGS_NO_DEBUG_INHERIT) == 0) {
+        if (DebugObject != NULL && (SourceProcess->Flags & PS_PROCESS_FLAGS_NO_DEBUG_INHERIT) == 0) {
             ExAcquireFastMutex(&DebugObject->Mutex);// We must not propagate a debug port thats got no handles left.
-            if ((DebugObject->Flags&DEBUG_OBJECT_DELETE_PENDING) == 0) {// If the object is delete pending then don't propagate this object.
+            if ((DebugObject->Flags & DEBUG_OBJECT_DELETE_PENDING) == 0) {// If the object is delete pending then don't propagate this object.
                 ObReferenceObject(DebugObject);
                 TargetProcess->DebugPort = DebugObject;
             }
@@ -294,7 +294,7 @@ Arguments:
 }
 
 
-NTSTATUS DbgkOpenProcessDebugPort(IN PEPROCESS Process, IN KPROCESSOR_MODE PreviousMode, OUT HANDLE *pHandle)
+NTSTATUS DbgkOpenProcessDebugPort(IN PEPROCESS Process, IN KPROCESSOR_MODE PreviousMode, OUT HANDLE* pHandle)
 /*
 Routine Description:
     References the target processes debug port.
@@ -449,7 +449,7 @@ Return Value:
 
     PAGED_CODE();
 
-    if (Flags&DEBUG_EVENT_NOWAIT) {
+    if (Flags & DEBUG_EVENT_NOWAIT) {
         DebugEvent = ExAllocatePoolWithQuotaTag(NonPagedPool | POOL_QUOTA_FAIL_INSTEAD_OF_RAISE, sizeof(*DebugEvent), 'EgbD');
         if (DebugEvent == NULL) {
             return STATUS_INSUFFICIENT_RESOURCES;
@@ -469,14 +469,14 @@ Return Value:
 
         // See if this create message has already been sent.
         if (ApiMsg->ApiNumber == DbgKmCreateThreadApi || ApiMsg->ApiNumber == DbgKmCreateProcessApi) {
-            if (Thread->CrossThreadFlags&PS_CROSS_THREAD_FLAGS_SKIP_CREATION_MSG) {
+            if (Thread->CrossThreadFlags & PS_CROSS_THREAD_FLAGS_SKIP_CREATION_MSG) {
                 DebugObject = NULL;
             }
         }
 
         // See if this exit message is for a thread that never had a create
         if (ApiMsg->ApiNumber == DbgKmExitThreadApi || ApiMsg->ApiNumber == DbgKmExitProcessApi) {
-            if (Thread->CrossThreadFlags&PS_CROSS_THREAD_FLAGS_SKIP_TERMINATION_MSG) {
+            if (Thread->CrossThreadFlags & PS_CROSS_THREAD_FLAGS_SKIP_TERMINATION_MSG) {
                 DebugObject = NULL;
             }
         }
@@ -493,9 +493,9 @@ Return Value:
         Status = STATUS_PORT_NOT_SET;
     } else {// We must not use a debug port thats got no handles left.
         ExAcquireFastMutex(&DebugObject->Mutex);
-        if ((DebugObject->Flags&DEBUG_OBJECT_DELETE_PENDING) == 0) {// If the object is delete pending then don't use this object.
+        if ((DebugObject->Flags & DEBUG_OBJECT_DELETE_PENDING) == 0) {// If the object is delete pending then don't use this object.
             InsertTailList(&DebugObject->EventList, &DebugEvent->EventList);
-            if ((Flags&DEBUG_EVENT_NOWAIT) == 0) {
+            if ((Flags & DEBUG_EVENT_NOWAIT) == 0) {
                 KeSetEvent(&DebugObject->EventsPresent, 0, FALSE);// Set the event to say there is an unread event in the object
             }
             Status = STATUS_SUCCESS;
@@ -505,7 +505,7 @@ Return Value:
         ExReleaseFastMutex(&DebugObject->Mutex);
     }
 
-    if ((Flags&DEBUG_EVENT_NOWAIT) == 0) {
+    if ((Flags & DEBUG_EVENT_NOWAIT) == 0) {
         ExReleaseFastMutex(&DbgkpProcessDebugPortMutex);
 
         if (NT_SUCCESS(Status)) {
@@ -666,7 +666,7 @@ Return Value:
 
     // We must not propagate a debug port thats got no handles left.
     if (NT_SUCCESS(Status)) {
-        if ((DebugObject->Flags&DEBUG_OBJECT_DELETE_PENDING) == 0) {
+        if ((DebugObject->Flags & DEBUG_OBJECT_DELETE_PENDING) == 0) {
             PS_SET_BITS(&Process->Flags, PS_PROCESS_FLAGS_NO_DEBUG_INHERIT | PS_PROCESS_FLAGS_CREATE_REPORTED);
             ObReferenceObject(DebugObject);
         } else {
@@ -678,13 +678,13 @@ Return Value:
     for (Entry = DebugObject->EventList.Flink; Entry != &DebugObject->EventList;) {
         DebugEvent = CONTAINING_RECORD(Entry, DEBUG_EVENT, EventList);
         Entry = Entry->Flink;
-        if ((DebugEvent->Flags&DEBUG_EVENT_INACTIVE) != 0 && DebugEvent->BackoutThread == ThisThread) {
+        if ((DebugEvent->Flags & DEBUG_EVENT_INACTIVE) != 0 && DebugEvent->BackoutThread == ThisThread) {
             Thread = DebugEvent->Thread;
 
             // If the thread has not been inserted by CreateThread yet then don't create a handle. We skip system threads here also
             if (NT_SUCCESS(Status) && Thread->GrantedAccess != 0 && !IS_SYSTEM_THREAD(Thread)) {
                 // If we could not acquire rundown protection on this thread then we need to suppress its exit message.
-                if ((DebugEvent->Flags&DEBUG_EVENT_PROTECT_FAILED) != 0) {
+                if ((DebugEvent->Flags & DEBUG_EVENT_PROTECT_FAILED) != 0) {
                     PS_SET_BITS(&Thread->CrossThreadFlags, PS_CROSS_THREAD_FLAGS_SKIP_TERMINATION_MSG);
                     RemoveEntryList(&DebugEvent->EventList);
                     InsertTailList(&TempList, &DebugEvent->EventList);
@@ -702,7 +702,7 @@ Return Value:
                 InsertTailList(&TempList, &DebugEvent->EventList);
             }
 
-            if (DebugEvent->Flags&DEBUG_EVENT_RELEASE) {
+            if (DebugEvent->Flags & DEBUG_EVENT_RELEASE) {
                 DebugEvent->Flags &= ~DEBUG_EVENT_RELEASE;
                 ExReleaseRundownProtection(&Thread->RundownProtect);
             }
@@ -735,8 +735,8 @@ Return Value:
 NTSTATUS DbgkpPostFakeThreadMessages(IN PEPROCESS Process,
                                      IN PDEBUG_OBJECT DebugObject,
                                      IN PETHREAD StartThread,
-                                     OUT PETHREAD *pFirstThread,
-                                     OUT PETHREAD *pLastThread)
+                                     OUT PETHREAD* pFirstThread,
+                                     OUT PETHREAD* pLastThread)
     /*
     Routine Description:
         This routine posts the faked initial process create, thread create messages
@@ -805,7 +805,7 @@ NTSTATUS DbgkpPostFakeThreadMessages(IN PEPROCESS Process,
 
         RtlZeroMemory(&ApiMsg, sizeof(ApiMsg));
 
-        if (First && (Flags&DEBUG_EVENT_PROTECT_FAILED) == 0 && !IS_SYSTEM_THREAD(Thread) && Thread->GrantedAccess != 0) {
+        if (First && (Flags & DEBUG_EVENT_PROTECT_FAILED) == 0 && !IS_SYSTEM_THREAD(Thread) && Thread->GrantedAccess != 0) {
             IsFirstThread = TRUE;
         } else {
             IsFirstThread = FALSE;
@@ -839,10 +839,10 @@ NTSTATUS DbgkpPostFakeThreadMessages(IN PEPROCESS Process,
         }
         Status = DbgkpQueueMessage(Process, Thread, &ApiMsg, Flags, DebugObject);
         if (!NT_SUCCESS(Status)) {
-            if (Flags&DEBUG_EVENT_SUSPEND) {
+            if (Flags & DEBUG_EVENT_SUSPEND) {
                 PsResumeThread(Thread, NULL);
             }
-            if (Flags&DEBUG_EVENT_RELEASE) {
+            if (Flags & DEBUG_EVENT_RELEASE) {
                 ExReleaseRundownProtection(&Thread->RundownProtect);
             }
             if (ApiMsg.ApiNumber == DbgKmCreateProcessApi && ApiMsg.u.CreateProcessInfo.FileHandle != NULL) {
@@ -1021,7 +1021,7 @@ Return Value:
 }
 
 
-NTSTATUS DbgkpPostFakeProcessCreateMessages(IN PEPROCESS Process, IN PDEBUG_OBJECT DebugObject, IN PETHREAD *pLastThread)
+NTSTATUS DbgkpPostFakeProcessCreateMessages(IN PEPROCESS Process, IN PDEBUG_OBJECT DebugObject, IN PETHREAD* pLastThread)
 /*
 Routine Description:
     This routine posts the faked initial process create, thread create and mudule load messages
@@ -1365,14 +1365,14 @@ NTSTATUS NtWaitForDebugEvent(IN HANDLE DebugObjectHandle,
         ExAcquireFastMutex(&DebugObject->Mutex);
 
         // If the object is delete pending then return an error.
-        if ((DebugObject->Flags&DEBUG_OBJECT_DELETE_PENDING) == 0) {
+        if ((DebugObject->Flags & DEBUG_OBJECT_DELETE_PENDING) == 0) {
             for (Entry = DebugObject->EventList.Flink; Entry != &DebugObject->EventList; Entry = Entry->Flink) {
                 DebugEvent = CONTAINING_RECORD(Entry, DEBUG_EVENT, EventList);
 
                 // If this event has not been given back to the user yet and is not inactive then pass it back.
                 // We check to see if we have any other outstanding messages for this thread as this confuses VC.
                 // You can only get multiple events for the same thread for the attach faked messages.
-                if ((DebugEvent->Flags&(DEBUG_EVENT_READ | DEBUG_EVENT_INACTIVE)) == 0) {
+                if ((DebugEvent->Flags & (DEBUG_EVENT_READ | DEBUG_EVENT_INACTIVE)) == 0) {
                     GotEvent = TRUE;
                     for (Entry2 = DebugObject->EventList.Flink; Entry2 != Entry; Entry2 = Entry2->Flink) {
                         DebugEvent2 = CONTAINING_RECORD(Entry2, DEBUG_EVENT, EventList);
@@ -1506,7 +1506,7 @@ Return Value:
         // We don't allow the caller to start a thread that it never saw a message for.
         if (DebugEvent->ClientId.UniqueProcess == Clid.UniqueProcess) {
             if (!GotEvent) {
-                if (DebugEvent->ClientId.UniqueThread == Clid.UniqueThread && (DebugEvent->Flags&DEBUG_EVENT_READ) != 0) {
+                if (DebugEvent->ClientId.UniqueThread == Clid.UniqueThread && (DebugEvent->Flags & DEBUG_EVENT_READ) != 0) {
                     RemoveEntryList(Entry);
                     FoundDebugEvent = DebugEvent;
                     GotEvent = TRUE;
@@ -1600,7 +1600,7 @@ NTSTATUS NtSetInformationDebugObject(IN HANDLE DebugObjectHandle,
         }
 
         ExAcquireFastMutex(&DebugObject->Mutex);
-        if (Flags&DEBUG_KILL_ON_CLOSE) {
+        if (Flags & DEBUG_KILL_ON_CLOSE) {
             DebugObject->Flags |= DEBUG_OBJECT_KILL_ON_CLOSE;
         } else {
             DebugObject->Flags &= ~DEBUG_OBJECT_KILL_ON_CLOSE;

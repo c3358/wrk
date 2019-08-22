@@ -146,8 +146,8 @@ Return Value:
 
     // Make sure there are at least 2 IOPM maps.
     ASSERT(KeGetPcr()->GDT[KGDT_TSS / 8].LimitLow >= (0x2000 + IOPM_OFFSET - 1));
-    RtlCopyMemory(Ki386IopmSaveArea, (PVOID)&Tss->IoMaps[0].IoMap, PAGE_SIZE * 2);
-    RtlZeroMemory((PVOID)&Tss->IoMaps[0].IoMap, PAGE_SIZE * 2);
+    RtlCopyMemory(Ki386IopmSaveArea, (PVOID)& Tss->IoMaps[0].IoMap, PAGE_SIZE * 2);
+    RtlZeroMemory((PVOID)& Tss->IoMaps[0].IoMap, PAGE_SIZE * 2);
 
     Process = Thread->ApcState.Process;
     OldIopmOffset = Process->IopmOffset;
@@ -168,7 +168,7 @@ Return Value:
     Thread->Header.DebugActive = (BOOLEAN)ThreadDebugActiveMask;
 
     // Restore old IOPM
-    RtlCopyMemory((PVOID)&Tss->IoMaps[0].IoMap, Ki386IopmSaveArea, PAGE_SIZE * 2);
+    RtlCopyMemory((PVOID)& Tss->IoMaps[0].IoMap, Ki386IopmSaveArea, PAGE_SIZE * 2);
 
     Process->IopmOffset = OldIopmOffset;
     Tss->IoMapBase = OldIoMapBase;

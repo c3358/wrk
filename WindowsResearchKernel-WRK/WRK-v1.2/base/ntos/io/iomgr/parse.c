@@ -22,7 +22,7 @@ Abstract:
 #define IO_MAX_REMOUNT_REPARSE_ATTEMPTS 32
 
 NTSTATUS IopGetNetworkOpenInformation(IN PFILE_OBJECT FileObject, IN POPEN_PACKET Op);
-NTSTATUS IopCheckTopDeviceHint(IN OUT PDEVICE_OBJECT *TargetDeviceObject, IN POPEN_PACKET Op, IN BOOLEAN DirectDeviceOpen);
+NTSTATUS IopCheckTopDeviceHint(IN OUT PDEVICE_OBJECT* TargetDeviceObject, IN POPEN_PACKET Op, IN BOOLEAN DirectDeviceOpen);
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE, IopParseFile)
@@ -137,7 +137,7 @@ VOID IopDereferenceVpbAndFree(IN PVPB Vpb)
 }
 
 
-NTSTATUS IopCheckTopDeviceHint(IN OUT PDEVICE_OBJECT *TargetDeviceObject, IN POPEN_PACKET Op, IN BOOLEAN DirectDeviceOpen)
+NTSTATUS IopCheckTopDeviceHint(IN OUT PDEVICE_OBJECT* TargetDeviceObject, IN POPEN_PACKET Op, IN BOOLEAN DirectDeviceOpen)
 /*++
 Routine Description:
     Check a device object hint specified in an open packet for validity.
@@ -189,51 +189,51 @@ NTSTATUS IopParseDevice(IN PVOID ParseObject,
                         IN OUT PUNICODE_STRING RemainingName,
                         IN OUT PVOID Context OPTIONAL,
                         IN PSECURITY_QUALITY_OF_SERVICE SecurityQos OPTIONAL,
-                        OUT PVOID *Object)
-/*
-Routine Description:
-    This routine interfaces to the NT Object Manager.
-    It is invoked when the object system is given the name of an entity to create or open and the name translates to a device object.
-    This routine is specified as the parse routine for all device objects.
+                        OUT PVOID* Object)
+    /*
+    Routine Description:
+        This routine interfaces to the NT Object Manager.
+        It is invoked when the object system is given the name of an entity to create or open and the name translates to a device object.
+        This routine is specified as the parse routine for all device objects.
 
-    In the normal case of an NtCreateFile, the user specifies either the name of a device or of a file.
-    In the former situation, this routine is invoked with a pointer to the device and a null ("") string.
-    For this case, the routine simply allocates an IRP, fills it in, and passes it to the driver for the device.
-    The driver will then perform whatever rudimentary functions are necessary and will return a status code indicating whether an error was incurred.
-    This status code is remembered in the Open Packet (OP).
+        In the normal case of an NtCreateFile, the user specifies either the name of a device or of a file.
+        In the former situation, this routine is invoked with a pointer to the device and a null ("") string.
+        For this case, the routine simply allocates an IRP, fills it in, and passes it to the driver for the device.
+        The driver will then perform whatever rudimentary functions are necessary and will return a status code indicating whether an error was incurred.
+        This status code is remembered in the Open Packet (OP).
 
-    In the latter situation, the name string to be opened/created is non-null.
-    That is, it contains the remainder of the pathname to the file that is to be opened or created.
-    For this case, the routine allocates an IRP, fills it in, and passes it to the driver for the device.
-    The driver may then need to take further action or it may complete the request immediately.
-    If it needs to perform some work asynchronously, then it can queue the request and return a status of STATUS_PENDING.
-    This allows this routine and its caller to return to the user so that he can continue.
-    Otherwise, the open/create is basically finished.
+        In the latter situation, the name string to be opened/created is non-null.
+        That is, it contains the remainder of the pathname to the file that is to be opened or created.
+        For this case, the routine allocates an IRP, fills it in, and passes it to the driver for the device.
+        The driver may then need to take further action or it may complete the request immediately.
+        If it needs to perform some work asynchronously, then it can queue the request and return a status of STATUS_PENDING.
+        This allows this routine and its caller to return to the user so that he can continue.
+        Otherwise, the open/create is basically finished.
 
-    If the driver supports symbolic links, then it is also possible for the driver to return a new name.
-    This name will be returned to the Object Manager as a new name to look up.
-    The parsing will then begin again from the start.
+        If the driver supports symbolic links, then it is also possible for the driver to return a new name.
+        This name will be returned to the Object Manager as a new name to look up.
+        The parsing will then begin again from the start.
 
-    It is also the responsibility of this routine to create a file object for the file, if the name specifies a file.
-    The file object's address is returned to the NtCreateFile service through the OP.
+        It is also the responsibility of this routine to create a file object for the file, if the name specifies a file.
+        The file object's address is returned to the NtCreateFile service through the OP.
 
-Arguments:
-    ParseObject - Pointer to the device object the name translated into.
-    ObjectType - Type of the object being opened.
-    AccessState - Running security access state information for operation.
-    AccessMode - Access mode of the original caller.
-    Attributes - Attributes to be applied to the object.
-    CompleteName - Complete name of the object.
-    RemainingName - Remaining name of the object.
-    Context - Pointer to an Open Packet (OP) from NtCreateFile service.
-    SecurityQos - Optional security quality of service indicator.
-    Object - The address of a variable to receive the created file object, if any.
-Return Value:
-    The function return value is one of the following:
-        a)  Success - This indicates that the function succeeded and the object parameter contains the address of the created file object.
-        b)  Error - This indicates that the file was not found or created and no file object was created.
-        c)  Reparse - This indicates that the remaining name string has been replaced by a new name that is to be parsed.
-*/
+    Arguments:
+        ParseObject - Pointer to the device object the name translated into.
+        ObjectType - Type of the object being opened.
+        AccessState - Running security access state information for operation.
+        AccessMode - Access mode of the original caller.
+        Attributes - Attributes to be applied to the object.
+        CompleteName - Complete name of the object.
+        RemainingName - Remaining name of the object.
+        Context - Pointer to an Open Packet (OP) from NtCreateFile service.
+        SecurityQos - Optional security quality of service indicator.
+        Object - The address of a variable to receive the created file object, if any.
+    Return Value:
+        The function return value is one of the following:
+            a)  Success - This indicates that the function succeeded and the object parameter contains the address of the created file object.
+            b)  Error - This indicates that the file was not found or created and no file object was created.
+            c)  Reparse - This indicates that the remaining name string has been replaced by a new name that is to be parsed.
+    */
 {
     PIRP irp;
     PIO_STACK_LOCATION irpSp;
@@ -404,8 +404,8 @@ reparse_loop:
             // Traverse checking only needs to be done if the device being traversed is a disk, or if the caller does not already have traverse checking privilege.
             // Note that the former case is so that an administrator can turn off access to the "system
             // partition", or someone would be able to install a trojan horse into the system by simply replacing one of the files there with something of their own.
-            if (!(AccessState->Flags & TOKEN_HAS_TRAVERSE_PRIVILEGE) || 
-                parseDeviceObject->DeviceType == FILE_DEVICE_DISK || 
+            if (!(AccessState->Flags & TOKEN_HAS_TRAVERSE_PRIVILEGE) ||
+                parseDeviceObject->DeviceType == FILE_DEVICE_DISK ||
                 parseDeviceObject->DeviceType == FILE_DEVICE_CD_ROM) {
                 KeEnterCriticalRegionThread(&CurrentThread->Tcb);
                 ExAcquireResourceSharedLite(&IopSecurityResource, TRUE);
@@ -493,7 +493,7 @@ reparse_loop:
         deviceObject = (PDEVICE_OBJECT)ParseObject;
         if (op->RelatedFileObject->Vpb) {
             vpb = op->RelatedFileObject->Vpb;
-            IopInterlockedIncrementUlong(LockQueueIoVpbLock, (PLONG)&vpb->ReferenceCount);//Synchronize here with the file system to make sure that volumes don't go away while en route to the FS.
+            IopInterlockedIncrementUlong(LockQueueIoVpbLock, (PLONG)& vpb->ReferenceCount);//Synchronize here with the file system to make sure that volumes don't go away while en route to the FS.
         }
 
         if (op->InternalFlags & IOP_CREATE_USE_TOP_DEVICE_OBJECT_HINT) {
@@ -677,7 +677,7 @@ reparse_loop:
             fileObjectSize = sizeof(FILE_OBJECT);
         }
 
-        status = ObCreateObject(KernelMode, IoFileObjectType, &objectAttributes, AccessMode, (PVOID)NULL, fileObjectSize, 0, 0, (PVOID *)&fileObject);
+        status = ObCreateObject(KernelMode, IoFileObjectType, &objectAttributes, AccessMode, (PVOID)NULL, fileObjectSize, 0, 0, (PVOID*)& fileObject);
         if (!NT_SUCCESS(status)) {
             IoFreeIrp(irp);
             IopDecrementDeviceObjectRef(parseDeviceObject, FALSE, FALSE);
@@ -737,7 +737,7 @@ reparse_loop:
         // and then operating on it.
         localFileObject = op->LocalFileObject;
         RtlZeroMemory(localFileObject, sizeof(DUMMY_FILE_OBJECT));
-        fileObject = (PFILE_OBJECT)&localFileObject->ObjectHeader.Body;
+        fileObject = (PFILE_OBJECT)& localFileObject->ObjectHeader.Body;
         localFileObject->ObjectHeader.Type = IoFileObjectType;
         localFileObject->ObjectHeader.PointerCount = 1;
     }
@@ -845,19 +845,19 @@ reparse_loop:
 
     // One of four things may have happened when the driver was invoked:
     //    1.  The I/O operation is pending (Status == STATUS_PENDING).  
-	//        This can occur on devices which need to perform some sort of device manipulation (such as opening a file for a file system).
+    //        This can occur on devices which need to perform some sort of device manipulation (such as opening a file for a file system).
     //    2.  The driver returned an error (Status < 0). 
-	//        This occurs when either a supplied parameter was in error, or the device or file system incurred or discovered an error.
+    //        This occurs when either a supplied parameter was in error, or the device or file system incurred or discovered an error.
     //    3.  The operation ended in a reparse (Status == STATUS_REPARSE). 
-	//        This occurs when a file system opens the file, only to discover that it represents a symbolic link.
+    //        This occurs when a file system opens the file, only to discover that it represents a symbolic link.
     //    4.  The operation is complete and was successful (Status == STATUS_SUCCESS). 
-	//        Note that for this case the only action is to return a pointer to the file object.
+    //        Note that for this case the only action is to return a pointer to the file object.
     if (status == STATUS_PENDING) {
         (VOID)KeWaitForSingleObject(&fileObject->Event, Executive, KernelMode, FALSE, (PLARGE_INTEGER)NULL);
         status = ioStatus.Status;
     } else {
         // The I/O operation was completed without returning a status of pending. 
-		// This means that at this point, the IRP has not been fully completed.  Complete it now.
+        // This means that at this point, the IRP has not been fully completed.  Complete it now.
 
         KIRQL irql;
 
@@ -979,7 +979,7 @@ reparse_loop:
             // If we are reparsing to verify a volume, restart the reparse by attempting to parse the device once again.
             // Note that it would be best to simply recurse, but it's not possible since
             // there is a limited amount of stack available to kernel mode and 
-			// a limit needs to be enforced for the number of times that verify reparse can occur.
+            // a limit needs to be enforced for the number of times that verify reparse can occur.
             if (++retryCount > IO_MAX_REMOUNT_REPARSE_ATTEMPTS) {
                 return STATUS_UNSUCCESSFUL;
             }
@@ -998,7 +998,7 @@ reparse_loop:
             // If they do then we would skip the security check as override is true.
             // To catch that case we bugcheck here.
             if (op->Override) {
-                KeBugCheckEx(DRIVER_RETURNED_STATUS_REPARSE_FOR_VOLUME_OPEN, 
+                KeBugCheckEx(DRIVER_RETURNED_STATUS_REPARSE_FOR_VOLUME_OPEN,
                     (ULONG_PTR)parseDeviceObject,
                              (ULONG_PTR)deviceObject,
                              (ULONG_PTR)CompleteName,
@@ -1028,7 +1028,7 @@ reparse_loop:
             // So check for a difference in VPB as well.
             if (newVpb != vpb) {
                 if (newVpb) {
-                    IopInterlockedIncrementUlong(LockQueueIoVpbLock, (PLONG)&newVpb->ReferenceCount);
+                    IopInterlockedIncrementUlong(LockQueueIoVpbLock, (PLONG)& newVpb->ReferenceCount);
                 }
 
                 if (vpb) {
@@ -1106,10 +1106,10 @@ reparse_loop:
                     if (fastIoDispatch &&
                         fastIoDispatch->SizeOfFastIoDispatch > FIELD_OFFSET(FAST_IO_DISPATCH, FastIoQueryNetworkOpenInfo) &&
                         fastIoDispatch->FastIoQueryNetworkOpenInfo) {
-                        queryResult = fastIoDispatch->FastIoQueryNetworkOpenInfo(fileObject, 
-                                                                                 TRUE, 
+                        queryResult = fastIoDispatch->FastIoQueryNetworkOpenInfo(fileObject,
+                                                                                 TRUE,
                                                                                  op->NetworkInformation,
-                                                                                 &ioStatus, 
+                                                                                 &ioStatus,
                                                                                  deviceObjectThatOpenedFile);
                     }
                     if (!queryResult) {
@@ -1118,7 +1118,7 @@ reparse_loop:
                         status = IoQueryFileInformation(fileObject,
                                                         FileNetworkOpenInformation,
                                                         sizeof(FILE_NETWORK_OPEN_INFORMATION),
-                                                        op->NetworkInformation, 
+                                                        op->NetworkInformation,
                                                         &returnedLength);
                         if (!NT_SUCCESS(status)) {
                             if (status == STATUS_INVALID_PARAMETER || status == STATUS_NOT_IMPLEMENTED) {
@@ -1196,7 +1196,7 @@ NTSTATUS IopParseFile(
     IN OUT PUNICODE_STRING RemainingName,
     IN OUT PVOID Context OPTIONAL,
     IN PSECURITY_QUALITY_OF_SERVICE SecurityQos OPTIONAL,
-    OUT PVOID *Object
+    OUT PVOID* Object
 )
 /*
 Routine Description:
@@ -1250,19 +1250,19 @@ NTSTATUS IopQueryNameInternal(IN PVOID Object,
                               IN ULONG Length,
                               OUT PULONG ReturnLength,
                               IN KPROCESSOR_MODE  Mode)
-/*
-Routine Description:
-    This function implements the query name procedure for the Object Manager for querying the names of file objects.
-Arguments:
-    Object - Pointer to the file object whose name is to be retrieved.
-    HasObjectName - Indicates whether or not the object has a name.
-    UseDosDeviceName - Indicates whether to translate the device object part of the fileobject into the dosdevice name space or the regular \device namespace via ob
-    ObjectNameInfo - Buffer in which to return the name.
-    Length - Specifies the length of the output buffer, in bytes.
-    ReturnLength - Specifies the number of bytes actually returned in the output buffer or the number of bytes needed if Length is smaller than needed.
-Return Value:
-    The function return value is the final status of the query operation.
-*/
+    /*
+    Routine Description:
+        This function implements the query name procedure for the Object Manager for querying the names of file objects.
+    Arguments:
+        Object - Pointer to the file object whose name is to be retrieved.
+        HasObjectName - Indicates whether or not the object has a name.
+        UseDosDeviceName - Indicates whether to translate the device object part of the fileobject into the dosdevice name space or the regular \device namespace via ob
+        ObjectNameInfo - Buffer in which to return the name.
+        Length - Specifies the length of the output buffer, in bytes.
+        ReturnLength - Specifies the number of bytes actually returned in the output buffer or the number of bytes needed if Length is smaller than needed.
+    Return Value:
+        The function return value is the final status of the query operation.
+    */
 {
     NTSTATUS status;
     ULONG lengthNeeded;
@@ -1403,9 +1403,9 @@ Return Value:
         // If an error occurred attempting to obtain the filename return now.
         // Note that buffer overflow is a warning, not an error.
         if (NT_ERROR(status)) {
-            if (status == STATUS_INVALID_PARAMETER || 
-                status == STATUS_INVALID_DEVICE_REQUEST || 
-                status == STATUS_NOT_IMPLEMENTED || 
+            if (status == STATUS_INVALID_PARAMETER ||
+                status == STATUS_INVALID_DEVICE_REQUEST ||
+                status == STATUS_NOT_IMPLEMENTED ||
                 status == STATUS_INVALID_INFO_CLASS) {
                 lengthNeeded = FIELD_OFFSET(FILE_NAME_INFORMATION, FileName);
                 fileNameInfo->FileNameLength = 0;
@@ -1470,22 +1470,22 @@ Return Value:
 NTSTATUS IopQueryName(IN PVOID Object,
                       IN BOOLEAN HasObjectName,
                       OUT POBJECT_NAME_INFORMATION ObjectNameInfo,
-                      IN ULONG Length, 
+                      IN ULONG Length,
                       OUT PULONG ReturnLength,
                       IN KPROCESSOR_MODE Mode)
-/*
-Routine Description:
-    This function implements the query name procedure for the Object Manager for querying the names of file objects.
-Arguments:
-    Object - Pointer to the file object whose name is to be retrieved.
-    HasObjectName - Indicates whether or not the object has a name.
-    ObjectNameInfo - Buffer in which to return the name.
-    Length - Specifies the length of the output buffer, in bytes.
-    ReturnLength - Specifies the number of bytes actually returned in the output buffer.
-    Mode = Processor mode of the caller
-Return Value:
-    The function return value is the final status of the query operation.
-*/
+    /*
+    Routine Description:
+        This function implements the query name procedure for the Object Manager for querying the names of file objects.
+    Arguments:
+        Object - Pointer to the file object whose name is to be retrieved.
+        HasObjectName - Indicates whether or not the object has a name.
+        ObjectNameInfo - Buffer in which to return the name.
+        Length - Specifies the length of the output buffer, in bytes.
+        ReturnLength - Specifies the number of bytes actually returned in the output buffer.
+        Mode = Processor mode of the caller
+    Return Value:
+        The function return value is the final status of the query operation.
+    */
 {
     UNREFERENCED_PARAMETER(Mode);
 
@@ -1493,26 +1493,26 @@ Return Value:
 }
 
 
-VOID IopCheckBackupRestorePrivilege(IN PACCESS_STATE AccessState, 
+VOID IopCheckBackupRestorePrivilege(IN PACCESS_STATE AccessState,
                                     IN OUT PULONG CreateOptions,
-                                    IN KPROCESSOR_MODE PreviousMode, 
+                                    IN KPROCESSOR_MODE PreviousMode,
                                     IN ULONG Disposition)
-/*
-Routine Description:
-    This function will determine if the caller is asking for any accesses that may be satisfied by Backup or Restore privileges,
-    and if so, perform the privilege checks.
-    If the privilege checks succeed, then the appropriate bits will be moved out of the RemainingDesiredAccess field in the AccessState structure and placed into the PreviouslyGrantedAccess field.
+    /*
+    Routine Description:
+        This function will determine if the caller is asking for any accesses that may be satisfied by Backup or Restore privileges,
+        and if so, perform the privilege checks.
+        If the privilege checks succeed, then the appropriate bits will be moved out of the RemainingDesiredAccess field in the AccessState structure and placed into the PreviouslyGrantedAccess field.
 
-    Note that access is not denied if the caller does not have either or both of the privileges,
-    since he may be granted the desired access via the security descriptor on the object.
+        Note that access is not denied if the caller does not have either or both of the privileges,
+        since he may be granted the desired access via the security descriptor on the object.
 
-    This routine will also set a flag in the AccessState structure so that it will not perform these privilege checks again in case we come through this way again due to a reparse.
-Arguments:
-    AccessState - The AccessState containing the current state of this access attempt.
-    CreateOptions - The CreateOptions field from the OPEN_PACKET structure for this open attempt.
-    PreviousMode - The processor mode to be used in checking parameters.
-    Disposition - The create disposition for this request.
-*/
+        This routine will also set a flag in the AccessState structure so that it will not perform these privilege checks again in case we come through this way again due to a reparse.
+    Arguments:
+        AccessState - The AccessState containing the current state of this access attempt.
+        CreateOptions - The CreateOptions field from the OPEN_PACKET structure for this open attempt.
+        PreviousMode - The processor mode to be used in checking parameters.
+        Disposition - The create disposition for this request.
+    */
 {
     ACCESS_MASK desiredAccess;
     ACCESS_MASK readAccess;

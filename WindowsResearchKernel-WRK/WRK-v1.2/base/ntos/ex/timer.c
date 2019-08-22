@@ -26,7 +26,7 @@ typedef struct _ETIMER
     BOOLEAN ApcAssociated;
     BOOLEAN WakeTimer;
     LIST_ENTRY WakeTimerListEntry;
-} ETIMER, *PETIMER;
+} ETIMER, * PETIMER;
 
 // List of all timers which are set to wake.
 KSPIN_LOCK ExpWakeTimerListLock;
@@ -57,7 +57,7 @@ const GENERIC_MAPPING ExpTimerMapping = {
 #pragma alloc_text(PAGELK, ExGetNextWakeTime)
 
 
-VOID ExpTimerApcRoutine(IN PKAPC Apc, IN PKNORMAL_ROUTINE *NormalRoutine, IN PVOID *NormalContext, IN PVOID *SystemArgument1, IN PVOID *SystemArgument2)
+VOID ExpTimerApcRoutine(IN PKAPC Apc, IN PKNORMAL_ROUTINE* NormalRoutine, IN PVOID* NormalContext, IN PVOID* SystemArgument1, IN PVOID* SystemArgument2)
 /*
 Routine Description:
     This function is the special APC routine that is called to remove a timer from the current thread's active timer list.
@@ -709,7 +709,7 @@ NTSTATUS NtSetTimer(
 }
 
 
-VOID ExGetNextWakeTime(OUT PULONGLONG DueTime, OUT PTIME_FIELDS TimeFields, OUT PVOID *TimerObject)
+VOID ExGetNextWakeTime(OUT PULONGLONG DueTime, OUT PTIME_FIELDS TimeFields, OUT PVOID* TimerObject)
 {
     ULONGLONG BestDueTime;
     LARGE_INTEGER CmosTime;

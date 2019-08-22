@@ -264,7 +264,7 @@ Arguments:
         }
 
         // On IopDeleteFile path the lock should always be ours as there should be no one else using this object.
-        ASSERT(!(fileObject->Flags & FO_SYNCHRONOUS_IO) || (InterlockedExchange((PLONG)&fileObject->Busy, (ULONG)TRUE) == FALSE));
+        ASSERT(!(fileObject->Flags & FO_SYNCHRONOUS_IO) || (InterlockedExchange((PLONG)& fileObject->Busy, (ULONG)TRUE) == FALSE));
 
         // If this file has never had a file handle created for it, and yet it exists, 
         // invoke the close file procedure so that the file system gets the cleanup IRP it is expecting before sending the close IRP.
@@ -310,7 +310,7 @@ Arguments:
         vpb = fileObject->Vpb;
 
         if (vpb && !(fileObject->Flags & FO_DIRECT_DEVICE_OPEN)) {
-            IopInterlockedDecrementUlong(LockQueueIoVpbLock, (PLONG)&vpb->ReferenceCount);
+            IopInterlockedDecrementUlong(LockQueueIoVpbLock, (PLONG)& vpb->ReferenceCount);
 
             // Bump the handle count of the filesystem volume device object.
             // This will prevent the filesystem filter stack from being torn down until after the close IRP completes.
@@ -655,7 +655,7 @@ NTSTATUS IopGetSetSecurityObject(
     IN PSECURITY_INFORMATION SecurityInformation,
     IN OUT PSECURITY_DESCRIPTOR SecurityDescriptor,
     IN OUT PULONG CapturedLength,
-    IN OUT PSECURITY_DESCRIPTOR *ObjectsSecurityDescriptor,
+    IN OUT PSECURITY_DESCRIPTOR* ObjectsSecurityDescriptor,
     IN POOL_TYPE PoolType,
     IN PGENERIC_MAPPING GenericMapping
 )

@@ -52,7 +52,7 @@ typedef struct _REAL_NOTIFY_SYNC
     FAST_MUTEX FastMutex;
     ERESOURCE_THREAD OwningThread;
     ULONG OwnerCount;
-} REAL_NOTIFY_SYNC, *PREAL_NOTIFY_SYNC;
+} REAL_NOTIFY_SYNC, * PREAL_NOTIFY_SYNC;
 
 //  A list of the following structures is used to store the NotifyChange requests.  They are linked to a filesystem-defined list head.
 typedef struct _NOTIFY_CHANGE
@@ -134,7 +134,7 @@ typedef struct _NOTIFY_CHANGE
 
     //  This is the process on whose behalf the structure was allocated.  We charge any quota to this process.
     PEPROCESS OwningProcess;
-} NOTIFY_CHANGE, *PNOTIFY_CHANGE;
+} NOTIFY_CHANGE, * PNOTIFY_CHANGE;
 
 #define NOTIFY_WATCH_TREE               (0x0001)
 #define NOTIFY_IMMEDIATE_NOTIFY         (0x0002)
@@ -223,7 +223,7 @@ VOID FsRtlCheckNotifyForDelete(IN PLIST_ENTRY NotifyListHead, IN PVOID FsContext
 #endif
 
 
-NTKERNELAPI VOID FsRtlNotifyInitializeSync(__in PNOTIFY_SYNC *NotifySync)
+NTKERNELAPI VOID FsRtlNotifyInitializeSync(__in PNOTIFY_SYNC* NotifySync)
 /*
 Routine Description:
     This routine is called to allocate and initialize the synchronization object for this notify list.
@@ -253,7 +253,7 @@ Arguments:
 }
 
 
-NTKERNELAPI VOID FsRtlNotifyUninitializeSync(__in PNOTIFY_SYNC *NotifySync)
+NTKERNELAPI VOID FsRtlNotifyUninitializeSync(__in PNOTIFY_SYNC* NotifySync)
 /*
 Routine Description:
     This routine is called to uninitialize the synchronization object for this notify list.
@@ -561,7 +561,7 @@ Arguments:
         IoMarkIrpPending(NotifyIrp);
         InsertTailList(&Notify->NotifyIrps, &NotifyIrp->Tail.Overlay.ListEntry);
 
-        InterlockedIncrement((PLONG)&Notify->ReferenceCount);//  Increment the reference count to indicate that Irp might go through cancel.
+        InterlockedIncrement((PLONG)& Notify->ReferenceCount);//  Increment the reference count to indicate that Irp might go through cancel.
         FsRtlNotifySetCancelRoutine(NotifyIrp, NULL);//  Call the routine to set the cancel routine.
 
     try_exit:  NOTHING;
@@ -1167,7 +1167,7 @@ Arguments:
             Notify->NotifyList.Flink = NULL;
 #endif
 
-            InterlockedDecrement((PLONG)&Notify->ReferenceCount);
+            InterlockedDecrement((PLONG)& Notify->ReferenceCount);
 
             if (Notify->ReferenceCount == 0) {
                 if (Notify->AllocatedBuffer != NULL) {
@@ -1351,7 +1351,7 @@ Return Value:
 
         //  If the current cancel routine is non-NULL then decrement the reference count in the Notify.
         if (CurrentCancel != NULL) {
-            InterlockedDecrement((PLONG)&Notify->ReferenceCount);
+            InterlockedDecrement((PLONG)& Notify->ReferenceCount);
             ClearedCancel = TRUE;
         }
 
@@ -1634,7 +1634,7 @@ Arguments:
         FsRtlCompleteRequest(ThisIrp, STATUS_CANCELLED);//  Complete the Irp with status cancelled.
 
         //  Decrement the count of Irps that might go through the cancel path.
-        InterlockedDecrement((PLONG)&Notify->ReferenceCount);
+        InterlockedDecrement((PLONG)& Notify->ReferenceCount);
         if (Notify->ReferenceCount == 0) {
             if (Notify->AllocatedBuffer != NULL) {
                 PsReturnProcessPagedPoolQuota(Notify->OwningProcess, Notify->ThisBufferLength);

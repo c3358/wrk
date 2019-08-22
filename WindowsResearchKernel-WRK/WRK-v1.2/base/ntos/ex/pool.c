@@ -450,7 +450,7 @@ typedef struct _EX_FREE_POOL_TRACES
     PVOID PoolAddress;
     POOL_HEADER PoolHeader;
     PVOID StackTrace[EX_FREE_POOL_BACKTRACE_LENGTH];
-} EX_FREE_POOL_TRACES, *PEX_FREE_POOL_TRACES;
+} EX_FREE_POOL_TRACES, * PEX_FREE_POOL_TRACES;
 
 LONG ExFreePoolIndex;
 LONG ExFreePoolMask = 0x4000 - 1;
@@ -937,10 +937,10 @@ Environment:
         if (TrackTableEntry->Key == Key) {
             // Update the fields with interlocked operations as other threads may also have begun doing so by this point.
             if ((PoolType & BASE_POOL_TYPE_MASK) == PagedPool) {
-                InterlockedIncrement((PLONG)&TrackTableEntry->PagedAllocs);
+                InterlockedIncrement((PLONG)& TrackTableEntry->PagedAllocs);
                 InterlockedExchangeAddSizeT(&TrackTableEntry->PagedBytes, NumberOfBytes);
             } else {
-                InterlockedIncrement((PLONG)&TrackTableEntry->NonPagedAllocs);
+                InterlockedIncrement((PLONG)& TrackTableEntry->NonPagedAllocs);
                 InterlockedExchangeAddSizeT(&TrackTableEntry->NonPagedBytes, NumberOfBytes);
             }
 
@@ -955,7 +955,7 @@ Environment:
                         break;
                     }
                 } else {
-                    OriginalKey = InterlockedCompareExchange((PLONG)&TrackTable[Hash].Key, (LONG)Key, 0);
+                    OriginalKey = InterlockedCompareExchange((PLONG)& TrackTable[Hash].Key, (LONG)Key, 0);
                 }
 
                 // Either this thread has won the race and the requested tag is now in or some other thread won the race and took this slot (using this tag or a different one).
@@ -1053,10 +1053,10 @@ Arguments:
         TrackTableEntry = &TrackTable[Hash];
         if (TrackTableEntry->Key == Key) {
             if ((PoolType & BASE_POOL_TYPE_MASK) == PagedPool) {
-                InterlockedIncrement((PLONG)&TrackTableEntry->PagedFrees);
+                InterlockedIncrement((PLONG)& TrackTableEntry->PagedFrees);
                 InterlockedExchangeAddSizeT(&TrackTableEntry->PagedBytes, 0 - NumberOfBytes);
             } else {
-                InterlockedIncrement((PLONG)&TrackTableEntry->NonPagedFrees);
+                InterlockedIncrement((PLONG)& TrackTableEntry->NonPagedFrees);
                 InterlockedExchangeAddSizeT(&TrackTableEntry->NonPagedBytes, 0 - NumberOfBytes);
             }
             return;
@@ -1228,9 +1228,9 @@ Return Value:
         }
 
         NumberOfPages = (ULONG)BYTES_TO_PAGES(NumberOfBytes);
-        InterlockedExchangeAdd((PLONG)&PoolDesc->TotalBigPages, (LONG)NumberOfPages);
+        InterlockedExchangeAdd((PLONG)& PoolDesc->TotalBigPages, (LONG)NumberOfPages);
         InterlockedExchangeAddSizeT(&PoolDesc->TotalBytes, (SIZE_T)NumberOfPages << PAGE_SHIFT);
-        InterlockedIncrement((PLONG)&PoolDesc->RunningAllocs);
+        InterlockedIncrement((PLONG)& PoolDesc->RunningAllocs);
 
         // Mark the allocation as session-based so that when it is freed we can detect that the session pool descriptor is the one to be credited
         // (not the global nonpaged descriptor).
@@ -1530,7 +1530,7 @@ restart2:
             Entry->PoolType = (UCHAR)(((PoolType & (BASE_POOL_TYPE_MASK | POOL_QUOTA_MASK | SESSION_POOL_MASK | POOL_VERIFIER_MASK)) + 1) | POOL_IN_USE_MASK);
             CHECK_POOL_PAGE(Entry);
             UNLOCK_POOL(PoolDesc, LockHandle);
-            InterlockedIncrement((PLONG)&PoolDesc->RunningAllocs);
+            InterlockedIncrement((PLONG)& PoolDesc->RunningAllocs);
             InterlockedExchangeAddSizeT(&PoolDesc->TotalBytes, Entry->BlockSize << POOL_BLOCK_SHIFT);
             Entry->PoolTag = Tag;
             ExpInsertPoolTrackerInline(Tag, Entry->BlockSize << POOL_BLOCK_SHIFT, PoolType);
@@ -1602,7 +1602,7 @@ restart2:
 
     // The individual pool tracking by tag, however, is critical and is properly maintained below (ie: session allocations are charged
     // to the session tracking table and regular nonpaged allocations are charged to the global nonpaged tracking table).
-    InterlockedIncrement((PLONG)&PoolDesc->TotalPages);
+    InterlockedIncrement((PLONG)& PoolDesc->TotalPages);
     NeededSize <<= POOL_BLOCK_SHIFT;
     InterlockedExchangeAddSizeT(&PoolDesc->TotalBytes, NeededSize);
     PERFINFO_ADDPOOLPAGE(CheckType, PoolIndex, Entry, PoolDesc);
@@ -1621,7 +1621,7 @@ restart2:
         CHECK_POOL_PAGE(Entry);
     }
 
-    InterlockedIncrement((PLONG)&PoolDesc->RunningAllocs);
+    InterlockedIncrement((PLONG)& PoolDesc->RunningAllocs);
     Block = (PVOID)((PCHAR)Entry + CacheOverhead);
     Entry->PoolTag = Tag;
     ExpInsertPoolTrackerInline(Tag, NeededSize, PoolType);
@@ -1676,7 +1676,7 @@ Routine Description:
     This function allocates a block of pool of the specified type and returns a pointer to the allocated block.
     This function is used to access both the page-aligned pools, and the list head entries (less than a page) pools.
 
-    If the number of bytes specifies a size that is too large to be satisfied by the appropriate list, 
+    If the number of bytes specifies a size that is too large to be satisfied by the appropriate list,
     then the page-aligned pool allocator is used.
     The allocated block will be page-aligned and a page-sized multiple.
 
@@ -1690,7 +1690,7 @@ Routine Description:
 
 Arguments:
     PoolType - Supplies the type of pool to allocate.
-        If the pool type is one of the "MustSucceed" pool types, 
+        If the pool type is one of the "MustSucceed" pool types,
         then this call will succeed and return a pointer to allocated pool or bugcheck on failure.
         For all other cases, if the system cannot allocate the requested amount of memory, NULL is returned.
 
@@ -1704,7 +1704,7 @@ Arguments:
 
     NumberOfBytes - Supplies the number of bytes to allocate.
     Tag - Supplies the caller's identifying tag.
-    Priority - Supplies an indication as to how important it is that this request succeed under low available pool conditions. 
+    Priority - Supplies an indication as to how important it is that this request succeed under low available pool conditions.
                This can also be used to specify special pool.
 Return Value:
     NULL - The PoolType is not one of the "MustSucceed" pool types, and not enough pool exists to satisfy the request.
@@ -1848,7 +1848,7 @@ FORCEINLINE PEPROCESS ExpGetBilledProcess(IN PPOOL_HEADER Entry)
 #if defined(_WIN64)
     ProcessBilled = Entry->ProcessBilled;
 #else
-    ProcessBilled = *(PVOID *)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID));
+    ProcessBilled = *(PVOID*)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID));
 #endif
 
     if (ProcessBilled != NULL) {
@@ -1881,7 +1881,7 @@ Routine Description:
     Otherwise, the pool is deallocated, a "quota exceeded" condition is raised.
 Arguments:
     PoolType - Supplies the type of pool to allocate.
-        If the pool type is one of the "MustSucceed" pool types and sufficient quota exists, 
+        If the pool type is one of the "MustSucceed" pool types and sufficient quota exists,
         then this call will always succeed and return a pointer to allocated pool.
         Otherwise, if the system cannot allocate the requested amount of memory a STATUS_INSUFFICIENT_RESOURCES status is raised.
     NumberOfBytes - Supplies the number of bytes to allocate.
@@ -1951,7 +1951,7 @@ Return Value:
                 // The quota flag cannot be blindly cleared in NT32 because it's used to denote the allocation is larger (and the verifier finds its own header based on this).
 
                 // Instead of clearing the flag above, instead zero the quota pointer.
-                * (PVOID *)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID)) = NULL;
+                * (PVOID*)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID)) = NULL;
 #endif
 
                 ExFreePoolWithTag(p, Tag);
@@ -1971,7 +1971,7 @@ Return Value:
 #if defined(_WIN64)
             Entry->ProcessBilled = Process;
 #else
-            * (PVOID *)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID)) = Process;
+            * (PVOID*)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID)) = Process;
 #endif
             ObReferenceObject(Process);
         }
@@ -2159,10 +2159,10 @@ Environment:
 
         // Update the fields with interlocked operations as other threads may also have begun doing so by this point.
         if ((PoolType & BASE_POOL_TYPE_MASK) == PagedPool) {
-            InterlockedIncrement((PLONG)&NewTable->PagedAllocs);
+            InterlockedIncrement((PLONG)& NewTable->PagedAllocs);
             InterlockedExchangeAddSizeT(&NewTable->PagedBytes, NumberOfBytes);
         } else {
-            InterlockedIncrement((PLONG)&NewTable->NonPagedAllocs);
+            InterlockedIncrement((PLONG)& NewTable->NonPagedAllocs);
             InterlockedExchangeAddSizeT(&NewTable->NonPagedBytes, NumberOfBytes);
         }
         return;
@@ -2209,10 +2209,10 @@ Environment:
 
         // Update the fields with interlocked operations as other threads may also have begun doing so by this point.
         if ((PoolType & BASE_POOL_TYPE_MASK) == PagedPool) {
-            InterlockedIncrement((PLONG)&PoolTrackTable[Hash].PagedAllocs);
+            InterlockedIncrement((PLONG)& PoolTrackTable[Hash].PagedAllocs);
             InterlockedExchangeAddSizeT(&PoolTrackTable[Hash].PagedBytes, NumberOfBytes);
         } else {
-            InterlockedIncrement((PLONG)&PoolTrackTable[Hash].NonPagedAllocs);
+            InterlockedIncrement((PLONG)& PoolTrackTable[Hash].NonPagedAllocs);
             InterlockedExchangeAddSizeT(&PoolTrackTable[Hash].NonPagedBytes, NumberOfBytes);
 
         }
@@ -2261,10 +2261,10 @@ Environment:
 
         // Update the fields with interlocked operations as other threads may also have begun doing so by this point.
         if ((PoolType & BASE_POOL_TYPE_MASK) == PagedPool) {
-            InterlockedIncrement((PLONG)&PoolTrackTable[Hash].PagedAllocs);
+            InterlockedIncrement((PLONG)& PoolTrackTable[Hash].PagedAllocs);
             InterlockedExchangeAddSizeT(&PoolTrackTable[Hash].PagedBytes, NumberOfBytes);
         } else {
-            InterlockedIncrement((PLONG)&PoolTrackTable[Hash].NonPagedAllocs);
+            InterlockedIncrement((PLONG)& PoolTrackTable[Hash].NonPagedAllocs);
             InterlockedExchangeAddSizeT(&PoolTrackTable[Hash].NonPagedBytes, NumberOfBytes);
         }
     }
@@ -2355,14 +2355,14 @@ OverflowEntry:
         ASSERT(TrackTable[Hash].PagedAllocs != 0);
         ASSERT(TrackTable[Hash].PagedBytes >= NumberOfBytes);
 #endif
-        InterlockedIncrement((PLONG)&TrackTable[Hash].PagedFrees);
+        InterlockedIncrement((PLONG)& TrackTable[Hash].PagedFrees);
         InterlockedExchangeAddSizeT(&TrackTable[Hash].PagedBytes, 0 - NumberOfBytes);
     } else {
 #if defined (NT_UP)
         ASSERT(TrackTable[Hash].NonPagedAllocs != 0);
         ASSERT(TrackTable[Hash].NonPagedBytes >= NumberOfBytes);
 #endif
-        InterlockedIncrement((PLONG)&TrackTable[Hash].NonPagedFrees);
+        InterlockedIncrement((PLONG)& TrackTable[Hash].NonPagedFrees);
         InterlockedExchangeAddSizeT(&TrackTable[Hash].NonPagedBytes, 0 - NumberOfBytes);
     }
 }
@@ -2496,7 +2496,7 @@ Environment:
         EntryEnd = &ExpSessionPoolBigPageTable[TableSize];
         do {
             OldVa = Entry->Va;
-            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) && 
+            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) &&
                 (InterlockedCompareExchangePointer(&Entry->Va, Va, OldVa) == OldVa)) {
                 Entry->Key = Key;
                 Entry->NumberOfPages = NumberOfPages;
@@ -2528,7 +2528,7 @@ Environment:
         EntryEnd = &PoolBigPageTable[TableSize];
         do {
             OldVa = Entry->Va;
-            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) && 
+            if (((ULONG_PTR)OldVa & POOL_BIG_TABLE_ENTRY_FREE) &&
                 (InterlockedCompareExchangePointer(&Entry->Va, Va, OldVa) == OldVa)) {
                 Entry->Key = Key;
                 Entry->NumberOfPages = NumberOfPages;
@@ -2607,7 +2607,7 @@ Environment:
             if (ExpSessionPoolBigPageTable[Hash].Va == Va) {
                 *BigPages = ExpSessionPoolBigPageTable[Hash].NumberOfPages;
                 ReturnKey = ExpSessionPoolBigPageTable[Hash].Key;
-                InterlockedOr((PLONG)&ExpSessionPoolBigPageTable[Hash].Va, POOL_BIG_TABLE_ENTRY_FREE);
+                InterlockedOr((PLONG)& ExpSessionPoolBigPageTable[Hash].Va, POOL_BIG_TABLE_ENTRY_FREE);
                 return ReturnKey;
             }
 
@@ -2647,9 +2647,9 @@ Environment:
     InterlockedDecrement(&ExpPoolBigEntriesInUse);
 
 #if defined(_WIN64)
-    InterlockedIncrement64((PLONGLONG)&Entry->Va);
+    InterlockedIncrement64((PLONGLONG)& Entry->Va);
 #else
-    InterlockedIncrement((PLONG)&Entry->Va);
+    InterlockedIncrement((PLONG)& Entry->Va);
 #endif
 
     ExReleaseSpinLockShared(&ExpLargePoolTableLock, OldIrql);
@@ -2660,7 +2660,7 @@ Environment:
 VOID ExFreePoolWithTag(__in PVOID P, __in ULONG TagToFree)
 /*
 Routine Description:
-    This function deallocates a block of pool. 
+    This function deallocates a block of pool.
     This function is used to deallocate to both the page aligned pools and the buddy (less than a page) pools.
 
     If the address of the block being deallocated is page-aligned, then the page-aligned pool deallocator is used.
@@ -2701,7 +2701,7 @@ Arguments:
     if (ExpPoolFlags & (EX_CHECK_POOL_FREES_FOR_ACTIVE_TIMERS |
                         EX_CHECK_POOL_FREES_FOR_ACTIVE_WORKERS |
                         EX_CHECK_POOL_FREES_FOR_ACTIVE_RESOURCES |
-                        EX_KERNEL_VERIFIER_ENABLED | 
+                        EX_KERNEL_VERIFIER_ENABLED |
                         EX_VERIFIER_DEADLOCK_DETECTION_ENABLED |
                         EX_SPECIAL_POOL_ENABLED)) {
         if (ExpPoolFlags & EX_SPECIAL_POOL_ENABLED) {
@@ -2808,10 +2808,10 @@ Arguments:
 
         NumberOfBytes = (SIZE_T)BigPages << PAGE_SHIFT;
         ExpRemovePoolTracker(Tag, NumberOfBytes, PoolType);
-        if (ExpPoolFlags & 
+        if (ExpPoolFlags &
             (EX_CHECK_POOL_FREES_FOR_ACTIVE_TIMERS |
-             EX_CHECK_POOL_FREES_FOR_ACTIVE_WORKERS | 
-             EX_CHECK_POOL_FREES_FOR_ACTIVE_RESOURCES | 
+             EX_CHECK_POOL_FREES_FOR_ACTIVE_WORKERS |
+             EX_CHECK_POOL_FREES_FOR_ACTIVE_RESOURCES |
              EX_VERIFIER_DEADLOCK_DETECTION_ENABLED)) {
             if (ExpPoolFlags & EX_VERIFIER_DEADLOCK_DETECTION_ENABLED) {
                 VerifierDeadlockFreePool(P, NumberOfBytes);
@@ -2822,11 +2822,11 @@ Arguments:
             FREE_CHECK_WORKER(P, NumberOfBytes);// Search worker queues for work items still queued.
         }
 
-        InterlockedIncrement((PLONG)&PoolDesc->RunningDeAllocs);
+        InterlockedIncrement((PLONG)& PoolDesc->RunningDeAllocs);
         InterlockedExchangeAddSizeT(&PoolDesc->TotalBytes, 0 - NumberOfBytes);
         BigPages2 = MiFreePoolPages(P);
         ASSERT(BigPages == BigPages2);
-        InterlockedExchangeAdd((PLONG)&PoolDesc->TotalBigPages, (LONG)(0 - BigPages2));
+        InterlockedExchangeAdd((PLONG)& PoolDesc->TotalBigPages, (LONG)(0 - BigPages2));
         return;
     }
 
@@ -2988,7 +2988,7 @@ NoLookaside:
     Combined = FALSE;
     ASSERT(BlockSize == Entry->BlockSize);
     NextEntry = (PPOOL_HEADER)((PPOOL_BLOCK)Entry + BlockSize);
-    InterlockedIncrement((PLONG)&PoolDesc->RunningDeAllocs);
+    InterlockedIncrement((PLONG)& PoolDesc->RunningDeAllocs);
     InterlockedExchangeAddSizeT(&PoolDesc->TotalBytes, 0 - ((SIZE_T)BlockSize << POOL_BLOCK_SHIFT));
     LOCK_POOL(PoolDesc, LockHandle);
     CHECK_POOL_PAGE(Entry);
@@ -3038,7 +3038,7 @@ NoLookaside:
     // If the block being freed has been combined into a full page, then return the free page to memory management.
     if (PAGE_ALIGNED(Entry) && (PAGE_END((PPOOL_BLOCK)Entry + Entry->BlockSize) != FALSE)) {
         UNLOCK_POOL(PoolDesc, LockHandle);
-        InterlockedExchangeAdd((PLONG)&PoolDesc->TotalPages, (LONG)-1);
+        InterlockedExchangeAdd((PLONG)& PoolDesc->TotalPages, (LONG)-1);
         PERFINFO_FREEPOOLPAGE(CheckType, Entry->PoolIndex, Entry, PoolDesc);
         MiFreePoolPages(Entry);
     } else {
@@ -3128,7 +3128,7 @@ Environment:
             // Process the block.
             Combined = FALSE;
             CHECK_POOL_PAGE(Entry);
-            InterlockedIncrement((PLONG)&PoolDesc->RunningDeAllocs);
+            InterlockedIncrement((PLONG)& PoolDesc->RunningDeAllocs);
             InterlockedExchangeAddSizeT(&PoolDesc->TotalBytes, 0 - ((SIZE_T)Entry->BlockSize << POOL_BLOCK_SHIFT));
 
             // Free the specified pool block.
@@ -3222,7 +3222,7 @@ Environment:
         // If the pool type is paged pool, then the global paged pool mutex must be held during the free of the pool pages.
         // Hence any full pages were batched up and are now dealt with in one go.
         Entry = (PPOOL_HEADER)WholePages;
-        InterlockedExchangeAdd((PLONG)&PoolDesc->TotalPages, 0 - WholePageCount);
+        InterlockedExchangeAdd((PLONG)& PoolDesc->TotalPages, 0 - WholePageCount);
         do {
             NextEntry = (PPOOL_HEADER)(((PSINGLE_LIST_ENTRY)Entry)->Next);
             PERFINFO_FREEPOOLPAGE(CheckType, PoolIndex, Entry, PoolDesc);
@@ -3359,7 +3359,7 @@ Arguments:
 #if defined (_WIN64)
         Entry->PoolType &= ~POOL_QUOTA_MASK;// This flag cannot be cleared in NT32 because it's used to denote the allocation is larger (and the verifier finds its own header based on this).
 #else
-        * (PVOID *)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID)) = NULL;// Instead of clearing the flag above, zero the quota pointer.
+        * (PVOID*)((PCHAR)Entry + (Entry->BlockSize << POOL_BLOCK_SHIFT) - sizeof(PVOID)) = NULL;// Instead of clearing the flag above, zero the quota pointer.
 #endif
 
         PsReturnPoolQuota(ProcessBilled, PoolType & BASE_POOL_TYPE_MASK, (ULONG)Entry->BlockSize << POOL_BLOCK_SHIFT);
@@ -3430,7 +3430,7 @@ typedef struct _POOL_DPC_CONTEXT
 
     PPOOL_TRACKER_TABLE PoolTrackTableExpansion;
     SIZE_T PoolTrackTableSizeExpansion;
-} POOL_DPC_CONTEXT, *PPOOL_DPC_CONTEXT;
+} POOL_DPC_CONTEXT, * PPOOL_DPC_CONTEXT;
 
 
 VOID ExpGetPoolTagInfoTarget(IN PKDPC Dpc, IN PVOID DeferredContext, IN PVOID SystemArgument1, IN PVOID SystemArgument2)
@@ -3495,7 +3495,7 @@ Environment:
 #endif
 
         if (Context->PoolTrackTableSizeExpansion != 0) {
-            RtlCopyMemory((PVOID)(Context->PoolTrackTableExpansion), 
+            RtlCopyMemory((PVOID)(Context->PoolTrackTableExpansion),
                 (PVOID)PoolTrackTableExpansion,
                           Context->PoolTrackTableSizeExpansion * sizeof(POOL_TRACKER_TABLE));
         }

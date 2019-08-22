@@ -14,7 +14,7 @@ Abstract:
 #include "exp.h"
 
 
-NTSTATUS ExpGetSystemEmulationProcessorInformation (OUT PSYSTEM_PROCESSOR_INFORMATION ProcessorInformation)
+NTSTATUS ExpGetSystemEmulationProcessorInformation(OUT PSYSTEM_PROCESSOR_INFORMATION ProcessorInformation)
 /*
 Routine Description:
     Retrieves the processor information of the emulation hardware.
@@ -32,8 +32,8 @@ Arguments:
         ProcessorInformation->ProcessorRevision = KeProcessorRevision;
         ProcessorInformation->Reserved = 0;
         ProcessorInformation->ProcessorFeatureBits = KeFeatureBits;
-    } except (EXCEPTION_EXECUTE_HANDLER) {
-        NtStatus = GetExceptionCode ();
+    } except(EXCEPTION_EXECUTE_HANDLER) {
+        NtStatus = GetExceptionCode();
     }
 
     return NtStatus;

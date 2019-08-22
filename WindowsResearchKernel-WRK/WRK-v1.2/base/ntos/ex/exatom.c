@@ -76,7 +76,7 @@ Return Value:
 
             if (ARGUMENT_PRESENT(AtomName)) {
                 ProbeForRead(AtomName, Length, sizeof(WCHAR));
-                CapturedAtomName = (PWSTR)&StackArray[0];
+                CapturedAtomName = (PWSTR)& StackArray[0];
                 RtlCopyMemory(CapturedAtomName, AtomName, Length);
                 CapturedAtomName[Length / sizeof(WCHAR)] = UNICODE_NULL;
             }
@@ -149,7 +149,7 @@ Return Value:
 
             if (ARGUMENT_PRESENT(AtomName)) {
                 ProbeForRead(AtomName, Length, sizeof(WCHAR));
-                CapturedAtomName = (PWSTR)&StackArray[0];
+                CapturedAtomName = (PWSTR)& StackArray[0];
                 RtlCopyMemory(CapturedAtomName, AtomName, Length);
                 CapturedAtomName[Length / sizeof(WCHAR)] = UNICODE_NULL;
             }

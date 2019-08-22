@@ -29,7 +29,7 @@ typedef struct _EPROFILE
     ULONG Segment;
     KPROFILE_SOURCE ProfileSource;
     KAFFINITY Affinity;
-} EPROFILE, *PEPROFILE;
+} EPROFILE, * PEPROFILE;
 
 POBJECT_TYPE ExProfileObjectType;// Address of event object type descriptor.
 KMUTEX ExpProfileStateMutex;
@@ -254,14 +254,14 @@ Arguments:
 
         ProcessAddress = NULL;
     } else {
-        Status = ObReferenceObjectByHandle(Process, PROCESS_QUERY_INFORMATION, PsProcessType, PreviousMode, (PVOID *)&ProcessAddress, NULL);// Reference the specified process.
+        Status = ObReferenceObjectByHandle(Process, PROCESS_QUERY_INFORMATION, PsProcessType, PreviousMode, (PVOID*)& ProcessAddress, NULL);// Reference the specified process.
         if (!NT_SUCCESS(Status)) {
             return Status;
         }
     }
 
     InitializeObjectAttributes(&ObjectAttributes, NULL, OBJ_EXCLUSIVE, NULL, NULL);
-    Status = ObCreateObject(KernelMode, ExProfileObjectType, &ObjectAttributes, PreviousMode, NULL, sizeof(EPROFILE), 0, sizeof(EPROFILE) + sizeof(KPROFILE), (PVOID *)&Profile);
+    Status = ObCreateObject(KernelMode, ExProfileObjectType, &ObjectAttributes, PreviousMode, NULL, sizeof(EPROFILE), 0, sizeof(EPROFILE) + sizeof(KPROFILE), (PVOID*)& Profile);
     if (NT_SUCCESS(Status)) {// If the profile object was successfully allocated, initialize the profile object.
         if (ProcessAddress != NULL) {
             Profile->Process = &ProcessAddress->Pcb;
@@ -278,7 +278,7 @@ Arguments:
         Profile->Segment = Segment;
         Profile->ProfileSource = ProfileSource;
         Profile->Affinity = Affinity;
-        Status = ObInsertObject(Profile, NULL, PROFILE_CONTROL, 0, (PVOID *)NULL, &Handle);
+        Status = ObInsertObject(Profile, NULL, PROFILE_CONTROL, 0, (PVOID*)NULL, &Handle);
 
         // If the profile object was successfully inserted in the current process' handle table, then attempt to write the profile object handle value.
         // If the write attempt fails, then do not report an error.
@@ -404,7 +404,7 @@ Arguments:
     PVOID LockedBufferAddress;
 
     PreviousMode = KeGetPreviousMode();
-    Status = ObReferenceObjectByHandle(ProfileHandle, PROFILE_CONTROL, ExProfileObjectType, PreviousMode, (PVOID *)&Profile, NULL);
+    Status = ObReferenceObjectByHandle(ProfileHandle, PROFILE_CONTROL, ExProfileObjectType, PreviousMode, (PVOID*)& Profile, NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }

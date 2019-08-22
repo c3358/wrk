@@ -59,7 +59,7 @@ HvpFindNextDirtyBlock(
     PHHIVE          Hive,
     PRTL_BITMAP     BitMap,
     PULONG          Current,
-    PUCHAR          *Address,
+    PUCHAR* Address,
     PULONG          Length,
     PULONG          Offset
 );
@@ -366,7 +366,7 @@ Return Value:
     while (First > AdjustedFirst) {
         // map-in this address, and if is valid, decrement First, else break out of the loop
         First -= HSECTOR_COUNT;
-        Map = HvpGetCellMap(Hive, First*HSECTOR_SIZE);
+        Map = HvpGetCellMap(Hive, First * HSECTOR_SIZE);
         if (BIN_MAP_ALLOCATION_TYPE(Map) == 0) {
             // bin is not valid! bail out.
             First += HSECTOR_COUNT;
@@ -390,7 +390,7 @@ Return Value:
     while (Last < AdjustedLast) {
         // map-in this address, and if is valid, increment Last, else break out of the loop
         Last += HSECTOR_COUNT;
-        Map = HvpGetCellMap(Hive, Last*HSECTOR_SIZE);
+        Map = HvpGetCellMap(Hive, Last * HSECTOR_SIZE);
         if (BIN_MAP_ALLOCATION_TYPE(Map) == 0) {
             // bin is not valid. bail out.
             Last -= HSECTOR_COUNT;
@@ -1617,7 +1617,7 @@ Return Value:
         FILE_END_OF_FILE_INFORMATION    FileInfo;
         IO_STATUS_BLOCK                 IoStatus;
 
-        Status = NtQueryInformationFile(((PCMHIVE)Hive)->FileHandles[HFILE_TYPE_PRIMARY], &IoStatus, (PVOID)&FileInfo, sizeof(FILE_END_OF_FILE_INFORMATION), FileEndOfFileInformation);
+        Status = NtQueryInformationFile(((PCMHIVE)Hive)->FileHandles[HFILE_TYPE_PRIMARY], &IoStatus, (PVOID)& FileInfo, sizeof(FILE_END_OF_FILE_INFORMATION), FileEndOfFileInformation);
         if (NT_SUCCESS(Status)) {
             ASSERT(IoStatus.Status == Status);
             ASSERT(FileInfo.EndOfFile.LowPart == (Hive->Storage[Stable].Length + HBLOCK_SIZE));
@@ -1750,7 +1750,7 @@ Return Value:
     ASSERT(sizeof(ULONG) == sizeof(DirtyVectorSignature));  // See GrowLog1 above
 
     // signature
-    (*((ULONG *)CmpStashBuffer)) = DirtyVectorSignature;
+    (*((ULONG*)CmpStashBuffer)) = DirtyVectorSignature;
 
     // dirty vector content
     Address = (PUCHAR)(Hive->DirtyVector.Buffer);
@@ -1836,7 +1836,7 @@ HvpFindNextDirtyBlock(
     PHHIVE          Hive,
     PRTL_BITMAP     BitMap,
     PULONG          Current,
-    PUCHAR          *Address,
+    PUCHAR* Address,
     PULONG          Length,
     PULONG          Offset
 )
@@ -1892,7 +1892,7 @@ Return Value:
         if (RtlCheckBit(BitMap, i) == 0) {
             break;
         }
-        if (HvpCheckViewBoundary(Start*HSECTOR_SIZE, i*HSECTOR_SIZE) == FALSE) {
+        if (HvpCheckViewBoundary(Start * HSECTOR_SIZE, i * HSECTOR_SIZE) == FALSE) {
             break;
         }
     }
@@ -2050,8 +2050,8 @@ Arguments:
         NewLength = Hive->Storage[i].Length;// find the last in-use bin in the hive
 
         while (NewLength > 0) {
-            Map = HvpGetCellMap(Hive, (NewLength - HBLOCK_SIZE) + (i*HCELL_TYPE_MASK));
-            VALIDATE_CELL_MAP(__LINE__, Map, Hive, (NewLength - HBLOCK_SIZE) + (i*HCELL_TYPE_MASK));
+            Map = HvpGetCellMap(Hive, (NewLength - HBLOCK_SIZE) + (i * HCELL_TYPE_MASK));
+            VALIDATE_CELL_MAP(__LINE__, Map, Hive, (NewLength - HBLOCK_SIZE) + (i * HCELL_TYPE_MASK));
             if (Map->BinAddress & HMAP_DISCARDABLE) {
                 FreeBin = (PFREE_HBIN)Map->BlockAddress;
                 NewLength = FreeBin->FileOffset;

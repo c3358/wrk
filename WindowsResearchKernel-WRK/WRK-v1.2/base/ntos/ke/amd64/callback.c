@@ -31,7 +31,7 @@ Routine Description:
 }
 
 
-NTSTATUS KeUserModeCallback(IN ULONG ApiNumber, IN PVOID InputBuffer, IN ULONG InputLength, OUT PVOID *OutputBuffer, IN PULONG OutputLength)
+NTSTATUS KeUserModeCallback(IN ULONG ApiNumber, IN PVOID InputBuffer, IN ULONG InputLength, OUT PVOID* OutputBuffer, IN PULONG OutputLength)
 /*
 Routine Description:
     This function call out from kernel mode to a user mode function.

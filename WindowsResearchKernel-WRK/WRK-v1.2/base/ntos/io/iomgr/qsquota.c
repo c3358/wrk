@@ -97,7 +97,7 @@ Return Value:
             // If the optional StartSid parameter was specified, then it must be readable by the caller.
             // Begin by capturing the length of the SID so that the SID itself can be captured.
             if (ARGUMENT_PRESENT(StartSid)) {
-                subCount = ProbeAndReadUchar(&(((SID *)(StartSid))->SubAuthorityCount));
+                subCount = ProbeAndReadUchar(&(((SID*)(StartSid))->SubAuthorityCount));
                 startSidLength = RtlLengthRequiredSid(subCount);
                 ProbeForRead(StartSid, startSidLength, sizeof(ULONG));
             } else {
@@ -124,7 +124,7 @@ Return Value:
             if (ARGUMENT_PRESENT(StartSid)) {
                 startSid = (PSID)(auxiliaryBuffer + ALIGN_LONG(SidListLength));
                 RtlCopyMemory(startSid, StartSid, startSidLength);
-                ((SID *)startSid)->SubAuthorityCount = subCount;
+                ((SID*)startSid)->SubAuthorityCount = subCount;
             }
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
@@ -153,7 +153,7 @@ Return Value:
     if (sidList != NULL) {
         ULONG_PTR   errorOffset = 0;
 
-        status = IopCheckGetQuotaBufferValidity(sidList, SidListLength, (PULONG_PTR)&errorOffset);
+        status = IopCheckGetQuotaBufferValidity(sidList, SidListLength, (PULONG_PTR)& errorOffset);
         if (!NT_SUCCESS(status)) {
             try {
                 IoStatusBlock->Information = errorOffset;
@@ -180,7 +180,7 @@ Return Value:
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, 0, IoFileObjectType, requestorMode, (PVOID *)&fileObject, NULL);
+    status = ObReferenceObjectByHandle(FileHandle, 0, IoFileObjectType, requestorMode, (PVOID*)& fileObject, NULL);
     if (!NT_SUCCESS(status)) {
         if (auxiliaryBuffer) {
             ExFreePool(auxiliaryBuffer);

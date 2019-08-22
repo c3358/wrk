@@ -125,7 +125,7 @@ VOID ExpSystemErrorHandler(IN NTSTATUS ErrorStatus,
     }
 
     strcat(DefaultFormatBuffer, "\n");
-    ErrorFormatString = (char const *)DefaultFormatBuffer;
+    ErrorFormatString = (char const*)DefaultFormatBuffer;
     ErrorCaption = (PSZ)UnknownHardError;
     if (PsSystemDllDllBase != NULL) {
         try {
@@ -137,7 +137,7 @@ VOID ExpSystemErrorHandler(IN NTSTATUS ErrorStatus,
                                     &MessageEntry);
             if (!NT_SUCCESS(Status)) {
                 ErrorCaption = (PSZ)UnknownHardError;
-                ErrorFormatString = (char const *)UnknownHardError;
+                ErrorFormatString = (char const*)UnknownHardError;
             } else {
                 if (MessageEntry->Flags & MESSAGE_RESOURCE_UNICODE) {
                     // Message resource is Unicode.  Convert to ANSI.
@@ -151,18 +151,18 @@ VOID ExpSystemErrorHandler(IN NTSTATUS ErrorStatus,
                         if (!NT_SUCCESS(Status)) {
                             ExFreePool(ErrorCaption);
                             ErrorCaption = (PSZ)UnknownHardError;
-                            ErrorFormatString = (char const *)UnknownHardError;
+                            ErrorFormatString = (char const*)UnknownHardError;
                         }
                     } else {
                         ErrorCaption = (PSZ)UnknownHardError;
-                        ErrorFormatString = (char const *)UnknownHardError;
+                        ErrorFormatString = (char const*)UnknownHardError;
                     }
                 } else {
                     ErrorCaption = ExAllocatePoolWithTag(NonPagedPool, strlen((PCHAR)MessageEntry->Text) + 16, ' rrE');
                     if (ErrorCaption != NULL) {
                         strcpy(ErrorCaption, (PCHAR)MessageEntry->Text);
                     } else {
-                        ErrorFormatString = (char const *)UnknownHardError;
+                        ErrorFormatString = (char const*)UnknownHardError;
                         ErrorCaption = (PSZ)UnknownHardError;
                     }
                 }
@@ -191,12 +191,12 @@ VOID ExpSystemErrorHandler(IN NTSTATUS ErrorStatus,
 
                 if (!Counter) {
                     // Bad Format String.
-                    ErrorFormatString = (char const *)"";
+                    ErrorFormatString = (char const*)"";
                 }
             }
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
-            ErrorFormatString = (char const *)UnknownHardError;
+            ErrorFormatString = (char const*)UnknownHardError;
             ErrorCaption = (PSZ)UnknownHardError;
         }
     }
@@ -240,7 +240,7 @@ punt1:
     try {
         _snprintf(ExpSystemErrorBuffer,
                   sizeof(ExpSystemErrorBuffer),
-                  (const char *)ErrorFormatString,
+                  (const char*)ErrorFormatString,
                   ParameterVector[0],
                   ParameterVector[1],
                   ParameterVector[2],
@@ -284,13 +284,13 @@ punt2:
         PoShutdownBugCheck(TRUE,
                            FATAL_UNHANDLED_HARD_ERROR,
                            (ULONG)ErrorStatus,
-                           (ULONG_PTR) &(ParameterVector[0]),
+                           (ULONG_PTR) & (ParameterVector[0]),
                            (ULONG_PTR)OemCaption,
                            (ULONG_PTR)OemMessage);
     } else {
         KeBugCheckEx(FATAL_UNHANDLED_HARD_ERROR,
             (ULONG)ErrorStatus,
-                     (ULONG_PTR) &(ParameterVector[0]),
+                     (ULONG_PTR) & (ParameterVector[0]),
                      (ULONG_PTR)OemCaption,
                      (ULONG_PTR)OemMessage);
     }
@@ -321,7 +321,7 @@ NTSTATUS ExpRaiseHardError(IN NTSTATUS ErrorStatus,
 
     PAGED_CODE();
 
-    m = (PHARDERROR_MSG)&MessageBuffer[0];
+    m = (PHARDERROR_MSG)& MessageBuffer[0];
     PreviousMode = KeGetPreviousMode();
 
     DoingShutdown = FALSE;
@@ -373,7 +373,7 @@ NTSTATUS ExpRaiseHardError(IN NTSTATUS ErrorStatus,
         }
     }
 
-    if ((Thread->CrossThreadFlags&PS_CROSS_THREAD_FLAGS_HARD_ERRORS_DISABLED) != 0) {
+    if ((Thread->CrossThreadFlags & PS_CROSS_THREAD_FLAGS_HARD_ERRORS_DISABLED) != 0) {
         ErrorPort = NULL;
     }
 
@@ -415,7 +415,7 @@ NTSTATUS ExpRaiseHardError(IN NTSTATUS ErrorStatus,
     m->NumberOfParameters = NumberOfParameters;
     if (Parameters != NULL) {
         try {
-            RtlCopyMemory(&m->Parameters, Parameters, sizeof(ULONG_PTR)*NumberOfParameters);
+            RtlCopyMemory(&m->Parameters, Parameters, sizeof(ULONG_PTR) * NumberOfParameters);
         } except(EXCEPTION_EXECUTE_HANDLER)
         {
 
@@ -494,8 +494,8 @@ NTSTATUS NtRaiseHardError(__in NTSTATUS ErrorStatus,
         try {
             ProbeForWriteUlong(Response);
             if (ARGUMENT_PRESENT(Parameters)) {
-                ProbeForRead(Parameters, sizeof(ULONG_PTR)*NumberOfParameters, sizeof(ULONG_PTR));
-                RtlCopyMemory(CapturedParameters, Parameters, sizeof(ULONG_PTR)*NumberOfParameters);
+                ProbeForRead(Parameters, sizeof(ULONG_PTR) * NumberOfParameters, sizeof(ULONG_PTR));
+                RtlCopyMemory(CapturedParameters, Parameters, sizeof(ULONG_PTR) * NumberOfParameters);
                 if (UnicodeStringParameterMask) {// Probe all strings.
                     for (Counter = 0; Counter < NumberOfParameters; Counter += 1) {
                         if (UnicodeStringParameterMask & (1 << Counter)) {// if there is a string in this position, then probe and capture the string
@@ -575,7 +575,7 @@ NTSTATUS ExRaiseHardError(__in NTSTATUS ErrorStatus,
     if (ARGUMENT_PRESENT(Parameters)) {
         if (UnicodeStringParameterMask) {
             // We have strings - push them into usermode.
-            UserModeSize = (sizeof(ULONG_PTR) + sizeof(UNICODE_STRING))*MAXIMUM_HARDERROR_PARAMETERS;
+            UserModeSize = (sizeof(ULONG_PTR) + sizeof(UNICODE_STRING)) * MAXIMUM_HARDERROR_PARAMETERS;
             UserModeSize += sizeof(UNICODE_STRING);
             for (Counter = 0; Counter < NumberOfParameters; Counter += 1) {
                 // If there is a string in this position, then probe and capture the string.
@@ -588,19 +588,19 @@ NTSTATUS ExRaiseHardError(__in NTSTATUS ErrorStatus,
             // Now we have the user-mode size all figured out.
             // Allocate some memory and point to it with the parameter block.
             // Then go through and copy all of the parameters, string descriptors, and string data into the memory.
-            Status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID *)&ParameterBlock, 0, &UserModeSize, MEM_COMMIT, PAGE_READWRITE);
+            Status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)& ParameterBlock, 0, &UserModeSize, MEM_COMMIT, PAGE_READWRITE);
             if (!NT_SUCCESS(Status)) {
                 return Status;
             }
 
             UserModeParameterBase = ParameterBlock;
-            UserModeStringsBase = (PUNICODE_STRING)((PUCHAR)ParameterBlock + sizeof(ULONG_PTR)*MAXIMUM_HARDERROR_PARAMETERS);
-            UserModeStringDataBase = (PUCHAR)UserModeStringsBase + sizeof(UNICODE_STRING)*MAXIMUM_HARDERROR_PARAMETERS;
+            UserModeStringsBase = (PUNICODE_STRING)((PUCHAR)ParameterBlock + sizeof(ULONG_PTR) * MAXIMUM_HARDERROR_PARAMETERS);
+            UserModeStringDataBase = (PUCHAR)UserModeStringsBase + sizeof(UNICODE_STRING) * MAXIMUM_HARDERROR_PARAMETERS;
             try {
                 for (Counter = 0; Counter < NumberOfParameters; Counter += 1) {
                     // Copy parameters to user-mode portion of the address space.
                     if (UnicodeStringParameterMask & 1 << Counter) {
-                        UserModeParameterBase[Counter] = (ULONG_PTR)&UserModeStringsBase[Counter];// Fix the parameter to point at the string descriptor slot in the user-mode buffer.
+                        UserModeParameterBase[Counter] = (ULONG_PTR)& UserModeStringsBase[Counter];// Fix the parameter to point at the string descriptor slot in the user-mode buffer.
                         RtlCopyMemory(UserModeStringDataBase, CapturedStrings[Counter].Buffer, CapturedStrings[Counter].MaximumLength);// Copy the string data to user-mode.
                         CapturedStrings[Counter].Buffer = (PWSTR)UserModeStringDataBase;
                         RtlCopyMemory(&UserModeStringsBase[Counter], &CapturedStrings[Counter], sizeof(UNICODE_STRING));// Copy the string descriptor.
@@ -622,7 +622,7 @@ NTSTATUS ExRaiseHardError(__in NTSTATUS ErrorStatus,
 
     if (ParameterBlock && ParameterBlock != Parameters) {// If the parameter block was allocated, it needs to be freed.
         UserModeSize = 0;
-        ZwFreeVirtualMemory(NtCurrentProcess(), (PVOID *)&ParameterBlock, &UserModeSize, MEM_RELEASE);
+        ZwFreeVirtualMemory(NtCurrentProcess(), (PVOID*)& ParameterBlock, &UserModeSize, MEM_RELEASE);
     }
     *Response = LocalResponse;
 
@@ -644,7 +644,7 @@ NTSTATUS NtSetDefaultHardErrorPort(__in HANDLE DefaultHardErrorPort)
         return STATUS_UNSUCCESSFUL;
     }
 
-    Status = ObReferenceObjectByHandle(DefaultHardErrorPort, 0, LpcPortObjectType, KeGetPreviousMode(), (PVOID *)&ExpDefaultErrorPort, NULL);
+    Status = ObReferenceObjectByHandle(DefaultHardErrorPort, 0, LpcPortObjectType, KeGetPreviousMode(), (PVOID*)& ExpDefaultErrorPort, NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }

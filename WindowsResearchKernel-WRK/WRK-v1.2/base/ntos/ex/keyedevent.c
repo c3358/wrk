@@ -25,7 +25,7 @@ typedef struct _KEYED_EVENT_OBJECT
 {
     EX_PUSH_LOCK Lock;
     LIST_ENTRY WaitQueue;
-} KEYED_EVENT_OBJECT, *PKEYED_EVENT_OBJECT;
+} KEYED_EVENT_OBJECT, * PKEYED_EVENT_OBJECT;
 
 POBJECT_TYPE ExpKeyedEventObjectType;
 
@@ -416,7 +416,7 @@ Return Value:
     ListEntry = ListHead->Flink;
     while (1) {
         TargetThread = CONTAINING_RECORD(ListEntry, ETHREAD, KeyedWaitChain);
-        if (ListEntry == ListHead || (((ULONG_PTR)(TargetThread->KeyedWaitValue))&KEYVALUE_RELEASE) == 0) {
+        if (ListEntry == ListHead || (((ULONG_PTR)(TargetThread->KeyedWaitValue)) & KEYVALUE_RELEASE) == 0) {
 
             // We could not find a key matching ours in the list so we must wait
             OldKeyValue = CurrentThread->KeyedWaitValue;

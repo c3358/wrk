@@ -16,7 +16,7 @@ Abstract:
 #pragma alloc_text(PAGE, NtDelayExecution)
 
 
-NTSTATUS NtDelayExecution (__in BOOLEAN Alertable, __in PLARGE_INTEGER DelayInterval)
+NTSTATUS NtDelayExecution(__in BOOLEAN Alertable, __in PLARGE_INTEGER DelayInterval)
 /*
 Routine Description:
     This function delays the execution of the current thread for the specified interval of time.

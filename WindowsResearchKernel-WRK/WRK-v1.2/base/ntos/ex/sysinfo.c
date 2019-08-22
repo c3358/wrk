@@ -72,13 +72,13 @@ typedef struct _SYSTEM_FIRMWARE_TABLE_HANDLER_NODE
 {
     SYSTEM_FIRMWARE_TABLE_HANDLER SystemFWHandler;
     LIST_ENTRY FirmwareTableProviderList;
-} SYSTEM_FIRMWARE_TABLE_HANDLER_NODE, *PSYSTEM_FIRMWARE_TABLE_HANDLER_NODE;
+} SYSTEM_FIRMWARE_TABLE_HANDLER_NODE, * PSYSTEM_FIRMWARE_TABLE_HANDLER_NODE;
 
 NTSTATUS ExpValidateLocale(IN LCID LocaleId);
-BOOLEAN ExpIsValidUILanguage(IN WCHAR *pLangId);
-NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR *ValueName, OUT LANGID *CurrentUserUILanguageId, IN BOOLEAN bCheckGP);
-NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR *ValueName, IN LANGID DefaultUILanguageId);
-NTSTATUS ExpGetUILanguagePolicy(IN HANDLE CurrentUserKey, OUT LANGID *PolicyUILanguageId);
+BOOLEAN ExpIsValidUILanguage(IN WCHAR* pLangId);
+NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR* ValueName, OUT LANGID* CurrentUserUILanguageId, IN BOOLEAN bCheckGP);
+NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR* ValueName, IN LANGID DefaultUILanguageId);
+NTSTATUS ExpGetUILanguagePolicy(IN HANDLE CurrentUserKey, OUT LANGID* PolicyUILanguageId);
 NTSTATUS ExpGetProcessInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG Length OPTIONAL, IN PULONG SessionId OPTIONAL, IN BOOLEAN ExtendedInformation);
 NTSTATUS ExGetSessionPoolTagInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG Length, IN PULONG SessionId);
 NTSTATUS ExpGetProcessorIdleInformation(OUT PVOID   SystemInformation, IN  ULONG   SystemInformationLength, OUT PULONG  Length);
@@ -345,7 +345,7 @@ NTSTATUS NtSetDefaultLocale(__in BOOLEAN UserProfile, __in LCID DefaultLocaleId)
 }
 
 
-NTSTATUS NtQueryInstallUILanguage(__out LANGID *InstallUILanguageId)
+NTSTATUS NtQueryInstallUILanguage(__out LANGID* InstallUILanguageId)
 {
     KPROCESSOR_MODE PreviousMode;
     NTSTATUS Status;
@@ -356,7 +356,7 @@ NTSTATUS NtQueryInstallUILanguage(__out LANGID *InstallUILanguageId)
     try {// Get previous processor mode and probe output argument if necessary.
         PreviousMode = KeGetPreviousMode();
         if (PreviousMode != KernelMode) {
-            ProbeForWriteUshort((USHORT *)InstallUILanguageId);
+            ProbeForWriteUshort((USHORT*)InstallUILanguageId);
         }
 
         *InstallUILanguageId = PsInstallUILanguageId;
@@ -369,7 +369,7 @@ NTSTATUS NtQueryInstallUILanguage(__out LANGID *InstallUILanguageId)
 }
 
 
-NTSTATUS NtQueryDefaultUILanguage(__out LANGID *DefaultUILanguageId)
+NTSTATUS NtQueryDefaultUILanguage(__out LANGID* DefaultUILanguageId)
 {
     KPROCESSOR_MODE PreviousMode;
     NTSTATUS Status;
@@ -380,7 +380,7 @@ NTSTATUS NtQueryDefaultUILanguage(__out LANGID *DefaultUILanguageId)
     try {// Get previous processor mode and probe output argument if necessary.
         PreviousMode = KeGetPreviousMode();
         if (PreviousMode != KernelMode) {
-            ProbeForWriteUshort((USHORT *)DefaultUILanguageId);
+            ProbeForWriteUshort((USHORT*)DefaultUILanguageId);
         }
 
         // Read the UI language from the current security context.
@@ -396,7 +396,7 @@ NTSTATUS NtQueryDefaultUILanguage(__out LANGID *DefaultUILanguageId)
 }
 
 
-NTSTATUS ExpGetUILanguagePolicy(IN HANDLE CurrentUserKey, OUT LANGID *PolicyUILanguageId)
+NTSTATUS ExpGetUILanguagePolicy(IN HANDLE CurrentUserKey, OUT LANGID* PolicyUILanguageId)
 {
     NTSTATUS Status;
     OBJECT_ATTRIBUTES ObjectAttributes;
@@ -434,7 +434,7 @@ NTSTATUS ExpGetUILanguagePolicy(IN HANDLE CurrentUserKey, OUT LANGID *PolicyUILa
 }
 
 
-NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR *ValueName, IN LANGID CurrentUserUILanguage)
+NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR* ValueName, IN LANGID CurrentUserUILanguage)
 {
     NTSTATUS Status;
     OBJECT_ATTRIBUTES ObjectAttributes;
@@ -489,7 +489,7 @@ NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR *ValueName, IN LANGID CurrentUserU
 }
 
 
-NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR *ValueName, OUT LANGID *CurrentUserUILanguageId, IN BOOLEAN bCheckGP)
+NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR* ValueName, OUT LANGID* CurrentUserUILanguageId, IN BOOLEAN bCheckGP)
 {
     NTSTATUS Status;
     OBJECT_ATTRIBUTES ObjectAttributes;
@@ -561,7 +561,7 @@ NTSTATUS ExpValidateLocale(IN LCID LocaleId)
     WCHAR LocaleNameBuffer[32];
     WCHAR KeyValueNameBuffer[32];
     WCHAR KeyValueBuffer[128];
-    WCHAR *Ptr;
+    WCHAR* Ptr;
     HANDLE LocaleKey, SortKey, LangGroupKey;
     OBJECT_ATTRIBUTES NlsLocaleObjA, NlsSortObjA, NlsLangGroupObjA;
     PKEY_VALUE_PARTIAL_INFORMATION KeyValueInformation;
@@ -1325,7 +1325,7 @@ Return Value:
                 LocalPerformanceInfo.CcCopyReadNoWaitMiss += Prcb->CcCopyReadNoWaitMiss;
             }
 #endif
-            *PerformanceInfo = LocalPerformanceInfo;
+            * PerformanceInfo = LocalPerformanceInfo;
             if (ARGUMENT_PRESENT(ReturnLength)) {
                 *ReturnLength = sizeof(LocalPerformanceInfo);
             }
@@ -2260,13 +2260,13 @@ NTSTATUS NTAPI NtSetSystemInformation(
                 }
 
                 // Recursively call this kernel service forcing previous mode to kernel.
-                Status = ZwSetSystemInformation(SystemExtendServiceTableInformation, (PVOID)&Image, sizeof(Image));
+                Status = ZwSetSystemInformation(SystemExtendServiceTableInformation, (PVOID)& Image, sizeof(Image));
                 return Status;
             }
 
             // The previous mode is kernel - load the specified driver.
             Image = *(PUNICODE_STRING)SystemInformation;
-            Status = MmLoadSystemImage(&Image, NULL, NULL, MM_LOAD_IMAGE_IN_SESSION, &SectionPointer, (PVOID *)&ImageBaseAddress);
+            Status = MmLoadSystemImage(&Image, NULL, NULL, MM_LOAD_IMAGE_IN_SESSION, &SectionPointer, (PVOID*)& ImageBaseAddress);
             if (NT_SUCCESS(Status) == FALSE) {
                 return Status;
             }
@@ -2308,7 +2308,7 @@ NTSTATUS NTAPI NtSetSystemInformation(
                 return STATUS_PRIVILEGE_NOT_HELD;
             }
 
-            MmUnloadSystemImage(*((PVOID *)SystemInformation));
+            MmUnloadSystemImage(*((PVOID*)SystemInformation));
             Status = STATUS_SUCCESS;
         }
         break;
@@ -2338,7 +2338,7 @@ NTSTATUS NTAPI NtSetSystemInformation(
             }
 
             Image = ((PSYSTEM_GDI_DRIVER_INFORMATION)SystemInformation)->DriverName;
-            Status = MmLoadSystemImage(&Image, NULL, NULL, LoadFlags, &SectionPointer, (PVOID *)&ImageBaseAddress);
+            Status = MmLoadSystemImage(&Image, NULL, NULL, LoadFlags, &SectionPointer, (PVOID*)& ImageBaseAddress);
             if ((NT_SUCCESS(Status))) {
                 PSYSTEM_GDI_DRIVER_INFORMATION GdiDriverInfo = (PSYSTEM_GDI_DRIVER_INFORMATION)SystemInformation;
                 ULONG Size;
@@ -2702,8 +2702,8 @@ NTSTATUS ExLockUserBuffer(
     __in ULONG Length,
     __in KPROCESSOR_MODE ProbeMode,
     __in LOCK_OPERATION LockMode,
-    __deref_out PVOID *LockedBuffer,
-    __deref_out PVOID *LockVariable
+    __deref_out PVOID* LockedBuffer,
+    __deref_out PVOID* LockVariable
 )
 /*
 Routine Description:
@@ -2969,7 +2969,7 @@ Return Value:
                         } else {
                             WCHAR c;
                             while (1) {
-                                c = (WCHAR)*Src++;
+                                c = (WCHAR)* Src++;
                                 *Dst++ = c;
                                 if (c == L'\0') {
                                     break;
@@ -3429,7 +3429,7 @@ NTSTATUS ExpGetStackTraceInformation(OUT PVOID SystemInformation, IN ULONG Syste
     PRTL_PROCESS_BACKTRACES BackTraceInformation;
     PRTL_PROCESS_BACKTRACE_INFORMATION BackTraceInfo;
     PSTACK_TRACE_DATABASE DataBase;
-    PRTL_STACK_TRACE_ENTRY p, *pp;
+    PRTL_STACK_TRACE_ENTRY p, * pp;
     ULONG RequiredLength, n;
 
     DataBase = RtlpAcquireStackTraceDataBase();
@@ -3957,7 +3957,7 @@ Arguments:
     RtlInitUnicodeString(&String, VetoList);
     ReturnLength = sizeof(SYSTEM_LEGACY_DRIVER_INFORMATION) + String.Length;
     try {
-        if (ReturnLength > *Length) {
+        if (ReturnLength > * Length) {
             Status = STATUS_BUFFER_OVERFLOW;
         } else {
             LegacyInfo->VetoType = VetoType;
@@ -4010,7 +4010,7 @@ Arguments:
 }
 
 
-BOOLEAN ExpIsValidUILanguage(IN WCHAR * pLangId)
+BOOLEAN ExpIsValidUILanguage(IN WCHAR* pLangId)
 /*
 Routine Description:
     Check if specified language ID is valid.

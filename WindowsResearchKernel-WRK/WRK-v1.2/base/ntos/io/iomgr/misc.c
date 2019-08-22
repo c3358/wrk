@@ -68,7 +68,7 @@ Return Value:
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, 0, IoFileObjectType, requestorMode, (PVOID *)&fileObject, NULL);
+    status = ObReferenceObjectByHandle(FileHandle, 0, IoFileObjectType, requestorMode, (PVOID*)& fileObject, NULL);
     if (!NT_SUCCESS(status)) {
         return(status);
     }
@@ -236,7 +236,7 @@ Return Value:
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, 0, IoFileObjectType, requestorMode, (PVOID *)&fileObject, &objectHandleInformation);
+    status = ObReferenceObjectByHandle(FileHandle, 0, IoFileObjectType, requestorMode, (PVOID*)& fileObject, &objectHandleInformation);
     if (!NT_SUCCESS(status)) {
         return status;
     }

@@ -47,7 +47,7 @@ ULONG CmpExceptionFilter(IN PEXCEPTION_POINTERS ExceptionPointers);
 
 #endif
 
-VOID CmpDummyApc(struct _KAPC *Apc, PVOID *SystemArgument1, PVOID *SystemArgument2);
+VOID CmpDummyApc(struct _KAPC* Apc, PVOID* SystemArgument1, PVOID* SystemArgument2);
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE,NtCreateKey)
@@ -227,9 +227,9 @@ Arguments:
         ParseContext.PredefinedHandle = NULL;
         ParseContext.CreateOperation = TRUE;
         ParseContext.OriginatingPoint = NULL;
-        status = ObOpenObjectByName(ObjectAttributes, CmpKeyObjectType, mode, NULL, DesiredAccess, (PVOID)&ParseContext, &Handle);
+        status = ObOpenObjectByName(ObjectAttributes, CmpKeyObjectType, mode, NULL, DesiredAccess, (PVOID)& ParseContext, &Handle);
         if (status == STATUS_PREDEFINED_HANDLE) {
-            status = ObReferenceObjectByHandle(Handle, 0, CmpKeyObjectType, KernelMode, (PVOID *)(&KeyBody), NULL);
+            status = ObReferenceObjectByHandle(Handle, 0, CmpKeyObjectType, KernelMode, (PVOID*)(&KeyBody), NULL);
             if (NT_SUCCESS(status)) {
                 HANDLE TempHandle;
 
@@ -287,7 +287,7 @@ Arguments:
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_NTAPI, "NtDeleteKey\n"));
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_NTAPI_ARGS, "\tKeyHandle=%08lx\n", KeyHandle));
 
-    status = ObReferenceObjectByHandle(KeyHandle, DELETE, CmpKeyObjectType, KeGetPreviousMode(), (PVOID *)(&KeyBody), &HandleInfo);
+    status = ObReferenceObjectByHandle(KeyHandle, DELETE, CmpKeyObjectType, KeGetPreviousMode(), (PVOID*)(&KeyBody), &HandleInfo);
     if (NT_SUCCESS(status)) {
         if (CmAreCallbacksRegistered()) {
             REG_DELETE_KEY_INFORMATION DeleteInfo;
@@ -355,7 +355,7 @@ Arguments:
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_NTAPI_ARGS, "\tValueName='%wZ'\n", ValueName));
 
     mode = KeGetPreviousMode();
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_SET_VALUE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_SET_VALUE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
         try {
@@ -447,7 +447,7 @@ Arguments:
     }
 
     mode = KeGetPreviousMode();
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_ENUMERATE_SUB_KEYS, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_ENUMERATE_SUB_KEYS, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
 
@@ -537,7 +537,7 @@ Arguments:
     }
 
     mode = KeGetPreviousMode();
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
 
@@ -600,7 +600,7 @@ Arguments:
 
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_NTAPI, "NtFlushKey\n"));
 
-    status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, KeGetPreviousMode(), (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, KeGetPreviousMode(), (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
 
@@ -938,7 +938,7 @@ Arguments:
     }
 
     // Reference the Master Key handle
-    status = ObReferenceObjectByHandle(MasterKeyHandle, KEY_NOTIFY, CmpKeyObjectType, PreviousMode, (PVOID *)(&MasterKeyBody), NULL);
+    status = ObReferenceObjectByHandle(MasterKeyHandle, KEY_NOTIFY, CmpKeyObjectType, PreviousMode, (PVOID*)(&MasterKeyBody), NULL);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -964,7 +964,7 @@ Arguments:
             CapturedAttributes.Attributes |= OBJ_KERNEL_HANDLE;
             status = ObOpenObjectByName(&CapturedAttributes, CmpKeyObjectType, KernelMode, NULL, KEY_NOTIFY, NULL, &SlaveKeyHandle);
             if (NT_SUCCESS(status)) {
-                status = ObReferenceObjectByHandle(SlaveKeyHandle, KEY_NOTIFY, CmpKeyObjectType, KernelMode, (PVOID *)&SlaveKeyBody, NULL);
+                status = ObReferenceObjectByHandle(SlaveKeyHandle, KEY_NOTIFY, CmpKeyObjectType, KernelMode, (PVOID*)& SlaveKeyBody, NULL);
                 ZwClose(SlaveKeyHandle);
             }
         } except(CmpExceptionFilter(GetExceptionInformation()))
@@ -1019,7 +1019,7 @@ Arguments:
     if ((PostType == PostAsyncUser) || (PostType == PostAsyncKernel)) {
         // If event is present, reference it, save its address, and set it to the not signaled state.
         if (ARGUMENT_PRESENT(Event)) {
-            status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, PreviousMode, (PVOID *)(&UserEvent), NULL);
+            status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, PreviousMode, (PVOID*)(&UserEvent), NULL);
             if (!NT_SUCCESS(status)) {
                 if (SlavePresent) {
                     CmpFreePostBlock(SlavePostBlock);
@@ -1325,12 +1325,12 @@ Arguments:
         // this should not be inside the try/except as we captured the buffer
         RtlZeroMemory(&ParseContext, sizeof(CM_PARSE_CONTEXT));
         ParseContext.CreateOperation = FALSE;
-        status = ObOpenObjectByName(ObjectAttributes, CmpKeyObjectType, mode, NULL, DesiredAccess, (PVOID)&ParseContext, &Handle);
+        status = ObOpenObjectByName(ObjectAttributes, CmpKeyObjectType, mode, NULL, DesiredAccess, (PVOID)& ParseContext, &Handle);
 
         // protect against attacks to KeyHandle usermode pointer
         try {
             if (status == STATUS_PREDEFINED_HANDLE) {
-                status = ObReferenceObjectByHandle(Handle, 0, CmpKeyObjectType, KernelMode, (PVOID *)(&KeyBody), NULL);
+                status = ObReferenceObjectByHandle(Handle, 0, CmpKeyObjectType, KernelMode, (PVOID*)(&KeyBody), NULL);
                 if (NT_SUCCESS(status)) {
                     *KeyHandle = (HANDLE)LongToHandle(KeyBody->Type);
                     ObDereferenceObject((PVOID)KeyBody);
@@ -1411,7 +1411,7 @@ Arguments:
         // special case: name information is available regardless of the access level you have on the key  (provided that you have some ...)
         OBJECT_HANDLE_INFORMATION HandleInfo;
 
-        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), &HandleInfo);// reference with "no access required"
+        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), &HandleInfo);// reference with "no access required"
         if (NT_SUCCESS(status)) {
             if (HandleInfo.GrantedAccess == 0) {
                 ObDereferenceObject((PVOID)KeyBody);// no access is granted on the handle; bad luck!
@@ -1419,7 +1419,7 @@ Arguments:
             }
         }
     } else {
-        status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+        status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     }
 
     if (NT_SUCCESS(status)) {
@@ -1511,7 +1511,7 @@ Return Value:
     }
 
     mode = KeGetPreviousMode();
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
 
@@ -1631,7 +1631,7 @@ Arguments:
     if (mode == UserMode) {
         return ZwRestoreKey(KeyHandle, FileHandle, Flags);
     } else {
-        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
         if (NT_SUCCESS(status)) {
             if (CmIsKcbReadOnly(KeyBody->KeyControlBlock)) {
                 status = STATUS_ACCESS_DENIED;// key is protected
@@ -1679,7 +1679,7 @@ Arguments:
     if (mode == UserMode) {
         return ZwSaveKey(KeyHandle, FileHandle);
     } else {
-        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
         if (NT_SUCCESS(status)) {
             BEGIN_LOCK_CHECKPOINT;
             status = CmSaveKey(KeyBody->KeyControlBlock, FileHandle, HSYS_MINOR);
@@ -1731,7 +1731,7 @@ Arguments:
     if (mode == UserMode) {
         return ZwSaveKeyEx(KeyHandle, FileHandle, Format);
     } else {
-        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+        status = ObReferenceObjectByHandle(KeyHandle, 0, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
         if (NT_SUCCESS(status)) {
             BEGIN_LOCK_CHECKPOINT;
             if (Format == REG_NO_COMPRESSION) {
@@ -1789,9 +1789,9 @@ Arguments:
     if (mode == UserMode) {
         return ZwSaveMergedKeys(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
     } else {
-        status = ObReferenceObjectByHandle(HighPrecedenceKeyHandle, 0, CmpKeyObjectType, mode, (PVOID *)(&HighKeyBody), NULL);
+        status = ObReferenceObjectByHandle(HighPrecedenceKeyHandle, 0, CmpKeyObjectType, mode, (PVOID*)(&HighKeyBody), NULL);
         if (NT_SUCCESS(status)) {
-            status = ObReferenceObjectByHandle(LowPrecedenceKeyHandle, 0, CmpKeyObjectType, mode, (PVOID *)(&LowKeyBody), NULL);
+            status = ObReferenceObjectByHandle(LowPrecedenceKeyHandle, 0, CmpKeyObjectType, mode, (PVOID*)(&LowKeyBody), NULL);
             if (NT_SUCCESS(status)) {
                 BEGIN_LOCK_CHECKPOINT;
                 status = CmSaveMergedKeys(HighKeyBody->KeyControlBlock, LowKeyBody->KeyControlBlock, FileHandle);
@@ -1841,7 +1841,7 @@ Arguments:
 
     mode = KeGetPreviousMode();
 
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_SET_VALUE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_SET_VALUE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
 
@@ -2090,7 +2090,7 @@ Arguments:
 
     }
     if (ARGUMENT_PRESENT(TrustClassKey) && NT_SUCCESS(Status)) {
-        Status = ObReferenceObjectByHandle(TrustClassKey, 0, CmpKeyObjectType, PreviousMode, (PVOID *)(&KeyBody), NULL);
+        Status = ObReferenceObjectByHandle(TrustClassKey, 0, CmpKeyObjectType, PreviousMode, (PVOID*)(&KeyBody), NULL);
     }
 
     // Clean up if there was an exception while probing and copying user data
@@ -2203,7 +2203,7 @@ Arguments:
     CapturedAttributes.Attributes |= OBJ_KERNEL_HANDLE;
     Status = ObOpenObjectByName(&CapturedAttributes, CmpKeyObjectType, KernelMode, NULL, KEY_WRITE, &ParseContext, &KeyHandle);
     if (NT_SUCCESS(Status)) {
-        Status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, KernelMode, (PVOID *)&KeyBody, NULL);
+        Status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, KernelMode, (PVOID*)& KeyBody, NULL);
         ZwClose(KeyHandle);
     }
 
@@ -2353,10 +2353,10 @@ Return Value:
     CapturedAttributes.Attributes |= OBJ_KERNEL_HANDLE;
     Status = ObOpenObjectByName(&CapturedAttributes, CmpKeyObjectType, KernelMode, NULL, KEY_WRITE, &ParseContext, &KeyHandle);
     if (NT_SUCCESS(Status)) {
-        Status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, KernelMode, (PVOID *)&KeyBody, NULL);
+        Status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, KernelMode, (PVOID*)& KeyBody, NULL);
         ZwClose(KeyHandle);
         if (ARGUMENT_PRESENT(Event)) {
-            Status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, PreviousMode, (PVOID *)(&UserEvent), NULL);
+            Status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, PreviousMode, (PVOID*)(&UserEvent), NULL);
             if (NT_SUCCESS(Status)) {
                 KeClearEvent(UserEvent);
             } else {
@@ -2472,7 +2472,7 @@ NTSTATUS NtSetInformationKey(
         return STATUS_INVALID_INFO_CLASS;
     }
 
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_SET_VALUE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_SET_VALUE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
         if (CmAreCallbacksRegistered()) {
@@ -2579,7 +2579,7 @@ Arguments:
         return(Status);
     }
 
-    Status = ObReferenceObjectByHandle(TargetHandle, 0, CmpKeyObjectType, PreviousMode, (PVOID *)&KeyBody, NULL);
+    Status = ObReferenceObjectByHandle(TargetHandle, 0, CmpKeyObjectType, PreviousMode, (PVOID*)& KeyBody, NULL);
     if (NT_SUCCESS(Status)) {
         if (CmIsKcbReadOnly(KeyBody->KeyControlBlock)) {
             Status = STATUS_ACCESS_DENIED;// key is protected
@@ -2634,7 +2634,7 @@ Arguments:
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_NTAPI_ARGS, "\tKeyHandle=%08lx\n", KeyHandle));
 
     PreviousMode = KeGetPreviousMode();
-    Status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, PreviousMode, (PVOID *)(&KeyBody), NULL);
+    Status = ObReferenceObjectByHandle(KeyHandle, KEY_QUERY_VALUE, CmpKeyObjectType, PreviousMode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(Status)) {
         HookKcbForWmiCmTrace(KeyBody);// hook the kcb for WMI
         try {
@@ -2808,7 +2808,7 @@ Routine Description:
 #if DBG
     if (PostBlock->TraceIntoDebugger) {
         CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FLOW, "[CM]CmpFreePostBlock: PostBlock:%p\t", PostBlock));
-        if (PostBlock->NotifyType&REG_NOTIFY_MASTER_POST) {
+        if (PostBlock->NotifyType & REG_NOTIFY_MASTER_POST) {
             CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FLOW, "--MasterBlock\n"));
         } else {
             CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FLOW, "--SlaveBlock\n"));
@@ -3002,7 +3002,7 @@ Arguments:
         CapturedAttributes.Attributes |= OBJ_KERNEL_HANDLE;
         Status = ObOpenObjectByName(&CapturedAttributes, CmpKeyObjectType, KernelMode, NULL, KEY_READ, NULL, &KeyHandle);
         if (NT_SUCCESS(Status)) {
-            Status = ObReferenceObjectByHandle(KeyHandle, KEY_READ, CmpKeyObjectType, KernelMode, (PVOID *)&KeyBody, NULL);
+            Status = ObReferenceObjectByHandle(KeyHandle, KEY_READ, CmpKeyObjectType, KernelMode, (PVOID*)& KeyBody, NULL);
             ZwClose(KeyHandle);
         }
     } except(EXCEPTION_EXECUTE_HANDLER)
@@ -3123,7 +3123,7 @@ Arguments:
         CapturedAttributes.Attributes |= OBJ_KERNEL_HANDLE;
         Status = ObOpenObjectByName(&CapturedAttributes, CmpKeyObjectType, KernelMode, NULL, KEY_READ, NULL, &KeyHandle);
         if (NT_SUCCESS(Status)) {
-            Status = ObReferenceObjectByHandle(KeyHandle, KEY_READ, CmpKeyObjectType, KernelMode, (PVOID *)&KeyBody, NULL);
+            Status = ObReferenceObjectByHandle(KeyHandle, KEY_READ, CmpKeyObjectType, KernelMode, (PVOID*)& KeyBody, NULL);
             ZwClose(KeyHandle);
         }
     } except(EXCEPTION_EXECUTE_HANDLER)
@@ -3198,7 +3198,7 @@ Arguments:
     NTSTATUS        status;
     PCM_KEY_BODY    KeyBody;
     KPROCESSOR_MODE mode;
-    WCHAR           *Cp;
+    WCHAR* Cp;
     ULONG           i;
 
     CM_PAGED_CODE();
@@ -3236,7 +3236,7 @@ Arguments:
         return GetExceptionCode();
     }
 
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         if (CmAreCallbacksRegistered()) {
             REG_RENAME_KEY_INFORMATION RenameKeyInfo;
@@ -3305,7 +3305,7 @@ Arguments:
 {
     NTSTATUS        status = STATUS_SUCCESS;
     NTSTATUS        status2;
-    PCM_KEY_BODY    *KeyBodyArray = NULL;
+    PCM_KEY_BODY* KeyBodyArray = NULL;
     ULONG           i;
     PHHIVE          KeyHive;
     PCMHIVE         CmHive;
@@ -3350,7 +3350,7 @@ Arguments:
     i = 0;
     try {
         for (; i < Count; i++) {
-            status = ObReferenceObjectByHandle(KeyArray[i], KEY_WRITE, CmpKeyObjectType, mode, (PVOID *)(&(KeyBodyArray[i])), NULL);
+            status = ObReferenceObjectByHandle(KeyArray[i], KEY_WRITE, CmpKeyObjectType, mode, (PVOID*)(&(KeyBodyArray[i])), NULL);
             if (!NT_SUCCESS(status)) {// cleanup
                 for (; i; i--) {
                     ObDereferenceObject((PVOID)(KeyBodyArray[i - 1]));
@@ -3447,7 +3447,7 @@ Arguments:
         return(STATUS_PRIVILEGE_NOT_HELD);
     }
 
-    status = ObReferenceObjectByHandle(Key, KEY_WRITE, CmpKeyObjectType, mode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(Key, KEY_WRITE, CmpKeyObjectType, mode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {
         BEGIN_LOCK_CHECKPOINT;
         CmpLockRegistryExclusive();
@@ -3490,7 +3490,7 @@ Arguments:
         return(STATUS_PRIVILEGE_NOT_HELD);
     }
 
-    status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, PreviousMode, (PVOID *)(&KeyBody), NULL);
+    status = ObReferenceObjectByHandle(KeyHandle, KEY_WRITE, CmpKeyObjectType, PreviousMode, (PVOID*)(&KeyBody), NULL);
     if (NT_SUCCESS(status)) {// we only need shared access
         BEGIN_LOCK_CHECKPOINT;
         CmpLockRegistry();

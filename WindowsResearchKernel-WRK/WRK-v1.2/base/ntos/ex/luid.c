@@ -26,7 +26,7 @@ const LARGE_INTEGER ExpLuidIncrement = {1,0};
 #pragma alloc_text(PAGE, NtAllocateLocallyUniqueId)
 
 
-BOOLEAN ExLuidInitialization (VOID)
+BOOLEAN ExLuidInitialization(VOID)
 /*
 Routine Description:
     This function initializes the locally unique identifier allocation.
@@ -41,7 +41,7 @@ Return Value:
 }
 
 
-NTSTATUS NtAllocateLocallyUniqueId (__out PLUID Luid)
+NTSTATUS NtAllocateLocallyUniqueId(__out PLUID Luid)
 /*
 Routine Description:
     This function returns an LUID value that is unique since the system was last rebooted.
@@ -67,7 +67,7 @@ Return Value:
         }
 
         ExAllocateLocallyUniqueId(Luid);// Allocate and store a locally unique Id.
-    } except (ExSystemExceptionFilter()) {
+    } except(ExSystemExceptionFilter()) {
         return GetExceptionCode();
     }
 

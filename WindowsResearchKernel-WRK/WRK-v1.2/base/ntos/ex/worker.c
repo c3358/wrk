@@ -31,15 +31,15 @@ typedef struct
     WORK_QUEUE_ITEM WorkItem;
     WORK_QUEUE_TYPE QueueType;
     PETHREAD        PrevThread;
-} SHUTDOWN_WORK_ITEM, *PSHUTDOWN_WORK_ITEM;
+} SHUTDOWN_WORK_ITEM, * PSHUTDOWN_WORK_ITEM;
 
 // Used for disabling stack swapping
 typedef struct _EXP_WORKER_LINK
 {
     LIST_ENTRY List;
     PETHREAD   Thread;
-    struct _EXP_WORKER_LINK **StackRef;
-} EXP_WORKER_LINK, *PEXP_WORKER_LINK;
+    struct _EXP_WORKER_LINK** StackRef;
+} EXP_WORKER_LINK, * PEXP_WORKER_LINK;
 
 // Define priorities for delayed and critical worker threads.
 // Note that these do not run at realtime.
@@ -105,7 +105,7 @@ VOID ExpCheckDynamicThreadCount(VOID);
 NTSTATUS ExpCreateWorkerThread(WORK_QUEUE_TYPE QueueType, BOOLEAN Dynamic);
 VOID ExpDetectWorkerThreadDeadlock(VOID);
 VOID ExpWorkerThreadBalanceManager(IN PVOID StartContext);
-VOID ExpSetSwappingKernelApc(IN PKAPC Apc, OUT PKNORMAL_ROUTINE *NormalRoutine, IN OUT PVOID NormalContext, IN OUT PVOID *SystemArgument1, IN OUT PVOID *SystemArgument2);
+VOID ExpSetSwappingKernelApc(IN PKAPC Apc, OUT PKNORMAL_ROUTINE* NormalRoutine, IN OUT PVOID NormalContext, IN OUT PVOID* SystemArgument1, IN OUT PVOID* SystemArgument2);
 
 // Procedure prototypes for the worker threads.
 VOID ExpWorkerThread(IN PVOID StartContext);
@@ -334,9 +334,9 @@ Arguments:
     DueTime.QuadPart = -THREAD_SET_INTERVAL;
 
     // Initialize the wait object array.
-    WaitObjects[TimerExpiration] = (PVOID)&PeriodTimer;
-    WaitObjects[ThreadSetManagerEvent] = (PVOID)&ExpThreadSetManagerEvent;
-    WaitObjects[ShutdownEvent] = (PVOID)&ExpThreadSetManagerShutdownEvent;
+    WaitObjects[TimerExpiration] = (PVOID)& PeriodTimer;
+    WaitObjects[ThreadSetManagerEvent] = (PVOID)& ExpThreadSetManagerEvent;
+    WaitObjects[ShutdownEvent] = (PVOID)& ExpThreadSetManagerShutdownEvent;
 
     // Loop forever processing events.
     while (TRUE) {
@@ -474,7 +474,7 @@ Notes:
     }
 
     if (Dynamic != FALSE) {
-        InterlockedIncrement((PLONG)&ExWorkerQueue[QueueType].DynamicThreadCount);
+        InterlockedIncrement((PLONG)& ExWorkerQueue[QueueType].DynamicThreadCount);
     }
 
     // Set the priority according to the type of worker thread.
@@ -492,7 +492,7 @@ Notes:
     }
 
     // Set the base priority of the just-created thread.
-    Status = ObReferenceObjectByHandle(ThreadHandle, THREAD_SET_INFORMATION, PsThreadType, KernelMode, (PVOID *)&Thread, NULL);
+    Status = ObReferenceObjectByHandle(ThreadHandle, THREAD_SET_INFORMATION, PsThreadType, KernelMode, (PVOID*)& Thread, NULL);
     if (NT_SUCCESS(Status)) {
         KeSetBasePriorityThread(&Thread->Tcb, BasePriority);
         ObDereferenceObject(Thread);
@@ -517,7 +517,7 @@ VOID ExpCheckForWorker(IN PVOID p, IN SIZE_T Size)
     KiLockDispatcherDatabase(&OldIrql);
     for (wqt = CriticalWorkQueue; wqt < MaximumWorkQueue; wqt += 1) {
         for (Entry = (PLIST_ENTRY)ExWorkerQueue[wqt].WorkerQueue.EntryListHead.Flink;
-             Entry && (Entry != (PLIST_ENTRY)&ExWorkerQueue[wqt].WorkerQueue.EntryListHead);
+             Entry && (Entry != (PLIST_ENTRY)& ExWorkerQueue[wqt].WorkerQueue.EntryListHead);
              Entry = Entry->Flink) {
             if (((PCHAR)Entry >= BeginBlock) && ((PCHAR)Entry < EndBlock)) {
                 KeBugCheckEx(WORKER_INVALID, 0x0, (ULONG_PTR)Entry, (ULONG_PTR)BeginBlock, (ULONG_PTR)EndBlock);
@@ -622,7 +622,7 @@ VOID ExpWorkerThread(IN PVOID StartContext)
             // This is a real work item, process it.
 
             // Update the total number of work items processed.
-            InterlockedIncrement((PLONG)&WorkerQueue->WorkItemsProcessed);
+            InterlockedIncrement((PLONG)& WorkerQueue->WorkItemsProcessed);
 
             WorkItem = CONTAINING_RECORD(Entry, WORK_QUEUE_ITEM, List);
             WorkerRoutine = WorkItem->WorkerRoutine;
@@ -683,13 +683,13 @@ VOID ExpWorkerThread(IN PVOID StartContext)
         break;// This dynamic thread can be terminated.
     } while (TRUE);
 
-    InterlockedDecrement((PLONG)&WorkerQueue->DynamicThreadCount);// Terminate this dynamic thread.
+    InterlockedDecrement((PLONG)& WorkerQueue->DynamicThreadCount);// Terminate this dynamic thread.
     Thread->ActiveExWorker = 0;// Carefully clear this before marking the thread stack as swap enabled so that an incoming APC won't inadvertently disable the stack swap afterwards.
     KeSetKernelStackSwapEnable(TRUE);// We will bugcheck if we terminate a thread with stack swapping disabled.
 }
 
 
-VOID ExpSetSwappingKernelApc(IN PKAPC Apc, OUT PKNORMAL_ROUTINE *NormalRoutine, IN OUT PVOID NormalContext, IN OUT PVOID *SystemArgument1, IN OUT PVOID *SystemArgument2)
+VOID ExpSetSwappingKernelApc(IN PKAPC Apc, OUT PKNORMAL_ROUTINE* NormalRoutine, IN OUT PVOID NormalContext, IN OUT PVOID* SystemArgument1, IN OUT PVOID* SystemArgument2)
 {
     PBOOLEAN AllowSwap;
     PKEVENT SwapSetEvent;
@@ -699,7 +699,7 @@ VOID ExpSetSwappingKernelApc(IN PKAPC Apc, OUT PKNORMAL_ROUTINE *NormalRoutine, 
     UNREFERENCED_PARAMETER(SystemArgument2);
 
     // SystemArgument1 is a pointer to the event to signal once this thread has finished servicing the request.
-    SwapSetEvent = (PKEVENT)*SystemArgument1;
+    SwapSetEvent = (PKEVENT)* SystemArgument1;
 
     // Don't disable stack swapping if the thread is exiting because it cannot exit this way without bugchecking.
     // Skip it on enables too since the thread is bailing anyway.
@@ -831,9 +831,9 @@ VOID ExpShutdownWorkerThreads(VOID)
     ASSERT(KeGetCurrentThread()->Queue == &ExWorkerQueue[PO_SHUTDOWN_QUEUE].WorkerQueue);
 
     // Mark the queues as terminating.
-    QueueEnable = (PULONG)&ExWorkerQueue[DelayedWorkQueue].Info.QueueWorkerInfo;
+    QueueEnable = (PULONG)& ExWorkerQueue[DelayedWorkQueue].Info.QueueWorkerInfo;
     RtlInterlockedSetBitsDiscardReturn(QueueEnable, EX_WORKER_QUEUE_DISABLED);
-    QueueEnable = (PULONG)&ExWorkerQueue[CriticalWorkQueue].Info.QueueWorkerInfo;
+    QueueEnable = (PULONG)& ExWorkerQueue[CriticalWorkQueue].Info.QueueWorkerInfo;
     RtlInterlockedSetBitsDiscardReturn(QueueEnable, EX_WORKER_QUEUE_DISABLED);
 
     // Queue the shutdown work item to the delayed work queue.

@@ -89,7 +89,7 @@ NTSTATUS KeInitThread(__out PKTHREAD Thread,
     Thread->ServiceTable = KeServiceDescriptorTable[SYSTEM_SERVICE_INDEX].Base;
     Thread->KernelLimit = KeServiceDescriptorTable[SYSTEM_SERVICE_INDEX].Limit;
 #else
-    Thread->ServiceTable = (PVOID)&KeServiceDescriptorTable[0];
+    Thread->ServiceTable = (PVOID)& KeServiceDescriptorTable[0];
 #endif
 
     // Initialize the APC state pointers, the current APC state, the saved APC state, and enable APC queuing.
@@ -1273,7 +1273,7 @@ Routine Description:
 
     // Insert the thread in the reaper list.
     // N.B. This code has knowledge of the reaper data structures and how worker threads are implemented.
-    ListHead = InterlockedPushEntrySingleList(&PsReaperListHead, (PSINGLE_LIST_ENTRY)&((PETHREAD)Thread)->ReaperLink);
+    ListHead = InterlockedPushEntrySingleList(&PsReaperListHead, (PSINGLE_LIST_ENTRY) & ((PETHREAD)Thread)->ReaperLink);
 
     // Acquire the dispatcher database and check if a reaper work item should be queued.
     KiLockDispatcherDatabaseAtSynchLevel();

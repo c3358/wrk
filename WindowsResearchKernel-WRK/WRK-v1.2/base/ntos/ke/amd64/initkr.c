@@ -44,7 +44,7 @@ typedef struct _KI_INTINIT_REC
     UCHAR Dpl;
     UCHAR IstIndex;
     KI_INTERRUPT_HANDLER Handler;
-} KI_INTINIT_REC, *PKI_INTINIT_REC;
+} KI_INTINIT_REC, * PKI_INTINIT_REC;
 
 #pragma data_seg("INITDATA")
 
@@ -460,8 +460,8 @@ Arguments:
 
     // If this is processor zero, then initialize the address of the system process and initial thread.
     if (Number == 0) {
-        LoaderBlock->Process = (ULONG64)&KiInitialProcess;
-        LoaderBlock->Thread = (ULONG64)&KiInitialThread;
+        LoaderBlock->Process = (ULONG64)& KiInitialProcess;
+        LoaderBlock->Thread = (ULONG64)& KiInitialThread;
     }
 
     // Initialize the PRCB scheduling thread address and the thread process address.
@@ -505,8 +505,8 @@ Arguments:
 
     // Initialize the system call MSRs.
     WriteMSR(MSR_STAR, ((ULONG64)KGDT64_R0_CODE << 32) | (((ULONG64)KGDT64_R3_CMCODE | RPL_MASK) << 48));
-    WriteMSR(MSR_CSTAR, (ULONG64)&KiSystemCall32);
-    WriteMSR(MSR_LSTAR, (ULONG64)&KiSystemCall64);
+    WriteMSR(MSR_CSTAR, (ULONG64)& KiSystemCall32);
+    WriteMSR(MSR_LSTAR, (ULONG64)& KiSystemCall64);
     WriteMSR(MSR_SYSCALL_MASK, EFLAGS_SYSCALL_CLEAR);
 
     KiSetFeatureBits(Prcb);// Set processor feature bits.
@@ -838,9 +838,9 @@ Routine Description:
     Prcb->VendorString[sizeof(Prcb->VendorString) - 1] = '\0';
 
     // Check to determine the processor vendor.
-    if (strncmp((PCHAR)&CpuInformation.Ebx, "AuthenticAMD", 12) == 0) {
+    if (strncmp((PCHAR)& CpuInformation.Ebx, "AuthenticAMD", 12) == 0) {
         Prcb->CpuVendor = CPU_AMD;
-    } else if (strncmp((PCHAR)&CpuInformation.Ebx, "GenuineIntel", 12) == 0) {
+    } else if (strncmp((PCHAR)& CpuInformation.Ebx, "GenuineIntel", 12) == 0) {
         Prcb->CpuVendor = CPU_INTEL;
     } else {
         KeBugCheck(UNSUPPORTED_PROCESSOR);

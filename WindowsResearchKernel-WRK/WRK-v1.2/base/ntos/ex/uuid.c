@@ -94,7 +94,7 @@ FAST_MUTEX                  ExpUuidLock;
 NTSTATUS ExpUuidLoadSequenceNumber(OUT PULONG);
 NTSTATUS ExpUuidSaveSequenceNumber(IN ULONG);
 NTSTATUS ExpUuidSaveSequenceNumberIf(VOID);
-NTSTATUS ExpUuidGetValues(OUT UUID_CACHED_VALUES_STRUCT *Values);
+NTSTATUS ExpUuidGetValues(OUT UUID_CACHED_VALUES_STRUCT* Values);
 NTSTATUS ExpAllocateUuids(OUT PLARGE_INTEGER Time, OUT PULONG Range, OUT PULONG Sequence);
 
 #pragma alloc_text(PAGE, ExpUuidLoadSequenceNumber)
@@ -156,7 +156,7 @@ Return Value:
 NTSTATUS ExpUuidSaveSequenceNumber(IN ULONG Sequence)
 /*
 Routine Description:
-    This function saves the uuid sequence number in the registry. 
+    This function saves the uuid sequence number in the registry.
     This value will be read by ExpUuidLoadSequenceNumber during the next boot.
     This routine assumes that the current thread has exclusive access to the the ExpUuid* values.
 Arguments:
@@ -189,7 +189,7 @@ Return Value:
 NTSTATUS ExpUuidSaveSequenceNumberIf(VOID)
 /*
 Routine Description:
-    This function saves the ExpUuidSequenceNumber, 
+    This function saves the ExpUuidSequenceNumber,
     but only if necessary (as determined by the ExpUuidSequenceNumberNotSaved flag).
     This routine assumes that the current thread has exclusive access to the ExpUuid* values.
 Return Value:
@@ -219,7 +219,7 @@ BOOLEAN ExpUuidInitialization(VOID)
 Routine Description:
     This function initializes the UUID allocation.
 Return Value:
-    A value of TRUE is returned if the initialization is successfully completed. 
+    A value of TRUE is returned if the initialization is successfully completed.
     Otherwise, a value of FALSE is returned.
 */
 {
@@ -240,13 +240,13 @@ Routine Description:
     This routine assumes that the current thread has exclusive access to the ExpUuid* values.
 Arguments:
     Time - Supplies the address of a variable that will receive the start time (SYSTEMTIME format) of the range of time reserved.
-    Range - Supplies the address of a variable that will receive the number of ticks (100ns) reserved after the value in Time. 
+    Range - Supplies the address of a variable that will receive the number of ticks (100ns) reserved after the value in Time.
             The range reserved is *Time to (*Time+*Range-1).
-    Sequence - Supplies the address of a variable that will receive the time sequence number. 
+    Sequence - Supplies the address of a variable that will receive the time sequence number.
                This value is used with the associated range of time to prevent problems with clocks going backwards.
 Return Value:
     STATUS_SUCCESS is returned if the service is successfully executed.
-    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs.  
+    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs.
                  This will occur if system clock hasn't advanced and the allocator is out of cached values.
     STATUS_UNSUCCESSFUL is returned if some other service reports an error, most likly the registry.
 */
@@ -269,7 +269,7 @@ Return Value:
             KdPrintEx((DPFLTR_SYSTEM_ID, DPFLTR_WARNING_LEVEL, "Uuid: Generating first sequence number.\n"));
 
             PerfCounter = KeQueryPerformanceCounter(&PerfFrequency);
-            ExpUuidSequenceNumber ^= (ULONG)((ULONG_PTR)&Status) ^ PerfCounter.LowPart ^ PerfCounter.HighPart ^ (ULONG)((ULONG_PTR)Sequence);
+            ExpUuidSequenceNumber ^= (ULONG)((ULONG_PTR)& Status) ^ PerfCounter.LowPart ^ PerfCounter.HighPart ^ (ULONG)((ULONG_PTR)Sequence);
         } else {
             ExpUuidSequenceNumber++;// We increment the sequence number on every boot.
         }
@@ -332,13 +332,13 @@ Return Value:
 NTSTATUS NtSetUuidSeed(__in PCHAR Seed)
 /*
 Routine Description:
-    This routine is used to set the seed used for UUID generation. 
+    This routine is used to set the seed used for UUID generation.
     The seed will be set by RPCSS at startup and each time a card is replaced.
 Arguments:
     Seed - Pointer to a six byte buffer
 Return Value:
     STATUS_SUCCESS is returned if the service is successfully executed.
-    STATUS_ACCESS_DENIED If caller doesn't have the permissions to make this call. 
+    STATUS_ACCESS_DENIED If caller doesn't have the permissions to make this call.
                          You need to be logged on as Local System in order to call this API.
     STATUS_ACCESS_VIOLATION is returned if the Seed could not be read.
 */
@@ -401,12 +401,12 @@ Arguments:
     Time - Supplies the address of a variable that will receive the start time (SYSTEMTIME format) of the range of time reserved.
     Range - Supplies the address of a variable that will receive the number of ticks (100ns) reserved after the value in Time.
             The range reserved is *Time to (*Time + *Range - 1).
-    Sequence - Supplies the address of a variable that will receive the time sequence number. 
+    Sequence - Supplies the address of a variable that will receive the time sequence number.
                This value is used with the associated range of time to prevent problems with clocks going backwards.
     Seed - Pointer to a 6 byte buffer. The current seed is written into this buffer.
 Return Value:
     STATUS_SUCCESS is returned if the service is successfully executed.
-    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs. 
+    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs.
                  This may (?) occur if system clock hasn't advanced and the allocator is out of cached values.
     STATUS_ACCESS_VIOLATION is returned if the output parameter for the UUID cannot be written.
     STATUS_UNSUCCESSFUL is returned if some other service reports an error, most likly the registry.
@@ -476,7 +476,7 @@ Return Value:
 }
 
 
-NTSTATUS ExpUuidGetValues(OUT UUID_CACHED_VALUES_STRUCT *Values)
+NTSTATUS ExpUuidGetValues(OUT UUID_CACHED_VALUES_STRUCT* Values)
 /*
 Routine Description:
     This routine allocates a block of UUIDs and stores them in the caller-provided cached-values structure.
@@ -492,7 +492,7 @@ Arguments:
     Values - Set to contain everything needed to allocate a block of uuids.
 Return Value:
     STATUS_SUCCESS is returned if the service is successfully executed.
-    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs. 
+    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs.
                  This will occur if system clock hasn't advanced and the allocator is out of cached values.
     STATUS_NO_MEMORY is returned if we're unable to reserve a range of UUIDs, for some reason other than the clock not advancing.
 */
@@ -529,7 +529,7 @@ Return Value:
 }
 
 
-NTSTATUS ExUuidCreate(__out UUID *Uuid)
+NTSTATUS ExUuidCreate(__out UUID* Uuid)
 /*
 Routine Description:
     This routine creates a DCE UUID and returns it in the caller's buffer.
@@ -537,12 +537,12 @@ Arguments:
     Uuid - will receive the UUID.
 Return Value:
     STATUS_SUCCESS is returned if the service is successfully executed.
-    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs.  
+    STATUS_RETRY is returned if we're unable to reserve a range of UUIDs.
                  This will occur if system clock hasn't advanced and the allocator is out of cached values.
 */
 {
     NTSTATUS Status = STATUS_SUCCESS;
-    UUID_GENERATE  *UuidGen = (UUID_GENERATE *)Uuid;
+    UUID_GENERATE* UuidGen = (UUID_GENERATE*)Uuid;
     ULONGLONG       Time;
     LONG            Delta;
     PKTHREAD        CurrentThread;
@@ -555,8 +555,8 @@ Return Value:
         Time = ExpUuidCachedValues.Time;// Get the highest value in the cache (though it may not be available).
 
         // Copy the static info into the UUID.  We can't do this later because the clock sequence could be updated by another thread.
-        *(PULONG)&UuidGen->ClockSeqHiAndReserved = *(PULONG)&ExpUuidCachedValues.ClockSeqHiAndReserved;
-        *(PULONG)&UuidGen->NodeId[2] = *(PULONG)&ExpUuidCachedValues.NodeId[2];
+        *(PULONG)& UuidGen->ClockSeqHiAndReserved = *(PULONG)& ExpUuidCachedValues.ClockSeqHiAndReserved;
+        *(PULONG)& UuidGen->NodeId[2] = *(PULONG)& ExpUuidCachedValues.NodeId[2];
 
         // See what we need to subtract from Time to get a valid GUID.
         Delta = InterlockedDecrement(&ExpUuidCachedValues.AllocatedCount);

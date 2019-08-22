@@ -135,7 +135,7 @@ Return Value:
 
     // Carefully probe and capture all user parameters.
     FrameList = NULL;
-    PoolArea = (PVOID)&StackArray[0];
+    PoolArea = (PVOID)& StackArray[0];
     if (ARGUMENT_PRESENT(UserPfnArray)) {
         // Check for zero pages here so the loops further down can be optimized taking into account this can never happen.
         if (NumberOfPages == 0) {
@@ -153,7 +153,7 @@ Return Value:
         // Capture the specified page frame numbers.
         Status = MiCaptureUlongPtrArray(PoolArea, UserPfnArray, NumberOfPages);
         if (!NT_SUCCESS(Status)) {
-            if (PoolArea != (PVOID)&StackArray[0]) {
+            if (PoolArea != (PVOID)& StackArray[0]) {
                 ExFreePool(PoolArea);
             }
             return Status;
@@ -183,7 +183,7 @@ Return Value:
 
     // The physical pages bitmap must exist.
     if ((AweInfo == NULL) || (AweInfo->VadPhysicalPagesBitMap == NULL)) {
-        if (PoolArea != (PVOID)&StackArray[0]) {
+        if (PoolArea != (PVOID)& StackArray[0]) {
             ExFreePool(PoolArea);
         }
         return STATUS_INVALID_PARAMETER_1;
@@ -206,7 +206,7 @@ Return Value:
         // Lookup the element and save the result.
 
         // Note that the pushlock is sufficient to traverse this list.
-        SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, MI_VA_TO_VPN(VirtualAddress), (PMMADDRESS_NODE *)&PhysicalView);
+        SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, MI_VA_TO_VPN(VirtualAddress), (PMMADDRESS_NODE*)& PhysicalView);
         if ((SearchResult == TableFoundNode) && (PhysicalView->VadType == VadAwe) && (VirtualAddress >= MI_VPN_TO_VA(PhysicalView->StartingVpn)) && (EndAddress <= MI_VPN_TO_VA_ENDING(PhysicalView->EndingVpn))) {
             AweInfo->PhysicalViewHint[Processor] = PhysicalView;
         } else {
@@ -360,7 +360,7 @@ Return Value:
         MiFlushPteList(&PteFlushList);
     }
 
-    if (PoolArea != (PVOID)&StackArray[0]) {
+    if (PoolArea != (PVOID)& StackArray[0]) {
         ExFreePool(PoolArea);
     }
 
@@ -380,7 +380,7 @@ ErrorReturn0:
 ErrorReturn:
     ExReleaseCacheAwarePushLockShared(PushLock);
     KeLeaveGuardedRegionThread(&CurrentThread->Tcb);
-    if (PoolArea != (PVOID)&StackArray[0]) {
+    if (PoolArea != (PVOID)& StackArray[0]) {
         ExFreePool(PoolArea);
     }
 
@@ -388,7 +388,7 @@ ErrorReturn:
 }
 
 
-NTSTATUS NtMapUserPhysicalPagesScatter(__in_ecount(NumberOfPages) PVOID *VirtualAddresses, __in ULONG_PTR NumberOfPages, __in_ecount_opt(NumberOfPages) PULONG_PTR UserPfnArray)
+NTSTATUS NtMapUserPhysicalPagesScatter(__in_ecount(NumberOfPages) PVOID* VirtualAddresses, __in ULONG_PTR NumberOfPages, __in_ecount_opt(NumberOfPages) PULONG_PTR UserPfnArray)
 /*
 Routine Description:
     This function maps the specified nonpaged physical pages into the specified user address range.
@@ -415,9 +415,9 @@ Return Value:
     MMPTE_FLUSH_LIST PteFlushList;
     PVOID PoolArea;
     PVOID PoolAreaEnd;
-    PVOID *PoolVirtualArea;
-    PVOID *PoolVirtualAreaBase;
-    PVOID *PoolVirtualAreaEnd;
+    PVOID* PoolVirtualArea;
+    PVOID* PoolVirtualAreaBase;
+    PVOID* PoolVirtualAreaEnd;
     PPFN_NUMBER FrameList;
     PVOID StackVirtualArray[SMALL_COPY_STACK_SIZE];
     ULONG_PTR StackArray[SMALL_COPY_STACK_SIZE];
@@ -443,8 +443,8 @@ Return Value:
     }
 
     // Carefully probe and capture the user virtual address array.
-    PoolArea = (PVOID)&StackArray[0];
-    PoolVirtualAreaBase = (PVOID)&StackVirtualArray[0];
+    PoolArea = (PVOID)& StackArray[0];
+    PoolVirtualAreaBase = (PVOID)& StackVirtualArray[0];
     NumberOfPoolBytes = NumberOfPages * sizeof(PVOID);
     NumberOfBytes = NumberOfPoolBytes;
     if (NumberOfPages > SMALL_COPY_STACK_SIZE) {
@@ -560,7 +560,7 @@ Return Value:
         // Lookup the element and save the result.
 
         // Note that the pushlock is sufficient to traverse this list.
-        SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, MI_VA_TO_VPN(VirtualAddress), (PMMADDRESS_NODE *)&PhysicalView);
+        SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, MI_VA_TO_VPN(VirtualAddress), (PMMADDRESS_NODE*)& PhysicalView);
         if ((SearchResult == TableFoundNode) && (PhysicalView->VadType == VadAwe) && (VirtualAddress >= MI_VPN_TO_VA(PhysicalView->StartingVpn)) && (VirtualAddress <= MI_VPN_TO_VA_ENDING(PhysicalView->EndingVpn))) {
             NewPhysicalViewHint = PhysicalView;
         } else {
@@ -746,7 +746,7 @@ Return Value:
     }
 
 ErrorReturn:
-    if (PoolVirtualAreaBase != (PVOID)&StackVirtualArray[0]) {
+    if (PoolVirtualAreaBase != (PVOID)& StackVirtualArray[0]) {
         ExFreePool(PoolVirtualAreaBase);
     }
 
@@ -948,7 +948,7 @@ Return Value:
     if (ProcessHandle == NtCurrentProcess()) {
         Process = CurrentProcess;
     } else {
-        Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, PreviousMode, (PVOID *)&Process, NULL);
+        Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, PreviousMode, (PVOID*)& Process, NULL);
         if (!NT_SUCCESS(Status)) {
             return Status;
         }
@@ -1335,7 +1335,7 @@ Return Value:
 
     if (MemoryDescriptorList == NULL) {
         MdlPages = VERY_SMALL_COPY_STACK_SIZE;
-        MemoryDescriptorList = (PMDL)&MdlHack[0];
+        MemoryDescriptorList = (PMDL)& MdlHack[0];
     }
 
     ProcessReferenced = FALSE;
@@ -1366,7 +1366,7 @@ repeat:
         if (ProcessHandle == NtCurrentProcess()) {
             Process = PsGetCurrentProcessByThread(CurrentThread);
         } else {
-            Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, PreviousMode, (PVOID *)&Process, NULL);
+            Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, PreviousMode, (PVOID*)& Process, NULL);
             if (!NT_SUCCESS(Status)) {
                 goto ErrorReturn;
             }
@@ -1515,7 +1515,7 @@ repeat:
     // Fall through.
 ErrorReturn:
     // Free any pool acquired for holding MDLs.
-    if (MemoryDescriptorList != (PMDL)&MdlHack[0]) {
+    if (MemoryDescriptorList != (PMDL)& MdlHack[0]) {
         ExFreePool(MemoryDescriptorList);
     }
 
@@ -1700,7 +1700,7 @@ Environment:
 #endif
 
     MdlPages = VERY_SMALL_COPY_STACK_SIZE;
-    MemoryDescriptorList = (PMDL)&MdlHack[0];
+    MemoryDescriptorList = (PMDL)& MdlHack[0];
 
     MdlPage = (PPFN_NUMBER)(MemoryDescriptorList + 1);
     NumberOfPages = 0;
@@ -1836,7 +1836,7 @@ Environment:
 
     ExAcquireCacheAwarePushLockExclusive(AweInfo->PushLock);
     // Lookup the element and save the result.
-    SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, Vad->StartingVpn, (PMMADDRESS_NODE *)&AweView);
+    SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, Vad->StartingVpn, (PMMADDRESS_NODE*)& AweView);
     ASSERT(SearchResult == TableFoundNode);
     ASSERT(AweView->Vad == Vad);
     MiRemoveNode((PMMADDRESS_NODE)AweView, &AweInfo->AweVadRoot);
@@ -2000,7 +2000,7 @@ Environment:
 #if DBG
             if (MiShowStuckPages != 0) {
                 MiFlushAllPages();
-                KeDelayExecutionThread(KernelMode, FALSE, (PLARGE_INTEGER)&MmHalfSecond);
+                KeDelayExecutionThread(KernelMode, FALSE, (PLARGE_INTEGER)& MmHalfSecond);
             }
 #endif
             i -= 1;
@@ -2012,13 +2012,13 @@ Environment:
             }
 #endif
             MiFlushAllPages();
-            KeDelayExecutionThread(KernelMode, FALSE, (PLARGE_INTEGER)&MmHalfSecond);
+            KeDelayExecutionThread(KernelMode, FALSE, (PLARGE_INTEGER)& MmHalfSecond);
             i -= 1;
             break;
         case 1:
             MmEmptyAllWorkingSets();
             MiFlushAllPages();
-            KeDelayExecutionThread(KernelMode, FALSE, (PLARGE_INTEGER)&MmOneSecond);
+            KeDelayExecutionThread(KernelMode, FALSE, (PLARGE_INTEGER)& MmOneSecond);
             i -= 1;
             break;
         case 0:
@@ -2479,13 +2479,13 @@ Environment:
     try {
 #if defined(_AMD64_)
         if (PsGetCurrentProcess()->Wow64Process != NULL) {
-            ULONG_PTR *dst;
+            ULONG_PTR* dst;
             ULONG64 index;
             ULONG_PTR remainingElements;
-            ULONG *src;
+            ULONG* src;
 
-            dst = (ULONG_PTR *)Destination;
-            src = (ULONG *)Source;
+            dst = (ULONG_PTR*)Destination;
+            src = (ULONG*)Source;
             ProbeForRead(src, ArraySize * sizeof(ULONG), sizeof(ULONG));
 
             // Unroll the copy operation.

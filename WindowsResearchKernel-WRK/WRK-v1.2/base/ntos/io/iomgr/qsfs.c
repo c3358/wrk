@@ -103,7 +103,7 @@ Return Value:
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, IopQueryFsOperationAccess[FsInformationClass], IoFileObjectType, requestorMode, (PVOID *)&fileObject, NULL);
+    status = ObReferenceObjectByHandle(FileHandle, IopQueryFsOperationAccess[FsInformationClass], IoFileObjectType, requestorMode, (PVOID*)& fileObject, NULL);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -391,7 +391,7 @@ NTSTATUS NtSetVolumeInformationFile(
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, IopSetFsOperationAccess[FsInformationClass], IoFileObjectType, requestorMode, (PVOID *)&fileObject, NULL);
+    status = ObReferenceObjectByHandle(FileHandle, IopSetFsOperationAccess[FsInformationClass], IoFileObjectType, requestorMode, (PVOID*)& fileObject, NULL);
     if (!NT_SUCCESS(status)) {
         return status;
     }

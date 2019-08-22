@@ -161,7 +161,7 @@ Return Value:
     //  Allocate and initialize a port object.  If an object name was specified, then this is a connection port.  
     //  Otherwise this is an unconnected communication port that a process can use to communicate between threads.
     Status = ObCreateObject(PreviousMode, (Waitable ? LpcWaitablePortObjectType : LpcPortObjectType), ObjectAttributes, PreviousMode, NULL,
-        (Waitable ? sizeof(LPCP_PORT_OBJECT) : FIELD_OFFSET(LPCP_PORT_OBJECT, WaitEvent)), 0, 0, (PVOID *)&ConnectionPort);
+        (Waitable ? sizeof(LPCP_PORT_OBJECT) : FIELD_OFFSET(LPCP_PORT_OBJECT, WaitEvent)), 0, 0, (PVOID*)& ConnectionPort);
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
@@ -237,7 +237,7 @@ Return Value:
     //  Insert connection port object in specified object table.  Set port handle value if successful.
     //  If not successful, then the port will have been dereferenced, which will cause it to be freed, after our delete procedure is called.
     //  The delete procedure will undo the work done to initialize the port.  Finally, return the system server status.
-    Status = ObInsertObject(ConnectionPort, NULL, PORT_ALL_ACCESS, 0, (PVOID *)NULL, &Handle);
+    Status = ObInsertObject(ConnectionPort, NULL, PORT_ALL_ACCESS, 0, (PVOID*)NULL, &Handle);
     if (NT_SUCCESS(Status)) {
         try {
             *PortHandle = Handle;//  Set the output variable protected against access faults

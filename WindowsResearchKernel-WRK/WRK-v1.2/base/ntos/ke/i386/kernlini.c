@@ -26,7 +26,7 @@ VOID KiI386PentiumLockErrataFixup(VOID);
 VOID KiInitializeDblFaultTSS(IN PKTSS Tss, IN ULONG Stack, IN PKGDTENTRY TssDescriptor);
 VOID KiInitializeTSS2(IN PKTSS Tss, IN PKGDTENTRY TssDescriptor);
 VOID KiSwapIDT(VOID);
-VOID KeSetup80387OrEmulate(IN PVOID *R3EmulatorTable);
+VOID KeSetup80387OrEmulate(IN PVOID* R3EmulatorTable);
 VOID KiGetCacheInformation(VOID);
 ULONG KiGetCpuVendor(VOID);
 ULONG KiGetFeatureBits(VOID);
@@ -325,7 +325,7 @@ Arguments:
             *(PUCHAR)(ULONG_PTR)(KeReleaseQueuedSpinLockFromDpcLevel) = RET;
 
             // Copy the UP version of KeTryToAcquireQueuedSpinLockAtRaisedIrql over the top of the MP version.
-            PatchSource = (PUCHAR)(ULONG_PTR)&(KeTryToAcquireQueuedSpinLockAtRaisedIrqlUP);
+            PatchSource = (PUCHAR)(ULONG_PTR) & (KeTryToAcquireQueuedSpinLockAtRaisedIrqlUP);
             PatchTarget = (PUCHAR)(ULONG_PTR)(KeTryToAcquireQueuedSpinLockAtRaisedIrql);
 
             do {
@@ -1367,7 +1367,7 @@ BOOLEAN KiInitMachineDependent(VOID)
         LONGLONG        TSCEnd;
         LONGLONG        TSCDelta;
         ULONG           MHz;
-    } Samples[MAX_ATTEMPTS], *pSamp;
+    } Samples[MAX_ATTEMPTS], * pSamp;
 
 #ifndef NT_UP
     PUCHAR          PatchLocation;
@@ -1380,7 +1380,7 @@ BOOLEAN KiInitMachineDependent(VOID)
     // We enable large pages before global pages to make TLB invalidation easier while turning on large pages.
     KiLargePageSafetyCheck();
     if (KeFeatureBits & KF_LARGE_PAGE) {
-        if (Ki386CreateIdentityMap(&IdentityMap, (PVOID)(ULONG_PTR)&Ki386EnableCurrentLargePage, (PVOID)(ULONG_PTR)&Ki386EnableCurrentLargePageEnd)) {
+        if (Ki386CreateIdentityMap(&IdentityMap, (PVOID)(ULONG_PTR)& Ki386EnableCurrentLargePage, (PVOID)(ULONG_PTR)& Ki386EnableCurrentLargePageEnd)) {
             KeIpiGenericCall((PKIPI_BROADCAST_WORKER)Ki386EnableTargetLargePage, (ULONG)(&IdentityMap));
         }
 
@@ -1435,7 +1435,7 @@ BOOLEAN KiInitMachineDependent(VOID)
                         cli
                         mov     eax, cr0
                         mov     ecx, eax; hold original cr0 value
-                        and     eax, not (CR0_TS + CR0_MP + CR0_EM)
+                        and eax, not (CR0_TS + CR0_MP + CR0_EM)
                         mov     cr0, eax
 
                         fninit; to known state
@@ -1448,7 +1448,7 @@ BOOLEAN KiInitMachineDependent(VOID)
                         fld     Dividend
                         fdiv    Divisor; test known faulty divison
                         fmul    Divisor; Multiple quotient by divisor
-                        fcomp   Dividend; Compare product and dividend
+                        fcomp   Dividend; Compare productand dividend
                         fstsw   ax; Move float conditions to ax
                         sahf; move to eflags
 
@@ -1541,19 +1541,19 @@ BOOLEAN KiInitMachineDependent(VOID)
 #if !defined(NT_UP)
             }
 #endif
-            *(PUCHAR)(ULONG_PTR)&RtlPrefetchMemoryNonTemporal = 0x90;
+            * (PUCHAR)(ULONG_PTR)& RtlPrefetchMemoryNonTemporal = 0x90;
         }
     } else {
 #ifndef NT_UP
         // Patch the fxsave instruction in SwapContext to use "fnsave {dd, 31}, fwait {9b}"
-        ASSERT(((ULONG)&ScPatchFxe - (ULONG)&ScPatchFxb) >= 3);
+        ASSERT(((ULONG)& ScPatchFxe - (ULONG)& ScPatchFxb) >= 3);
 
-        PatchLocation = (PUCHAR)&ScPatchFxb;
+        PatchLocation = (PUCHAR)& ScPatchFxb;
 
         *PatchLocation++ = 0xdd;
         *PatchLocation++ = 0x31;
         *PatchLocation++ = 0x9b;
-        while (PatchLocation < (PUCHAR)&ScPatchFxe) {
+        while (PatchLocation < (PUCHAR)& ScPatchFxe) {
             *PatchLocation++ = 0x90;// Put nop's in the remaining bytes
         }
 #endif
@@ -1680,8 +1680,8 @@ BOOLEAN KiInitMachineDependent(VOID)
 
         OldIrql = KfRaiseIrql(SYNCH_LEVEL);
 
-        Target = (ULONG_PTR)&KiTimedChainedDispatch2ndLvl;
-        Source = (ULONG_PTR)&KiChainedDispatch2ndLvl;
+        Target = (ULONG_PTR)& KiTimedChainedDispatch2ndLvl;
+        Source = (ULONG_PTR)& KiChainedDispatch2ndLvl;
 
         // Compute offset from end of branch instruction to new instruction stream.
         // N.B. The end of the branch instruction will be 7 bytes in.
@@ -1705,7 +1705,7 @@ BOOLEAN KiInitMachineDependent(VOID)
         //      call    @KiTimedInterruptDispatch@4
         //      jmp     xxx             ; skip unpatched excess code.
 
-        Target = (ULONG_PTR)&KiTimedInterruptDispatch;
+        Target = (ULONG_PTR)& KiTimedInterruptDispatch;
         Target = Target - (Source + 7);
 
         Code = (PUCHAR)Source;
@@ -1732,7 +1732,7 @@ VOID KeOptimizeProcessorControlState(VOID)
 }
 
 
-VOID KeSetup80387OrEmulate(IN PVOID *R3EmulatorTable)
+VOID KeSetup80387OrEmulate(IN PVOID* R3EmulatorTable)
 /*
 Routine Description:
     This routine is called by PS initialization after loading NTDLL.

@@ -19,8 +19,7 @@ Abstract:
 #endif
 
 // debug structures
-extern struct
-{
+extern struct {
     PHHIVE      Hive;
     ULONG       Status;
     ULONG       Space;
@@ -28,11 +27,10 @@ extern struct
     PHBIN       BinPoint;
 } HvCheckHiveDebug;
 
-extern struct
-{
-    PHBIN       Bin;
-    ULONG       Status;
-    PHCELL      CellPoint;
+extern struct {
+    PHBIN   Bin;
+    ULONG   Status;
+    PHCELL  CellPoint;
 } HvCheckBinDebug;
 
 

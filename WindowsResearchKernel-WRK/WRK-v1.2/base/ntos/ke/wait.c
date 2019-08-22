@@ -797,9 +797,8 @@ Arguments:
     LONG OldValue;
     LONG WaitIncrement;
 #endif
-
-    // Increment the contention count and wait or acquire fast mutex.
-    Mutex->Contention += 1;
+    
+    Mutex->Contention += 1;// Increment the contention count and wait or acquire fast mutex.
 
 #if defined (_X86_)
     KeWaitForSingleObject(&Mutex->Gate, WrMutex, KernelMode, FALSE, NULL);

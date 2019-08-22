@@ -73,7 +73,7 @@ Return Value:
 
     // Reference the file object so the target device can be found and the access rights mask can be used in the following checks for callers in user mode.
     // Note that if the handle does not refer to a file object, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, 0L, IoFileObjectType, requestorMode, (PVOID *)&fileObject, &handleInformation);
+    status = ObReferenceObjectByHandle(FileHandle, 0L, IoFileObjectType, requestorMode, (PVOID*)& fileObject, &handleInformation);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -128,7 +128,7 @@ Return Value:
     // Note here, too, that if the handle does not refer to an event, or if the event cannot be written, then the reference will fail.
     // Since certain legacy applications rely on an old bug in Win32's LockFileEx, we must tolerate bad event handles.
     if (ARGUMENT_PRESENT(Event)) {
-        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID *)&eventObject, NULL);
+        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID*)& eventObject, NULL);
         if (!NT_SUCCESS(status)) {
             ASSERT(!eventObject);
         } else {
@@ -168,7 +168,7 @@ Return Value:
                     *IoStatusBlock = localIoStatus;
                 }
 #else
-                *IoStatusBlock = localIoStatus;
+                * IoStatusBlock = localIoStatus;
 #endif
             } except(EXCEPTION_EXECUTE_HANDLER)
             {
@@ -320,7 +320,7 @@ Return Value:
 
     // Reference the file object so the target device can be found and the access rights mask can be used in the following checks for callers in user mode.
     //  Note that if the handle does not refer to a file object, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, 0L, IoFileObjectType, requestorMode, (PVOID *)&fileObject, &handleInformation);
+    status = ObReferenceObjectByHandle(FileHandle, 0L, IoFileObjectType, requestorMode, (PVOID*)& fileObject, &handleInformation);
     if (!NT_SUCCESS(status)) {
         return status;
     }

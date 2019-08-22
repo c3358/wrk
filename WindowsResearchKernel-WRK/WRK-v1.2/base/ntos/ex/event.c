@@ -427,8 +427,7 @@ Arguments:
         if (ARGUMENT_PRESENT(PreviousState)) {
             try {
                 *PreviousState = State;
-            } except(ExSystemExceptionFilter())
-            {
+            } except(ExSystemExceptionFilter()) {
                 NOTHING;
             }
         }

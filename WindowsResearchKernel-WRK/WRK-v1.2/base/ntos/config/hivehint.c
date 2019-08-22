@@ -61,12 +61,7 @@ HvpScanForFreeCellInViewWindow(
 #endif
 
 
-NTSTATUS
-HvpAdjustHiveFreeDisplay(
-    IN PHHIVE           Hive,
-    IN ULONG            HiveLength,
-    IN HSTORAGE_TYPE    Type
-)
+NTSTATUS HvpAdjustHiveFreeDisplay(IN PHHIVE Hive, IN ULONG HiveLength, IN HSTORAGE_TYPE Type)
 /*
 Routine Description:
     calls HvpAdjustBitmap for all bitmap sizes
@@ -296,7 +291,7 @@ Return Value:
                 Size = (ULONG)p->Size;
 
                 HvpComputeIndex(TempIndex, Size);
-                if ((Index == TempIndex) && (CellOffset != (Cell&(~HCELL_TYPE_MASK)))) {
+                if ((Index == TempIndex) && (CellOffset != (Cell & (~HCELL_TYPE_MASK)))) {
                     // there is at least one free cell of this size (this one)
                     // different than the one being delisted
                     CellFound = TRUE;
@@ -391,7 +386,7 @@ Return Value:
 
                 // cell is free, and is not obviously corrupt, add to free list
                 CellOffset = (ULONG)((PUCHAR)p - (PUCHAR)Bin);
-                cellindex = BinOffset + CellOffset + (Type*HCELL_TYPE_MASK);
+                cellindex = BinOffset + CellOffset + (Type * HCELL_TYPE_MASK);
 
                 if (NewSize <= (ULONG)Size) {
                     // Found a big enough cell.
@@ -473,7 +468,8 @@ Note:
         FileOffsetEnd = Hive->Storage[Type].Length;
     }
 
-    CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "\t[HvpScanForFreeCellInViewWindow] (Start,End) = (%lx,%lx) Size = %lx\n", FileOffsetStart, FileOffsetEnd, Hive->Storage[Type].Length));
+    CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "\t[HvpScanForFreeCellInViewWindow] (Start,End) = (%lx,%lx) Size = %lx\n",
+                 FileOffsetStart, FileOffsetEnd, Hive->Storage[Type].Length));
 
     // sanity ASSERT
     ASSERT(FileOffsetStart < FileOffsetEnd);
@@ -482,7 +478,7 @@ Note:
     ASSERT(!RtlAreBitsClear(&(Hive->Storage[Type].FreeDisplay[Index].Display), FileOffsetStart / HBLOCK_SIZE, (FileOffsetEnd - FileOffsetStart) / HBLOCK_SIZE));
 
     while (FileOffsetStart < FileOffsetEnd) {
-        Cell = FileOffsetStart + (Type*HCELL_TYPE_MASK);
+        Cell = FileOffsetStart + (Type * HCELL_TYPE_MASK);
         Me = HvpGetCellMap(Hive, Cell);
         VALIDATE_CELL_MAP(__LINE__, Me, Hive, Cell);
         CmView = NULL;
@@ -525,15 +521,13 @@ Note:
         try {
             BinFileOffset = Bin->FileOffset;
             BinSize = Bin->Size;
-        } except(EXCEPTION_EXECUTE_HANDLER)
-        {
+        } except(EXCEPTION_EXECUTE_HANDLER) {
             CmKdPrintEx((DPFLTR_CONFIG_ID, DPFLTR_ERROR_LEVEL, "HvpScanForFreeCellInViewWindow: exception thrown while faulting in data, code:%08lx\n", GetExceptionCode()));
             CmpDereferenceHiveViewWithLock((PCMHIVE)Hive, CmView);
             return HCELL_NIL;
         }
 
         if (BinFileOffset == FileOffsetStart) {
-
             Cell = HvpFindFreeCellInBin(Hive, Index, NewSize, Type, Bin);
             if (Cell != HCELL_NIL) {
                 //found it!
@@ -592,7 +586,7 @@ Note:
 
     ASSERT(Vicinity != HCELL_NIL);
 
-    VicinityViewOffset = ((Vicinity&(~HCELL_TYPE_MASK)) + HBLOCK_SIZE) & (~(CM_VIEW_SIZE - 1));
+    VicinityViewOffset = ((Vicinity & (~HCELL_TYPE_MASK)) + HBLOCK_SIZE) & (~(CM_VIEW_SIZE - 1));
     FileOffsetStart = VicinityViewOffset & (~(CM_VIEW_SIZE - 1));
 
     FileOffsetEnd = FileOffsetStart + CM_VIEW_SIZE;
@@ -600,7 +594,8 @@ Note:
         FileOffsetEnd = Hive->Storage[Type].Length + HBLOCK_SIZE;
     }
 
-    CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "[HvpFindFreeCellInThisViewWindow] Vicinity = %lx (Start,End) = (%lx,%lx) Size = %lx\n", Vicinity, FileOffsetStart, FileOffsetEnd, Hive->Storage[Type].Length));
+    CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "[HvpFindFreeCellInThisViewWindow] Vicinity = %lx (Start,End) = (%lx,%lx) Size = %lx\n",
+                 Vicinity, FileOffsetStart, FileOffsetEnd, Hive->Storage[Type].Length));
 
     // sanity assert
     ASSERT(FileOffsetStart < FileOffsetEnd);
@@ -646,7 +641,8 @@ Note:
             }
 
             // if we got here, the hints are invalid
-            CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "[HvpFindFreeCellInThisViewWindow] (Start,End) = (%lx,%lx) Offset = %lx RunLength = %lx\n", FileOffsetStart, FileOffsetEnd, Offset, RunLength));
+            CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "[HvpFindFreeCellInThisViewWindow] (Start,End) = (%lx,%lx) Offset = %lx RunLength = %lx\n",
+                         FileOffsetStart, FileOffsetEnd, Offset, RunLength));
         }
 
         // No suitable cell was found of this size.
@@ -681,7 +677,8 @@ Return Value:
     A free cellindex with a size bigger than NewSize, or HCELL_NIL
 Optimization:
     When Vicinity is HCELL_NIL or if a cell is not found in the same window as the vicinity, we don't really care where the cell gets allocated.
-    So, rather than iterating the whole hive, is a good idea to search first in the pinned view list, then in the mapped view list, and at the end in the rest of unmapped views.
+    So, rather than iterating the whole hive, is a good idea to search first in the pinned view list,
+    then in the mapped view list, and at the end in the rest of unmapped views.
 */
 {
     HCELL_INDEX         Cell = HCELL_NIL;
@@ -698,7 +695,8 @@ Optimization:
     {
         UNICODE_STRING  HiveName;
         RtlInitUnicodeString(&HiveName, (PCWSTR)Hive->BaseBlock->FileName);
-        CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "[HvpFindFreeCell] CellSize = %lu Vicinity = %lx :: Hive (%p) (%.*S)  ...", NewSize, Vicinity, Hive, HiveName.Length / sizeof(WCHAR), HiveName.Buffer));
+        CmKdPrintEx((DPFLTR_CONFIG_ID, CML_FREECELL, "[HvpFindFreeCell] CellSize = %lu Vicinity = %lx :: Hive (%p) (%.*S)  ...",
+                     NewSize, Vicinity, Hive, HiveName.Length / sizeof(WCHAR), HiveName.Buffer));
     }
 #endif
 
@@ -723,9 +721,11 @@ Optimization:
     while (FileOffset < Hive->Storage[Type].Length) {
         // don't search again in the vicinity window
         // we already did it once
-        if ((((CmHive->GrowOnlyMode == FALSE) || (Type == Volatile)) && ((Vicinity == HCELL_NIL) || (HvpCheckViewBoundary(FileOffset, Vicinity&(~HCELL_TYPE_MASK)) == FALSE))) || ((CmHive->GrowOnlyMode == TRUE) && (FileOffset >= CmHive->GrowOffset))) {
+        if ((((CmHive->GrowOnlyMode == FALSE) || (Type == Volatile)) && ((Vicinity == HCELL_NIL) ||
+            (HvpCheckViewBoundary(FileOffset, Vicinity & (~HCELL_TYPE_MASK)) == FALSE))) ||
+                                                                         ((CmHive->GrowOnlyMode == TRUE) && (FileOffset >= CmHive->GrowOffset))) {
             // search in this window
-            Cell = FileOffset + (Type*HCELL_TYPE_MASK);
+            Cell = FileOffset + (Type * HCELL_TYPE_MASK);
             Cell = HvpFindFreeCellInThisViewWindow(Hive, Index, NewSize, Type, Cell);
             if (Cell != HCELL_NIL) {
                 // found it!

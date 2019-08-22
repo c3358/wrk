@@ -390,9 +390,8 @@ Arguments:
             NewValue.Ptr = InterlockedCompareExchangePointer(&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr);
             if (NewValue.Ptr == OldValue.Ptr) {
                 ULONG i;
-
-                // If we set the waiting bit then optimize the list
-                if (Optimize) {
+                
+                if (Optimize) {// If we set the waiting bit then optimize the list
                     ExpOptimizePushLockList(PushLock, TopValue);
                 }
 
@@ -491,13 +490,14 @@ Arguments:
             NewValue.Ptr = InterlockedCompareExchangePointer(&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr);
             if (NewValue.Ptr == OldValue.Ptr) {
                 ULONG i;
-
-                // If we set the waiting bit then optimize the list
-                if (Optimize) {
+                
+                if (Optimize) {// If we set the waiting bit then optimize the list
                     ExpOptimizePushLockList(PushLock, TopValue);
                 }
 
-                KeInitializeGate(&WaitBlock.WakeGate);// It is safe to initialize the gate here, as the interlocked operation below forces a gate signal to always follow gate initialization.
+                // It is safe to initialize the gate here,
+                // as the interlocked operation below forces a gate signal to always follow gate initialization.
+                KeInitializeGate(&WaitBlock.WakeGate);
 
                 for (i = ExPushLockSpinCount; i > 0; i--) {
                     if (((*(volatile LONG *)&WaitBlock.Flags)&EX_PUSH_LOCK_FLAGS_SPINNING) == 0) {

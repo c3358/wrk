@@ -35,7 +35,7 @@ Routine Description:
     A server process can accept or reject a client connection request using the NtAcceptConnectPort service.
 
     The ConnectionRequest parameter must specify a connection request returned by a previous call to the NtListenPort service.
-    This service will either complete the connection if the AcceptConnection parameter is TRUE, 
+    This service will either complete the connection if the AcceptConnection parameter is TRUE,
     or reject the connection request if the AcceptConnection parameter is FALSE.
 
     In either case, the contents of the data portion of the connection request is the data to return to the caller of NtConnectPort.
@@ -46,25 +46,25 @@ Routine Description:
     In addition the two communication ports (client and server) will be linked together.
 
     If the connection request is accepted, and the ServerView parameter was specified, then the section handle is examined.
-    If it is valid, 
+    If it is valid,
     then the portion of the section described by the SectionOffset and ViewSize fields will be mapped into both the client and server process address spaces.
     The address in server's address space will be returned in the ViewBase field.
     The address in the client's address space will be returned in the ViewRemoteBase field.
     The actual offset and size used to map the section will be returned in the SectionOffset and ViewSize fields.
 
     Communication port objects are temporary objects that have no names and cannot be inherited.
-    When either the client or server process calls the !f NtClose service for a communication port, 
+    When either the client or server process calls the !f NtClose service for a communication port,
     the port will be deleted since there can never be more than one outstanding handle for each communication port.
     The port object type specific delete procedure will then be invoked.
-    This delete procedure will examine the communication port, and if it is connected to another communication port, 
+    This delete procedure will examine the communication port, and if it is connected to another communication port,
     it will queue an LPC_PORT_CLOSED datagram to that port's message queue.
-    This will allow both the client and server processes to notice when a port becomes disconnected, 
+    This will allow both the client and server processes to notice when a port becomes disconnected,
     either because of an explicit call to NtClose or an implicit call due to process termination.
-    In addition, the delete procedure will scan the message queue of the port being closed and for each message still in the queue, 
+    In addition, the delete procedure will scan the message queue of the port being closed and for each message still in the queue,
     it will return an ERROR_PORT_CLOSED status to any thread that is waiting for a reply to the message.
 Arguments:
     PortHandle - A pointer to a variable that will receive the server communication port object handle value.
-    PortContext - An uninterpreted pointer that is stored in the server communication port.  
+    PortContext - An uninterpreted pointer that is stored in the server communication port.
                   This pointer is returned whenever a message is received for this port.
     ConnectionRequest - A pointer to a structure that describes the connection request being accepted or rejected:
         The ConnectionRequest structure
@@ -190,9 +190,9 @@ Return Value:
     //  If not then a bogus connection request has been specified, so release the mutex, dereference the thread and return failure.
 
     //  The check is that the client is waiting for a reply to a connection request and that the message id is both valid and lines up correctly
-    if ((LpcpGetThreadMessage(ClientThread) == NULL) || 
-    (CapturedReplyMessage.MessageId == 0) || 
-    (ClientThread->LpcReplyMessageId != CapturedReplyMessage.MessageId) ||
+    if ((LpcpGetThreadMessage(ClientThread) == NULL) ||
+        (CapturedReplyMessage.MessageId == 0) ||
+        (ClientThread->LpcReplyMessageId != CapturedReplyMessage.MessageId) ||
         ((LpcpGetThreadMessage(ClientThread)->Request.u2.s2.Type & ~LPC_KERNELMODE_MESSAGE) != LPC_CONNECTION_REQUEST)) {
         Msg = NULL;
     } else {
@@ -260,7 +260,7 @@ Return Value:
     if (AcceptConnection) {
         //  Allocate and initialize a server communication port object.
         //  Communication ports have no names, can not be inherited and are process private handles.
-        Status = ObCreateObject(PreviousMode, LpcPortObjectType, NULL, PreviousMode, NULL, FIELD_OFFSET(LPCP_PORT_OBJECT, WaitEvent), 0, 0, (PVOID *)&ServerPort);
+        Status = ObCreateObject(PreviousMode, LpcPortObjectType, NULL, PreviousMode, NULL, FIELD_OFFSET(LPCP_PORT_OBJECT, WaitEvent), 0, 0, (PVOID*)& ServerPort);
         if (!NT_SUCCESS(Status)) {
             goto bailout;
         }
@@ -301,15 +301,15 @@ Return Value:
             LargeSectionOffset.LowPart = ConnectMsg->ClientView.SectionOffset;
             LargeSectionOffset.HighPart = 0;
             Status = MmMapViewOfSection(ClientSectionToMap,
-            PsGetCurrentProcess(), 
-            &ServerPort->ClientSectionBase,
-            0, 
-            0,
-            &LargeSectionOffset,
-            &ConnectMsg->ClientView.ViewSize,
-            ViewUnmap,
-            0, 
-            PAGE_READWRITE);
+                                        PsGetCurrentProcess(),
+                                        &ServerPort->ClientSectionBase,
+                                        0,
+                                        0,
+                                        &LargeSectionOffset,
+                                        &ConnectMsg->ClientView.ViewSize,
+                                        ViewUnmap,
+                                        0,
+                                        PAGE_READWRITE);
             ConnectMsg->ClientView.SectionOffset = LargeSectionOffset.LowPart;
             if (NT_SUCCESS(Status)) {
                 ConnectMsg->ClientView.ViewRemoteBase = ServerPort->ClientSectionBase;
@@ -337,12 +337,12 @@ Return Value:
             //  Map in the section into the servers address space
 
             //  Does this call need to verify that the section handle is still valid.
-            Status = ObReferenceObjectByHandle(CapturedServerView.SectionHandle, 
-            SECTION_MAP_READ | SECTION_MAP_WRITE, 
-            MmSectionObjectType,
-            PreviousMode,
-            (PVOID *)&SectionToMap,
-            NULL);
+            Status = ObReferenceObjectByHandle(CapturedServerView.SectionHandle,
+                                               SECTION_MAP_READ | SECTION_MAP_WRITE,
+                                               MmSectionObjectType,
+                                               PreviousMode,
+                                               (PVOID*)& SectionToMap,
+                                               NULL);
             if (NT_SUCCESS(Status)) {
                 Status = MmMapViewOfSection(SectionToMap,
                                             PsGetCurrentProcess(),
@@ -368,15 +368,15 @@ Return Value:
                     SectionOffset.HighPart = 0;
                     ViewSize = CapturedServerView.ViewSize;
                     Status = MmMapViewOfSection(SectionToMap,
-                    ClientProcess, 
-                    &ClientPort->ServerSectionBase,
-                    0, 
-                    0,
-                    &SectionOffset,
-                    &ViewSize,
-                    ViewUnmap,
-                    0, 
-                    PAGE_READWRITE);
+                                                ClientProcess,
+                                                &ClientPort->ServerSectionBase,
+                                                0,
+                                                0,
+                                                &SectionOffset,
+                                                &ViewSize,
+                                                ViewUnmap,
+                                                0,
+                                                PAGE_READWRITE);
                     if (NT_SUCCESS(Status)) {
                         //  The section was mapped into the client process.
                         //  We'll add a reference to the client process only we didn't before.
@@ -407,7 +407,7 @@ Return Value:
         //  The delete procedure will undo the work done to initialize the port.
         if (NT_SUCCESS(Status)) {
             ObReferenceObject(ServerPort);//  Add an extra reference to the object otherwise right when we create the handle a rogue caller might close and destroy the port.
-            Status = ObInsertObject(ServerPort, NULL, PORT_ALL_ACCESS, 0, (PVOID *)NULL, &Handle);//  Now add the handle
+            Status = ObInsertObject(ServerPort, NULL, PORT_ALL_ACCESS, 0, (PVOID*)NULL, &Handle);//  Now add the handle
             if (NT_SUCCESS(Status)) {
                 try {
                     if (ARGUMENT_PRESENT(ServerView)) {

@@ -18,7 +18,7 @@ Abstract:
 #endif
 
 
-NTSTATUS KeUserModeCallback (IN ULONG ApiNumber, IN PVOID InputBuffer, IN ULONG InputLength, OUT PVOID *OutputBuffer, IN PULONG OutputLength)
+NTSTATUS KeUserModeCallback(IN ULONG ApiNumber, IN PVOID InputBuffer, IN ULONG InputLength, OUT PVOID* OutputBuffer, IN PULONG OutputLength)
 /*
 Routine Description:
     This function call out from kernel mode to a user mode function.
@@ -45,29 +45,29 @@ Return Value:
     ASSERT(KeGetCurrentThread()->ApcState.KernelApcInProgress == FALSE);
 
     // Get the user mode stack pointer and attempt to copy input buffer to the user stack.
-    UserStack = KiGetUserModeStackAddress ();
+    UserStack = KiGetUserModeStackAddress();
     OldStack = *UserStack;
 
     try {
         // Compute new user mode stack address, probe for writability, and copy the input buffer to the user stack.
         // Leave space for an (doubleword-aligned) exception handler at the top of the callback stack frame.
-        C_ASSERT (__alignof (ULONG) == __alignof (EXCEPTION_REGISTRATION_RECORD));
+        C_ASSERT(__alignof (ULONG) == __alignof (EXCEPTION_REGISTRATION_RECORD));
 
         NewStack = (OldStack - InputLength) & ~(__alignof(EXCEPTION_REGISTRATION_RECORD) - 1);
-        Length = 4*sizeof(ULONG) + sizeof(EXCEPTION_REGISTRATION_RECORD);
-        ProbeForWrite ((PCHAR)(NewStack - Length), Length + InputLength, sizeof(CHAR));
-        RtlCopyMemory ((PVOID)NewStack, InputBuffer, InputLength);
+        Length = 4 * sizeof(ULONG) + sizeof(EXCEPTION_REGISTRATION_RECORD);
+        ProbeForWrite((PCHAR)(NewStack - Length), Length + InputLength, sizeof(CHAR));
+        RtlCopyMemory((PVOID)NewStack, InputBuffer, InputLength);
 
         // Push arguments onto user stack. Note space remains for the exception
         // registration record following the callback function arguments.
         NewStack -= Length;
         *((PULONG)NewStack) = 0;
         *(((PULONG)NewStack) + 1) = ApiNumber;
-        *(((PULONG)NewStack) + 2) = (ULONG)(NewStack+Length);
+        *(((PULONG)NewStack) + 2) = (ULONG)(NewStack + Length);
         *(((PULONG)NewStack) + 3) = (ULONG)InputLength;
 
         // Save the exception list in case another handler is defined during the callout.
-        Teb = (PTEB) KeGetCurrentThread()->Teb;
+        Teb = (PTEB)KeGetCurrentThread()->Teb;
         ExceptionList = Teb->NtTib.ExceptionList;
 
         // Call user mode.
@@ -83,8 +83,8 @@ Return Value:
 
         // If an exception occurs during the probe of the user stack, 
         // then always handle the exception and return the exception code as the status value.
-    } except (EXCEPTION_EXECUTE_HANDLER) {
-        return GetExceptionCode ();
+    } except(EXCEPTION_EXECUTE_HANDLER) {
+        return GetExceptionCode();
     }
 
     // When returning from user mode, any drawing done to the GDI TEB batch must be flushed.
@@ -92,13 +92,13 @@ Return Value:
     GdiBatchCount = 1;
     try {
         GdiBatchCount = Teb->GdiBatchCount;
-    } except (EXCEPTION_EXECUTE_HANDLER) {
+    } except(EXCEPTION_EXECUTE_HANDLER) {
         NOTHING;
     }
 
     if (GdiBatchCount > 0) {
         *UserStack -= 256;
-        KeGdiFlushUserBatch ();// call GDI batch flush routine
+        KeGdiFlushUserBatch();// call GDI batch flush routine
     }
 
     *UserStack = OldStack;

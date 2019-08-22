@@ -66,7 +66,7 @@ typedef struct _KIOP_COPY_CONTEXT
 #endif
 
     UCHAR Replacement;
-} KIOP_COPY_CONTEXT, *PKIOP_COPY_CONTEXT;
+} KIOP_COPY_CONTEXT, * PKIOP_COPY_CONTEXT;
 
 // A table containing each of the possible legacy prefix bytes.
 // The REX prefix is not included here, rather it is checked for separately.
@@ -89,7 +89,7 @@ struct
     { 0xf3, OP_PREFIX_REPE,    OP_PREFIXGRP_REP }
 };
 
-typedef struct _DECODE_ENTRY const *PDECODE_ENTRY;
+typedef struct _DECODE_ENTRY const* PDECODE_ENTRY;
 
 // This is the context that is built and passed around most of the routines in this module to track the state of the decode process.
 typedef struct _DECODE_CONTEXT
@@ -148,7 +148,7 @@ typedef struct _DECODE_CONTEXT
     PDECODE_ENTRY DecodeEntry;
 
     BOOLEAN Retry;// Set to TRUE if the offending instruction or context has been fixed up in some way and should be retried.
-} DECODE_CONTEXT, *PDECODE_CONTEXT;
+} DECODE_CONTEXT, * PDECODE_CONTEXT;
 
 typedef NTSTATUS(*PKOP_OPCODE_HANDLER) (IN PDECODE_CONTEXT DecodeContext);
 
@@ -683,7 +683,7 @@ Return Value:
 }
 
 
-NTSTATUS KiOpRetrieveRegMemAddress(IN OUT PDECODE_CONTEXT DecodeContext, OUT PVOID *OperandAddress, OUT KPROCESSOR_MODE *ProcessorMode)
+NTSTATUS KiOpRetrieveRegMemAddress(IN OUT PDECODE_CONTEXT DecodeContext, OUT PVOID* OperandAddress, OUT KPROCESSOR_MODE* ProcessorMode)
 /*
 Routine Description:
     After an instruction has been decoded, this routine calculates the address of an instruction's rm target.
@@ -837,11 +837,11 @@ Return Value:
         return STATUS_SUCCESS;
     }
 
-    if (KiEmulateAtlThunk((ULONG *)&DecodeContext->ContextRecord->Rip,
-        (ULONG *)&DecodeContext->ContextRecord->Rsp,
-                          (ULONG *)&DecodeContext->ContextRecord->Rax,
-                          (ULONG *)&DecodeContext->ContextRecord->Rcx,
-                          (ULONG *)&DecodeContext->ContextRecord->Rdx)) {
+    if (KiEmulateAtlThunk((ULONG*)& DecodeContext->ContextRecord->Rip,
+        (ULONG*)& DecodeContext->ContextRecord->Rsp,
+                          (ULONG*)& DecodeContext->ContextRecord->Rax,
+                          (ULONG*)& DecodeContext->ContextRecord->Rcx,
+                          (ULONG*)& DecodeContext->ContextRecord->Rdx)) {
         // An ATL thunk was recognized and emulated.
         // Indicate "resume execution".
         DecodeContext->Retry = TRUE;
@@ -873,8 +873,8 @@ Arguments:
             TrapFrame->Rip = (ULONG64)KeUserPopEntrySListResumeWow64;
         }
     } else if (TrapFrame->SegCs == KGDT64_R0_CODE) {
-        if ((Rip > (ULONG64)&ExpInterlockedPopEntrySListResume) && (Rip <= (ULONG64)&ExpInterlockedPopEntrySListEnd)) {
-            TrapFrame->Rip = (ULONG64)&ExpInterlockedPopEntrySListResume;
+        if ((Rip > (ULONG64)& ExpInterlockedPopEntrySListResume) && (Rip <= (ULONG64)& ExpInterlockedPopEntrySListEnd)) {
+            TrapFrame->Rip = (ULONG64)& ExpInterlockedPopEntrySListResume;
         }
     }
 }
@@ -1084,7 +1084,7 @@ Return Value:
     PVOID divisorAddress;
     LONG64 divisor;
     ULONG divisorSize;
-    NTSTATUS *exceptionCode;
+    NTSTATUS* exceptionCode;
 
     if (KiFilterFiberContext(DecodeContext->ContextRecord) != FALSE) {
         DecodeContext->Retry = TRUE;
@@ -1174,8 +1174,8 @@ Return Value:
         return STATUS_SUCCESS;// No further processing for any other exception.
     }
 
-    AH = ((PUCHAR)&(DecodeContext->ContextRecord->Rax)) + 1;
-    FL = (PUCHAR)&(DecodeContext->ContextRecord->EFlags);
+    AH = ((PUCHAR) & (DecodeContext->ContextRecord->Rax)) + 1;
+    FL = (PUCHAR) & (DecodeContext->ContextRecord->EFlags);
     if (DecodeContext->OpCode == 0x9E) {
         *FL = *AH;// Emulate SAHF
     } else {
@@ -1306,7 +1306,7 @@ Return Value:
 
 #if defined(NT_UP)
     KeRaiseIrql(IPI_LEVEL - 2, &oldIrql);
-    KiOpSingleProcCopy((ULONG_PTR)&copyContext);
+    KiOpSingleProcCopy((ULONG_PTR)& copyContext);
     KeLowerIrql(oldIrql);
 #else
     copyContext.Done = FALSE;
@@ -1315,7 +1315,7 @@ Return Value:
         thread->CodePatchInProgress += 2;
         copyContext.ProcessorsRunning = KeNumberProcessors - 1;
         copyContext.ProcessorsToResume = KeNumberProcessors - 1;
-        KeIpiGenericCall(KiOpSingleProcCopy, (ULONG_PTR)&copyContext);
+        KeIpiGenericCall(KiOpSingleProcCopy, (ULONG_PTR)& copyContext);
         thread->CodePatchInProgress -= 2;
     } else {
         oldIrql = KeGetCurrentIrql();
@@ -1324,7 +1324,7 @@ Return Value:
         }
         copyContext.ProcessorsRunning = 0;
         copyContext.ProcessorsToResume = 0;
-        KiOpSingleProcCopy((ULONG_PTR)&copyContext);
+        KiOpSingleProcCopy((ULONG_PTR)& copyContext);
         KeLowerIrql(oldIrql);
     }
 #endif
@@ -1578,8 +1578,8 @@ Return Value:
     // If the opcode is neither SAHF nor LAHF then return FALSE.  If the opcode capture failed, then opcode == 0 at this point.
     // If this is in fact a more complex encoding of LAHF/SAHF (prefix, etc.) then KiOp_LSAHF() will pick it up.
     // Otherwise, emulate the effect of the instruction, skip past, and resume execution.
-    AH = ((PUCHAR)&(TrapFrame->Rax)) + 1;
-    FL = (PUCHAR)&(TrapFrame->EFlags);
+    AH = ((PUCHAR) & (TrapFrame->Rax)) + 1;
+    FL = (PUCHAR) & (TrapFrame->EFlags);
     if (opcode == 0x9E) {
         // Emulate SAHF
         *FL = *AH;
@@ -1630,8 +1630,8 @@ Return Value:
         slistResume = (ULONG64)KeUserPopEntrySListResumeWow64;
         break;
     case KGDT64_R0_CODE:
-        slistFault = (ULONG64)&ExpInterlockedPopEntrySListFault;
-        slistResume = (ULONG64)&ExpInterlockedPopEntrySListResume;
+        slistFault = (ULONG64)& ExpInterlockedPopEntrySListFault;
+        slistResume = (ULONG64)& ExpInterlockedPopEntrySListResume;
         break;
     default:
         return FALSE;
@@ -1694,7 +1694,7 @@ Return Value:
     result = FALSE;
     switch (trapFrame->SegCs) {
     case KGDT64_R0_CODE:// Fault occured in kernel mode
-        slistFaultIP = (ULONG64)&ExpInterlockedPopEntrySListFault;
+        slistFaultIP = (ULONG64)& ExpInterlockedPopEntrySListFault;
         break;
     case KGDT64_R3_CMCODE | RPL_MASK:// Fault occured in usermode, wow64
         slistFaultIP = (ULONG64)KeUserPopEntrySListFaultWow64;

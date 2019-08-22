@@ -28,7 +28,7 @@ typedef struct _FS_RTL_DEBUG_COUNTERS
     ULONG AcquireFileForCcFlushEx_Succeed;
     ULONG AcquireFileForCcFlushEx_Fail;
     ULONG ReleaseFileForCcFlush;
-} FS_RTL_DEBUG_COUNTERS, *PFS_RTL_DEBUG_COUNTERS;
+} FS_RTL_DEBUG_COUNTERS, * PFS_RTL_DEBUG_COUNTERS;
 
 FS_RTL_DEBUG_COUNTERS gCounter = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 #endif
@@ -626,7 +626,7 @@ BOOLEAN FsRtlMdlReadDev(
     __in PLARGE_INTEGER FileOffset,
     __in ULONG Length,
     __in ULONG LockKey,
-    __out PMDL *MdlChain,
+    __out PMDL* MdlChain,
     __out PIO_STATUS_BLOCK IoStatus,
     __in PDEVICE_OBJECT DeviceObject
 )
@@ -757,7 +757,7 @@ BOOLEAN FsRtlMdlRead(
     __in PLARGE_INTEGER FileOffset,
     __in ULONG Length,
     __in ULONG LockKey,
-    __out PMDL *MdlChain,
+    __out PMDL* MdlChain,
     __out PIO_STATUS_BLOCK IoStatus
 )
 /*
@@ -869,7 +869,7 @@ BOOLEAN FsRtlPrepareMdlWriteDev(
     __in PLARGE_INTEGER FileOffset,
     __in ULONG Length,
     __in ULONG LockKey,
-    __out PMDL *MdlChain,
+    __out PMDL* MdlChain,
     __out PIO_STATUS_BLOCK IoStatus,
     __in PDEVICE_OBJECT DeviceObject
 )
@@ -1083,7 +1083,7 @@ BOOLEAN FsRtlPrepareMdlWrite(
     __in PLARGE_INTEGER FileOffset,
     __in ULONG Length,
     __in ULONG LockKey,
-    __out PMDL *MdlChain,
+    __out PMDL* MdlChain,
     __out PIO_STATUS_BLOCK IoStatus)
     /*
     Routine Description:
@@ -1226,7 +1226,7 @@ Return Value:
 }
 
 
-NTKERNELAPI BOOLEAN FsRtlAcquireFileForModWrite(IN PFILE_OBJECT FileObject, IN PLARGE_INTEGER EndingOffset, OUT PERESOURCE *ResourceToRelease)
+NTKERNELAPI BOOLEAN FsRtlAcquireFileForModWrite(IN PFILE_OBJECT FileObject, IN PLARGE_INTEGER EndingOffset, OUT PERESOURCE* ResourceToRelease)
 /*
 Routine Description:
     This routine decides which file system resource the modified page writer should acquire and acquires it if possible.
@@ -1256,7 +1256,7 @@ Return Value:
 }
 
 
-NTKERNELAPI NTSTATUS FsRtlAcquireFileForModWriteEx(IN PFILE_OBJECT FileObject, IN PLARGE_INTEGER EndingOffset, OUT PERESOURCE *ResourceToRelease)
+NTKERNELAPI NTSTATUS FsRtlAcquireFileForModWriteEx(IN PFILE_OBJECT FileObject, IN PLARGE_INTEGER EndingOffset, OUT PERESOURCE* ResourceToRelease)
 /*
 Routine Description:
     This routine decides which file system resource the modified page writer should acquire and acquires it if possible.

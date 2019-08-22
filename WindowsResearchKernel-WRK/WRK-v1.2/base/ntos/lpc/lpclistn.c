@@ -18,7 +18,7 @@ Abstract:
 #endif
 
 
-NTSTATUS NtListenPort (__in HANDLE PortHandle, __out PPORT_MESSAGE ConnectionRequest)
+NTSTATUS NtListenPort(__in HANDLE PortHandle, __out PPORT_MESSAGE ConnectionRequest)
 /*
 Routine Description:
     A server thread can listen for connection requests from client threads using the NtReplyWaitReceivePort service and looking for an LPC_CONNECTION_REQUEST message type.
@@ -36,14 +36,14 @@ Return Value:
 
     //  Keep on looping until we get a connection request on the lpc port
     while (TRUE) {
-        Status = NtReplyWaitReceivePort( PortHandle, NULL, NULL, ConnectionRequest );
+        Status = NtReplyWaitReceivePort(PortHandle, NULL, NULL, ConnectionRequest);
         //  We'll return from this procedure if ever we get back non success or the message is a connection request.
         //  We still need to protect the testing of ConnectionRequest because it is a user supplied buffer.
         try {
             if ((Status != STATUS_SUCCESS) || ((ConnectionRequest->u2.s2.Type & ~LPC_KERNELMODE_MESSAGE) == LPC_CONNECTION_REQUEST)) {
                 break;
             }
-        } except( EXCEPTION_EXECUTE_HANDLER ) {
+        } except(EXCEPTION_EXECUTE_HANDLER) {
             Status = GetExceptionCode();
             break;
         }

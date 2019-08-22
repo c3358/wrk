@@ -77,7 +77,7 @@ Return Value:
     requestorMode = KeGetPreviousModeByThread(&CurrentThread->Tcb);// Get the previous mode;  i.e., the mode of the caller.
 
     // Reference the file object so the target device can be found.  Note that if the caller does not have read access to the file, the operation will fail.
-    status = ObReferenceObjectByHandle(FileHandle, FILE_READ_DATA, IoFileObjectType, requestorMode, (PVOID *)&fileObject, NULL);
+    status = ObReferenceObjectByHandle(FileHandle, FILE_READ_DATA, IoFileObjectType, requestorMode, (PVOID*)& fileObject, NULL);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -185,7 +185,7 @@ Return Value:
     // Get the address of the event object and set the event to the Not-Signaled state, if an one was specified.
     // Note here too, that if the handle does not refer to an event, then the reference will fail.
     if (ARGUMENT_PRESENT(Event)) {
-        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID *)&eventObject, NULL);
+        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID*)& eventObject, NULL);
         if (!NT_SUCCESS(status)) {
             ObDereferenceObject(fileObject);
             return status;
@@ -463,7 +463,7 @@ Notes:
     requestorMode = KeGetPreviousModeByThread(&CurrentThread->Tcb);// Get the previous mode;  i.e., the mode of the caller.
 
     // Reference the file object so the target device can be found.  Note that if the caller does not have read access to the file, the operation will fail.
-    status = ObReferenceObjectByHandle(FileHandle, FILE_READ_DATA, IoFileObjectType, requestorMode, (PVOID *)&fileObject, NULL);
+    status = ObReferenceObjectByHandle(FileHandle, FILE_READ_DATA, IoFileObjectType, requestorMode, (PVOID*)& fileObject, NULL);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -624,7 +624,7 @@ Notes:
     // Get the address of the event object and set the event to the Not-Signaled state, if an one was specified.
     // Note here too, that if the handle does not refer to an event, then the reference will fail.
     if (ARGUMENT_PRESENT(Event)) {
-        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID *)&eventObject, NULL);
+        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID*)& eventObject, NULL);
         if (!NT_SUCCESS(status)) {
             ObDereferenceObject(fileObject);
             if (capturedArray != NULL) {

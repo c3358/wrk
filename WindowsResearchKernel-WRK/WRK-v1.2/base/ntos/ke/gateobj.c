@@ -161,9 +161,8 @@ Arguments:
             KeReleaseInStackQueuedSpinLock(&LockHandle);
             continue;
         }
-
-        // If the current thread is associated with a queue object, then acquire the dispatcher lock.
-        if ((Queue = CurrentThread->Queue) != NULL) {
+        
+        if ((Queue = CurrentThread->Queue) != NULL) {// If the current thread is associated with a queue object, then acquire the dispatcher lock.
             KiLockDispatcherDatabaseAtSynchLevel();
         }
 
@@ -198,9 +197,8 @@ Arguments:
             KiReleaseKobjectLock(Gate);
             KiSetContextSwapBusy(CurrentThread);
             KiReleaseThreadLock(CurrentThread);
-
-            // If the current thread is associated with a queue object, then activate another thread if possible.
-            if (Queue != NULL) {
+            
+            if (Queue != NULL) {// If the current thread is associated with a queue object, then activate another thread if possible.
                 if ((Queue = CurrentThread->Queue) != NULL) {
                     KiActivateWaiterQueue(Queue);
                 }

@@ -14,7 +14,7 @@ Abstract:
 #include "lpcp.h"
 
 //  Local procedure prototypes
-PVOID LpcpFreeConMsg(IN PLPCP_MESSAGE *Msg, PLPCP_CONNECTION_MESSAGE *ConnectMsg, IN PETHREAD CurrentThread);
+PVOID LpcpFreeConMsg(IN PLPCP_MESSAGE* Msg, PLPCP_CONNECTION_MESSAGE* ConnectMsg, IN PETHREAD CurrentThread);
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE,NtConnectPort)
@@ -24,13 +24,13 @@ PVOID LpcpFreeConMsg(IN PLPCP_MESSAGE *Msg, PLPCP_CONNECTION_MESSAGE *ConnectMsg
 
 
 NTSYSAPI NTSTATUS NTAPI NtConnectPort(__out PHANDLE PortHandle,
-    __in PUNICODE_STRING PortName,
-    __in PSECURITY_QUALITY_OF_SERVICE SecurityQos,
-    __inout_opt PPORT_VIEW ClientView,
-    __inout_opt PREMOTE_PORT_VIEW ServerView,
-    __out_opt PULONG MaxMessageLength,
-    __inout_opt PVOID ConnectionInformation,
-    __inout_opt PULONG ConnectionInformationLength
+                                      __in PUNICODE_STRING PortName,
+                                      __in PSECURITY_QUALITY_OF_SERVICE SecurityQos,
+                                      __inout_opt PPORT_VIEW ClientView,
+                                      __inout_opt PREMOTE_PORT_VIEW ServerView,
+                                      __out_opt PULONG MaxMessageLength,
+                                      __inout_opt PVOID ConnectionInformation,
+                                      __inout_opt PULONG ConnectionInformationLength
 )
 /*
 Routine Description:
@@ -45,7 +45,7 @@ Return Value:
                                PortName,
                                SecurityQos,
                                ClientView,
-                               NULL, 
+                               NULL,
                                ServerView,
                                MaxMessageLength,
                                ConnectionInformation,
@@ -54,14 +54,14 @@ Return Value:
 
 
 NTSTATUS NtSecureConnectPort(__out PHANDLE PortHandle,
-    __in PUNICODE_STRING PortName,
-    __in PSECURITY_QUALITY_OF_SERVICE SecurityQos,
-    __inout_opt PPORT_VIEW ClientView,
-    __in_opt PSID RequiredServerSid,
-    __inout_opt PREMOTE_PORT_VIEW ServerView,
-    __out_opt PULONG MaxMessageLength,
-    __inout_opt PVOID ConnectionInformation,
-    __inout_opt PULONG ConnectionInformationLength
+                             __in PUNICODE_STRING PortName,
+                             __in PSECURITY_QUALITY_OF_SERVICE SecurityQos,
+                             __inout_opt PPORT_VIEW ClientView,
+                             __in_opt PSID RequiredServerSid,
+                             __inout_opt PREMOTE_PORT_VIEW ServerView,
+                             __out_opt PULONG MaxMessageLength,
+                             __inout_opt PVOID ConnectionInformation,
+                             __inout_opt PULONG ConnectionInformationLength
 )
 /*
 Routine Description:
@@ -105,12 +105,12 @@ Arguments:
                               The initial value of this parameter specifies the byte offset within the section that the client's view is based.
                               The value is rounded down to the next host page size boundary.
         ULONG ViewSize - Specifies a field that will receive the actual size, in bytes, of the view.
-                         If the value of this parameter is zero, 
+                         If the value of this parameter is zero,
                          then the client's view of the section will be mapped starting at the specified section offset and continuing to the end of the section.
-                         Otherwise, the initial value of this parameter specifies the size, in bytes, 
+                         Otherwise, the initial value of this parameter specifies the size, in bytes,
                          of the client's view and is rounded up to the next host page size boundary.
         PVOID ViewBase - Specifies a field that will receive the base address of the section in the client's address space.
-        PVOID ViewRemoteBase - Specifies a field that will receive the base address of the client's section in the server's address space.  
+        PVOID ViewRemoteBase - Specifies a field that will receive the base address of the client's section in the server's address space.
                                Used to generate pointers that are meaningful to the server.
     RequiredServerSid - Optionally specifies the SID that we expect the server side of the port to possess.  If not specified then we'll connect to any server SID.
     ServerView - An optional pointer to a structure that will receive information about the server process' view in the client's address space.
@@ -122,20 +122,20 @@ Arguments:
 
         PVOID ViewBase - Specifies a field that will receive the base address of the server's section in the client's address space.
 
-        ULONG ViewSize - Specifies a field that will receive the size, in bytes, of the server's view in the client's address space.  
+        ULONG ViewSize - Specifies a field that will receive the size, in bytes, of the server's view in the client's address space.
                          If this field is zero, then server has no view in the client's address space.
 
-    MaxMessageLength - An optional pointer to a variable that will receive maximum length of messages that can be sent to the server.  
+    MaxMessageLength - An optional pointer to a variable that will receive maximum length of messages that can be sent to the server.
                        The value of this parameter will not exceed MAX_PORTMSG_LENGTH bytes.
 
     ConnectionInformation - An optional pointer to uninterpreted data.
-        This data is intended for clients to pass package, 
+        This data is intended for clients to pass package,
         version and protocol identification information to the server to allow the server to determine if it can satisfy the client before accepting the connection.
-        Upon return to the client, the ConnectionInformation data block contains any information passed back from the server by its call to the NtCompleteConnectPort service.  
+        Upon return to the client, the ConnectionInformation data block contains any information passed back from the server by its call to the NtCompleteConnectPort service.
         The output data overwrites the input data.
 
-    ConnectionInformationLength - Pointer to the length of the ConnectionInformation data block.  
-        The output value is the length of the data stored in the ConnectionInformation data block by the server's call to the NtCompleteConnectPort service.  
+    ConnectionInformationLength - Pointer to the length of the ConnectionInformation data block.
+        The output value is the length of the data stored in the ConnectionInformation data block by the server's call to the NtCompleteConnectPort service.
         This parameter is OPTIONAL only if the ConnectionInformation parameter is null, otherwise it is required.
 
 Return Value:
@@ -232,9 +232,9 @@ Return Value:
     }
 
     //  Reference the connection port object by name.  Return status if unsuccessful.
-    Status = ObReferenceObjectByName(PortName, 0, NULL, PORT_CONNECT, LpcPortObjectType, PreviousMode, NULL, (PVOID *)&ConnectionPort);
+    Status = ObReferenceObjectByName(PortName, 0, NULL, PORT_CONNECT, LpcPortObjectType, PreviousMode, NULL, (PVOID*)& ConnectionPort);
     if (Status == STATUS_OBJECT_TYPE_MISMATCH) {//  If the port type object didn't work then try for a waitable port type object
-        Status = ObReferenceObjectByName(PortName, 0, NULL, PORT_CONNECT, LpcWaitablePortObjectType, PreviousMode, NULL, (PVOID *)&ConnectionPort);
+        Status = ObReferenceObjectByName(PortName, 0, NULL, PORT_CONNECT, LpcWaitablePortObjectType, PreviousMode, NULL, (PVOID*)& ConnectionPort);
     }
 
     //  We can't locate the name so release the sid if we captured one and return error status back to our caller
@@ -293,13 +293,13 @@ Return Value:
     //  If unable to initialize the port, then deference the port object which will cause it to be deleted and return the system service status.
     Status = ObCreateObject(PreviousMode,
                             LpcPortObjectType,
-                            NULL, 
-                            PreviousMode, 
-                            NULL, 
+                            NULL,
+                            PreviousMode,
+                            NULL,
                             FIELD_OFFSET(LPCP_PORT_OBJECT, WaitEvent),
-                            0, 
                             0,
-                            (PVOID *)&ClientPort);
+                            0,
+                            (PVOID*)& ClientPort);
     if (!NT_SUCCESS(Status)) {
         ObDereferenceObject(ConnectionPort);
         return Status;
@@ -340,11 +340,11 @@ Return Value:
     //  If the server accepts the connection, then it will map a corresponding view of the section in the server's address space, 
     //  using the referenced pointer passed in the connection request message.
     if (ARGUMENT_PRESENT(ClientView)) {
-        Status = ObReferenceObjectByHandle(CapturedClientView.SectionHandle, 
-                                           SECTION_MAP_READ | SECTION_MAP_WRITE, 
-                                           MmSectionObjectType, 
-                                           PreviousMode, 
-                                           (PVOID *)&SectionToMap,
+        Status = ObReferenceObjectByHandle(CapturedClientView.SectionHandle,
+                                           SECTION_MAP_READ | SECTION_MAP_WRITE,
+                                           MmSectionObjectType,
+                                           PreviousMode,
+                                           (PVOID*)& SectionToMap,
                                            NULL);
         if (!NT_SUCCESS(Status)) {
             ObDereferenceObject(ClientPort);
@@ -360,7 +360,7 @@ Return Value:
         Status = MmMapViewOfSection(SectionToMap,
                                     CurrentProcess,
                                     &ClientPort->ClientSectionBase,
-                                    0, 
+                                    0,
                                     0,
                                     &SectionOffset,
                                     &CapturedClientView.ViewSize,
@@ -539,7 +539,7 @@ Return Value:
                 CapturedMaxMessageLength = ConnectionPort->MaxMessageLength;
 
                 //  Now create a handle for the new client port object.
-                Status = ObInsertObject(ClientPort, NULL, PORT_ALL_ACCESS, 0, (PVOID *)NULL, &Handle);
+                Status = ObInsertObject(ClientPort, NULL, PORT_ALL_ACCESS, 0, (PVOID*)NULL, &Handle);
                 if (NT_SUCCESS(Status)) {
                     //  This is the only successful path through this routine.
                     //  Set the output variables, later we'll free the msg back to the port zone and return to our caller
@@ -622,7 +622,7 @@ Return Value:
 //  Local support routine
 
 
-PVOID LpcpFreeConMsg(IN PLPCP_MESSAGE *Msg, PLPCP_CONNECTION_MESSAGE *ConnectMsg, IN PETHREAD CurrentThread)
+PVOID LpcpFreeConMsg(IN PLPCP_MESSAGE* Msg, PLPCP_CONNECTION_MESSAGE* ConnectMsg, IN PETHREAD CurrentThread)
 /*
 Routine Description:
     This routine returns a connection reply message for the specified thread

@@ -17,8 +17,7 @@ Revision History:
 
 #include    "cmp.h"
 
-typedef enum _RESULT
-{
+typedef enum _RESULT {
     NotHive,
     Fail,
     NoMemory,
@@ -28,8 +27,8 @@ typedef enum _RESULT
     SelfHeal
 } RESULT;
 
-RESULT HvpGetHiveHeader(PHHIVE Hive, PHBASE_BLOCK *BaseBlock, PLARGE_INTEGER TimeStamp);
-RESULT HvpGetLogHeader(PHHIVE Hive, PHBASE_BLOCK *BaseBlock, PLARGE_INTEGER TimeStamp);
+RESULT HvpGetHiveHeader(PHHIVE Hive, PHBASE_BLOCK* BaseBlock, PLARGE_INTEGER TimeStamp);
+RESULT HvpGetLogHeader(PHHIVE Hive, PHBASE_BLOCK* BaseBlock, PLARGE_INTEGER TimeStamp);
 RESULT HvpRecoverData(PHHIVE Hive);
 NTSTATUS HvpReadFileImageAndBuildMap(PHHIVE  Hive, ULONG   Length);
 NTSTATUS HvpMapFileImageAndBuildMap(PHHIVE  Hive, ULONG   Length);
@@ -52,8 +51,7 @@ NTSTATUS HvpRecoverWholeHive(PHHIVE  Hive, ULONG   FileOffset);
 extern  PUCHAR      CmpStashBuffer;
 extern  ULONG       CmpStashBufferSize;
 
-extern struct
-{
+extern struct {
     PHHIVE      Hive;
     ULONG       Status;
     ULONG       Space;
@@ -61,11 +59,10 @@ extern struct
     PHBIN       BinPoint;
 } HvCheckHiveDebug;
 
-extern struct
-{
-    PHHIVE      Hive;
-    ULONG       FileOffset;
-    ULONG       FailPoint; // look in HvpRecoverData for exact point of failure
+extern struct {
+    PHHIVE  Hive;
+    ULONG   FileOffset;
+    ULONG   FailPoint; // look in HvpRecoverData for exact point of failure
 } HvRecoverDataDebug;
 
 
@@ -639,7 +636,7 @@ ErrorExit:
 }
 
 
-RESULT HvpGetHiveHeader(PHHIVE Hive, PHBASE_BLOCK    *BaseBlock, PLARGE_INTEGER  TimeStamp)
+RESULT HvpGetHiveHeader(PHHIVE Hive, PHBASE_BLOCK* BaseBlock, PLARGE_INTEGER  TimeStamp)
 /*
 Routine Description:
     Examine the base block sector and possibly the first sector of the first bin, and decide what (if any) recovery needs to be applied based on what we find there.
@@ -749,7 +746,7 @@ Return Value:
 }
 
 
-RESULT HvpGetLogHeader(PHHIVE Hive, PHBASE_BLOCK *BaseBlock, PLARGE_INTEGER TimeStamp)
+RESULT HvpGetLogHeader(PHHIVE Hive, PHBASE_BLOCK* BaseBlock, PLARGE_INTEGER TimeStamp)
 /*
 Routine Description:
     Read and validate log file header.  Return it if it's valid.
@@ -820,7 +817,7 @@ Return Value:
             Cluster = FsSizeInformation.BytesPerSector / HSECTOR_SIZE;
             Cluster = (Cluster < 1) ? 1 : Cluster;
 
-            Status = ZwQueryInformationFile(((PCMHIVE)Hive)->FileHandles[HFILE_TYPE_PRIMARY], &IoStatusBlock, (PVOID)&FileInfo, sizeof(FILE_END_OF_FILE_INFORMATION), FileEndOfFileInformation);
+            Status = ZwQueryInformationFile(((PCMHIVE)Hive)->FileHandles[HFILE_TYPE_PRIMARY], &IoStatusBlock, (PVOID)& FileInfo, sizeof(FILE_END_OF_FILE_INFORMATION), FileEndOfFileInformation);
             if (!NT_SUCCESS(Status)) {
                 (Hive->Free)(buffer, Hive->BaseBlockAlloc);
                 return Fail;
@@ -1112,7 +1109,7 @@ Return Value:
     }
 
     // check the signature
-    DirtyVectorSignature = *((ULONG *)CmpStashBuffer);
+    DirtyVectorSignature = *((ULONG*)CmpStashBuffer);
     if (DirtyVectorSignature != HLOG_DV_SIGNATURE) {
         UNLOCK_STASH_BUFFER();
         HvRecoverDataDebug.FailPoint = 3;
@@ -1620,7 +1617,7 @@ Arguments:
             goto ErrorExit;
         }
         RtlZeroMemory(t, sizeof(HMAP_TABLE));
-        DestHive->Storage[Stable].Map = (PHMAP_DIRECTORY)&(DestHive->Storage[Stable].SmallDir);
+        DestHive->Storage[Stable].Map = (PHMAP_DIRECTORY) & (DestHive->Storage[Stable].SmallDir);
         DestHive->Storage[Stable].SmallDir = t;
     } else {
         // Need directory and multiple tables

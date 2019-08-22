@@ -26,11 +26,11 @@ NTSTATUS BuildQueryDirectoryIrp(
     IN PUNICODE_STRING FileName OPTIONAL,
     IN BOOLEAN RestartScan,
     IN UCHAR MinorFunction,
-    OUT BOOLEAN *SynchronousIo,
-    OUT PDEVICE_OBJECT *DeviceObject,
-    OUT PIRP *Irp,
-    OUT PFILE_OBJECT *FileObject,
-    OUT KPROCESSOR_MODE *RequestorMode
+    OUT BOOLEAN* SynchronousIo,
+    OUT PDEVICE_OBJECT* DeviceObject,
+    OUT PIRP* Irp,
+    OUT PFILE_OBJECT* FileObject,
+    OUT KPROCESSOR_MODE* RequestorMode
 );
 
 #pragma alloc_text(PAGE, BuildQueryDirectoryIrp)
@@ -51,11 +51,11 @@ NTSTATUS BuildQueryDirectoryIrp(
     IN PUNICODE_STRING FileName OPTIONAL,
     IN BOOLEAN RestartScan,
     IN UCHAR MinorFunction,
-    OUT BOOLEAN *SynchronousIo,
-    OUT PDEVICE_OBJECT *DeviceObject,
-    OUT PIRP *Irp,
-    OUT PFILE_OBJECT *FileObject,
-    OUT KPROCESSOR_MODE *RequestorMode
+    OUT BOOLEAN* SynchronousIo,
+    OUT PDEVICE_OBJECT* DeviceObject,
+    OUT PIRP* Irp,
+    OUT PFILE_OBJECT* FileObject,
+    OUT KPROCESSOR_MODE* RequestorMode
 )
 /*
 Routine Description:
@@ -231,7 +231,7 @@ Return Value:
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, FILE_LIST_DIRECTORY, IoFileObjectType, requestorMode, (PVOID *)&fileObject, (POBJECT_HANDLE_INFORMATION)NULL);
+    status = ObReferenceObjectByHandle(FileHandle, FILE_LIST_DIRECTORY, IoFileObjectType, requestorMode, (PVOID*)& fileObject, (POBJECT_HANDLE_INFORMATION)NULL);
     if (!NT_SUCCESS(status)) {
         if (auxiliaryBuffer) {
             ExFreePool(auxiliaryBuffer);
@@ -252,7 +252,7 @@ Return Value:
     // Get the address of the event object and set the event to the Not-Signaled state, if an event was specified.
     // Note here, too, that if the handle does not refer to an event, or if the event cannot be written, then the reference will fail.
     if (ARGUMENT_PRESENT(Event)) {
-        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID *)&eventObject, (POBJECT_HANDLE_INFORMATION)NULL);
+        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID*)& eventObject, (POBJECT_HANDLE_INFORMATION)NULL);
         if (!NT_SUCCESS(status)) {
             if (auxiliaryBuffer) {
                 ExFreePool(auxiliaryBuffer);
@@ -584,7 +584,7 @@ Return Value:
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, FILE_LIST_DIRECTORY, IoFileObjectType, requestorMode, (PVOID *)&fileObject, (POBJECT_HANDLE_INFORMATION)NULL);
+    status = ObReferenceObjectByHandle(FileHandle, FILE_LIST_DIRECTORY, IoFileObjectType, requestorMode, (PVOID*)& fileObject, (POBJECT_HANDLE_INFORMATION)NULL);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -598,7 +598,7 @@ Return Value:
     // Get the address of the event object and set the event to the Not-Signaled state, if an event was specified.
     // Note here too, that if the handle does not refer to an event, or if the event cannot be written, then the reference will fail.
     if (ARGUMENT_PRESENT(Event)) {
-        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID *)&eventObject, (POBJECT_HANDLE_INFORMATION)NULL);
+        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID*)& eventObject, (POBJECT_HANDLE_INFORMATION)NULL);
         if (!NT_SUCCESS(status)) {
             ObDereferenceObject(fileObject);
             return status;

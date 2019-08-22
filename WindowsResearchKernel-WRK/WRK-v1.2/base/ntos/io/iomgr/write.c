@@ -77,7 +77,7 @@ Return Value:
 
     // Reference the file object so the target device can be found and the access rights mask can be used in the following checks for callers in user mode.
     // Note that if the handle does not refer to a file object, then it will fail.
-    status = ObReferenceFileObjectForWrite(FileHandle, requestorMode, (PVOID *)&fileObject, &handleInformation);
+    status = ObReferenceFileObjectForWrite(FileHandle, requestorMode, (PVOID*)& fileObject, &handleInformation);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -202,7 +202,7 @@ Return Value:
     // Get the address of the event object and set the event to the Not-Signaled state, if an event was specified.
     // Note here too, that if the handle does not refer to an event, then the reference will fail.
     if (ARGUMENT_PRESENT(Event)) {
-        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID *)&eventObject, NULL);
+        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID*)& eventObject, NULL);
         if (!NT_SUCCESS(status)) {
             ObDereferenceObject(fileObject);
             return status;
@@ -492,7 +492,7 @@ Notes:
 
     // Reference the file object so the target device can be found and the access rights mask can be used in the following checks for callers in user mode.
     // Note that if the handle does not refer to a file object, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, 0L, IoFileObjectType, requestorMode, (PVOID *)&fileObject, &handleInformation);
+    status = ObReferenceObjectByHandle(FileHandle, 0L, IoFileObjectType, requestorMode, (PVOID*)& fileObject, &handleInformation);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -684,7 +684,7 @@ Notes:
     // Get the address of the event object and set the event to the Not-Signaled state, if an event was specified.
     // Note here too, that if the handle does not refer to an event, then the reference will fail.
     if (ARGUMENT_PRESENT(Event)) {
-        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID *)&eventObject, NULL);
+        status = ObReferenceObjectByHandle(Event, EVENT_MODIFY_STATE, ExEventObjectType, requestorMode, (PVOID*)& eventObject, NULL);
         if (!NT_SUCCESS(status)) {
             ObDereferenceObject(fileObject);
             if (capturedArray != NULL) {

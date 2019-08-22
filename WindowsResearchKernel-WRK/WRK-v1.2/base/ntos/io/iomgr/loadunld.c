@@ -174,7 +174,7 @@ Return Value:
     requestorMode = KeGetPreviousMode();// Get the previous mode;  i.e., the mode of the caller.
     if ((requestorMode != KernelMode) && (InvokedByPnpMgr == FALSE)) {//应用层的走这里。
         // The caller's access mode is not kernel 
-		// so check to ensure that the caller has the privilege to unload a driver and probe and capture the name of the driver service entry.
+        // so check to ensure that the caller has the privilege to unload a driver and probe and capture the name of the driver service entry.
         if (!SeSinglePrivilegeCheck(SeLoadDriverPrivilege, requestorMode)) {
             return STATUS_PRIVILEGE_NOT_HELD;
         }
@@ -234,7 +234,7 @@ Return Value:
     }
 
     // The driver object was located, so convert the handle into a pointer so that the driver object itself can be examined.
-    status = ObReferenceObjectByHandle(driverHandle, 0, IoDriverObjectType, KernelMode, (PVOID *)&driverObject, NULL);
+    status = ObReferenceObjectByHandle(driverHandle, 0, IoDriverObjectType, KernelMode, (PVOID*)& driverObject, NULL);
     ObCloseHandle(driverHandle, KernelMode);
     if (!NT_SUCCESS(status)) {
         return status;
