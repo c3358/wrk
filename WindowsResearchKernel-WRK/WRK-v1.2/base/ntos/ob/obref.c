@@ -51,28 +51,26 @@ const ObpMaxStacks = OBTRACE_STACKS;
 const ObpStacksPerObject = OBTRACE_STACKSPEROBJECT;
 const ObpTraceDepth = OBTRACE_TRACEDEPTH;
 
-// Object reference stacktrace structure
-typedef struct _OBJECT_REF_TRACE{
+typedef struct _OBJECT_REF_TRACE {// Object reference stacktrace structure
     PVOID StackTrace[OBTRACE_TRACEDEPTH];
-} OBJECT_REF_TRACE, *POBJECT_REF_TRACE;
+} OBJECT_REF_TRACE, * POBJECT_REF_TRACE;
 
-typedef struct _OBJECT_REF_STACK_INFO{
+typedef struct _OBJECT_REF_STACK_INFO {
     USHORT Sequence;
     USHORT Index;
-} OBJECT_REF_STACK_INFO, *POBJECT_REF_STACK_INFO;
+} OBJECT_REF_STACK_INFO, * POBJECT_REF_STACK_INFO;
 
-// Object reference info structure
-typedef struct _OBJECT_REF_INFO{
+typedef struct _OBJECT_REF_INFO {// Object reference info structure
     POBJECT_HEADER ObjectHeader;
     PVOID NextRef;
     UCHAR ImageFileName[16];
     ULONG  NextPos;
     OBJECT_REF_STACK_INFO StackInfo[OBTRACE_STACKSPEROBJECT];
-} OBJECT_REF_INFO, *POBJECT_REF_INFO;
+} OBJECT_REF_INFO, * POBJECT_REF_INFO;
 
 // The stack hash table, and the object hash table
-OBJECT_REF_TRACE *ObpStackTable = NULL;
-POBJECT_REF_INFO *ObpObjectTable = NULL;
+OBJECT_REF_TRACE* ObpStackTable = NULL;
+POBJECT_REF_INFO* ObpObjectTable = NULL;
 
 // Some statistics
 
@@ -130,7 +128,7 @@ Return Value:
     Hash = ((ULONG)Value) % OBTRACE_STACKS;
 
     // Look up the trace at that index (linear probing)
-    while (ObpStackTable[Hash].StackTrace[0] != NULL && 
+    while (ObpStackTable[Hash].StackTrace[0] != NULL &&
            RtlCompareMemory(&ObpStackTable[Hash], Trace, sizeof(OBJECT_REF_TRACE)) != sizeof(OBJECT_REF_TRACE)) {
         Hash = (Hash + 1) % OBTRACE_STACKS;
         if (Hash == ((ULONG)Value) % OBTRACE_STACKS) {
@@ -348,22 +346,22 @@ Arguments:
 #endif //POOL_TAGGING
 
 
-//  End Stack trace code
-typedef struct _OB_TEMP_BUFFER{
+typedef struct _OB_TEMP_BUFFER {//  End Stack trace code
     ACCESS_STATE LocalAccessState;
     OBJECT_CREATE_INFORMATION ObjectCreateInfo;
     OBP_LOOKUP_CONTEXT LookupContext;
     AUX_ACCESS_DATA AuxData;
-} OB_TEMP_BUFFER, *POB_TEMP_BUFFER;
+} OB_TEMP_BUFFER, * POB_TEMP_BUFFER;
 
 
-NTSTATUS ObOpenObjectByName(__in POBJECT_ATTRIBUTES ObjectAttributes, 
+NTSTATUS ObOpenObjectByName(__in POBJECT_ATTRIBUTES ObjectAttributes,
                             __in_opt POBJECT_TYPE ObjectType,
                             __in KPROCESSOR_MODE AccessMode,
                             __inout_opt PACCESS_STATE AccessState,
                             __in_opt ACCESS_MASK DesiredAccess,
                             __inout_opt PVOID ParseContext,
-                            __out PHANDLE Handle)
+                            __out PHANDLE Handle
+)
 /*
 Routine Description:
     This function opens an object with full access validation and auditing.
@@ -472,7 +470,7 @@ Return Value:
                                                        TempBuffer->ObjectCreateInfo.Attributes,
                                                        &TempBuffer->LookupContext,
                                                        AccessMode,
-                                                       (PVOID *)NULL,
+                                                       (PVOID*)NULL,
                                                        &NewHandle);
                         if (!NT_SUCCESS(HandleStatus)) {
                             ObDereferenceObject(ExistingObject);
@@ -512,23 +510,24 @@ NTSTATUS ObOpenObjectByPointer(__in PVOID Object,
                                __in ACCESS_MASK DesiredAccess,
                                __in_opt POBJECT_TYPE ObjectType,
                                __in KPROCESSOR_MODE AccessMode,
-                               __out PHANDLE Handle)
-    /*
-    Routine Description:
-        This routine opens an object referenced by a pointer.
-    Arguments:
-        Object - A pointer to the object being opened.
-        HandleAttributes - The desired attributes for the handle,
-                           such as OBJ_INHERIT, OBJ_PERMANENT, OBJ_EXCLUSIVE, OBJ_CASE_INSENSITIVE, OBJ_OPENIF, and OBJ_OPENLINK
-        PassedAccessState - Supplies an optional pointer to the current access status describing already granted access types,
-                            the privileges used to get them, and any access types yet to be granted.
-        DesiredAcess - Supplies the desired access to the object.
-        ObjectType - Supplies the type of the object being opened
-        AccessMode - Supplies the processor mode of the access.
-        Handle - Supplies a pointer to a variable that receives the handle value.
-    Return Value:
-        An appropriate NTSTATUS value
-    */
+                               __out PHANDLE Handle
+)
+/*
+Routine Description:
+    This routine opens an object referenced by a pointer.
+Arguments:
+    Object - A pointer to the object being opened.
+    HandleAttributes - The desired attributes for the handle,
+                       such as OBJ_INHERIT, OBJ_PERMANENT, OBJ_EXCLUSIVE, OBJ_CASE_INSENSITIVE, OBJ_OPENIF, and OBJ_OPENLINK
+    PassedAccessState - Supplies an optional pointer to the current access status describing already granted access types,
+                        the privileges used to get them, and any access types yet to be granted.
+    DesiredAcess - Supplies the desired access to the object.
+    ObjectType - Supplies the type of the object being opened
+    AccessMode - Supplies the processor mode of the access.
+    Handle - Supplies a pointer to a variable that receives the handle value.
+Return Value:
+    An appropriate NTSTATUS value
+*/
 {
     NTSTATUS Status;
     HANDLE NewHandle = (HANDLE)-1;
@@ -570,7 +569,7 @@ NTSTATUS ObOpenObjectByPointer(__in PVOID Object,
         }
 
         //  We've referenced the object and have an access state to give the new handle so now create a new handle for the object.
-        Status = ObpCreateHandle(ObOpenHandle, Object, ObjectType, AccessState, 0, HandleAttributes, NULL, AccessMode, (PVOID *)NULL, &NewHandle);
+        Status = ObpCreateHandle(ObOpenHandle, Object, ObjectType, AccessState, 0, HandleAttributes, NULL, AccessMode, (PVOID*)NULL, &NewHandle);
         if (!NT_SUCCESS(Status)) {
             ObDereferenceObject(Object);
         }
@@ -594,21 +593,22 @@ NTSTATUS ObReferenceObjectByHandle(__in HANDLE Handle,
                                    __in ACCESS_MASK DesiredAccess,
                                    __in_opt POBJECT_TYPE ObjectType,
                                    __in KPROCESSOR_MODE AccessMode,
-                                   __out PVOID *Object,
-                                   __out_opt POBJECT_HANDLE_INFORMATION HandleInformation)
-    /*
-    Routine Description:
-        Given a handle to an object this routine returns a pointer to the body of the object with proper ref counts
-    Arguments:
-        Handle - Supplies a handle to the object being referenced.  It can also be the result of NtCurrentProcess or NtCurrentThread
-        DesiredAccess - Supplies the access being requested by the caller
-        ObjectType - Optionally supplies the type of the object we are expecting
-        AccessMode - Supplies the processor mode of the access
-        Object - Receives a pointer to the object body if the operation is successful
-        HandleInformation - Optionally receives information regarding the input handle.
-    Return Value:
-        An appropriate NTSTATUS value
-    */
+                                   __out PVOID* Object,
+                                   __out_opt POBJECT_HANDLE_INFORMATION HandleInformation
+)
+/*
+Routine Description:
+    Given a handle to an object this routine returns a pointer to the body of the object with proper ref counts
+Arguments:
+    Handle - Supplies a handle to the object being referenced.  It can also be the result of NtCurrentProcess or NtCurrentThread
+    DesiredAccess - Supplies the access being requested by the caller
+    ObjectType - Optionally supplies the type of the object we are expecting
+    AccessMode - Supplies the processor mode of the access
+    Object - Receives a pointer to the object body if the operation is successful
+    HandleInformation - Optionally receives information regarding the input handle.
+Return Value:
+    An appropriate NTSTATUS value
+*/
 {
     ACCESS_MASK GrantedAccess;
     PHANDLE_TABLE HandleTable;
@@ -761,9 +761,10 @@ NTSTATUS ObpReferenceProcessObjectByHandle(IN HANDLE Handle,
                                            IN PEPROCESS Process,
                                            IN PHANDLE_TABLE HandleTable,
                                            IN KPROCESSOR_MODE AccessMode,
-                                           OUT PVOID *Object,
+                                           OUT PVOID* Object,
                                            OUT POBJECT_HANDLE_INFORMATION HandleInformation,
-                                           OUT PACCESS_MASK AuditMask)
+                                           OUT PACCESS_MASK AuditMask
+)
 /*
 Routine Description:
     Given a handle to an object a process and its handle table this routine returns a pointer to the body of the object with proper ref counts
@@ -882,8 +883,9 @@ Return Value:
 
 NTSTATUS ObReferenceFileObjectForWrite(IN HANDLE Handle,
                                        IN KPROCESSOR_MODE AccessMode,
-                                       OUT PVOID *FileObject,
-                                       OUT POBJECT_HANDLE_INFORMATION HandleInformation)
+                                       OUT PVOID* FileObject,
+                                       OUT POBJECT_HANDLE_INFORMATION HandleInformation
+)
 /*
 Routine Description:
     Given a handle to a file object this routine returns a pointer to the body of the object with proper ref counts and auditing.
@@ -929,7 +931,7 @@ Return Value:
     ObjectTableEntry = ExMapHandleToPointerEx(HandleTable, Handle, AccessMode);
     if (ObjectTableEntry != NULL) {//  Make sure the object table entry really does exist
         ObjectHeader = (POBJECT_HEADER)(((ULONG_PTR)(ObjectTableEntry->Object)) & ~OBJ_HANDLE_ATTRIBUTES);
-        if (NT_SUCCESS(IoComputeDesiredAccessFileObject((PFILE_OBJECT)&ObjectHeader->Body, (PNTSTATUS)&DesiredAccess))) {
+        if (NT_SUCCESS(IoComputeDesiredAccessFileObject((PFILE_OBJECT)& ObjectHeader->Body, (PNTSTATUS)& DesiredAccess))) {
 
 #if i386
             if (NtGlobalFlag & FLG_KERNEL_STACK_TRACE_DB) {
@@ -997,7 +999,8 @@ Return Value:
 VOID ObAuditObjectAccess(IN HANDLE Handle,
                          IN POBJECT_HANDLE_INFORMATION HandleInformation OPTIONAL,
                          IN KPROCESSOR_MODE AccessMode,
-                         IN ACCESS_MASK DesiredAccess)
+                         IN ACCESS_MASK DesiredAccess
+)
 /*
 Routine Description:
     This routine will determine if it is necessary to audit the operation being performed on the passed handle.
@@ -1047,8 +1050,8 @@ Arguments:
 
         //  Note: is OBJ_AUDIT_OBJECT_CLOSE in ObAttributes kept in synch with HandleAttributes?
         if ((ObjectTableEntry->ObAttributes & OBJ_AUDIT_OBJECT_CLOSE) &&
-            (ObjectInfo != NULL) && 
-            (ObjectInfo->AuditMask != 0) && 
+            (ObjectInfo != NULL) &&
+            (ObjectInfo->AuditMask != 0) &&
             (DesiredAccess != 0)) {
             ObpAuditObjectAccess(Handle, ObjectInfo, &ObjectHeader->Type->Name, DesiredAccess);
         }
@@ -1062,7 +1065,8 @@ Arguments:
 VOID ObpAuditObjectAccess(IN HANDLE Handle,
                           IN PHANDLE_TABLE_ENTRY_INFO ObjectTableEntryInfo,
                           IN PUNICODE_STRING ObjectTypeName,
-                          IN ACCESS_MASK DesiredAccess)
+                          IN ACCESS_MASK DesiredAccess
+)
 /*
 Routine Description:
     This routine will determine if it is necessary to audit the operation being performed on the passed handle.
@@ -1084,7 +1088,7 @@ Arguments:
         t1 = ObjectTableEntryInfo->AuditMask;
         t2 = t1 & ~DesiredAccess;
         if (t2 != t1) {
-            r = (ACCESS_MASK)InterlockedCompareExchange((PLONG)&ObjectTableEntryInfo->AuditMask, t2, t1);
+            r = (ACCESS_MASK)InterlockedCompareExchange((PLONG)& ObjectTableEntryInfo->AuditMask, t2, t1);
             if (r == t1) {
                 //  AuditMask was == t1, so AuditMask is now == t2
                 //  it worked, r contains what was in AuditMask, which we can examine safely.
@@ -1111,7 +1115,8 @@ NTSTATUS ObReferenceObjectByName(__in PUNICODE_STRING ObjectName,
                                  __in POBJECT_TYPE ObjectType,
                                  __in KPROCESSOR_MODE AccessMode,
                                  __inout_opt PVOID ParseContext,
-                                 __out PVOID *Object)
+                                 __out PVOID* Object
+)
 /*
 Routine Description:
     Given a name of an object this routine returns a pointer to the body of the object with proper ref counts
@@ -1172,7 +1177,7 @@ Return Value:
                                      NULL,
                                      NULL,
                                      AccessState,
-                                     &LookupContext, 
+                                     &LookupContext,
                                      &ExistingObject);
         ObpReleaseLookupContext(&LookupContext);//  If the directory is returned locked, then unlock it.
         *Object = NULL;
@@ -1199,7 +1204,8 @@ Return Value:
 NTSTATUS ObReferenceObjectByPointer(__in PVOID Object,
                                     __in ACCESS_MASK DesiredAccess,
                                     __in_opt POBJECT_TYPE ObjectType,
-                                    __in KPROCESSOR_MODE AccessMode)
+                                    __in KPROCESSOR_MODE AccessMode
+)
 /*
 Routine Description:
     This routine adds another reference count to an object denoted by a pointer to the object body
@@ -1589,7 +1595,7 @@ Arguments:
                 }
 
                 if (ObpIsKernelExclusiveObject(ObjectHeader)) {//  Remove the protection since the object is no longer visible to allow proper cleanup
-                    InterlockedExchangeAdd((PLONG)&NameInfo->QueryReferences, -OBP_NAME_KERNEL_PROTECTED);
+                    InterlockedExchangeAdd((PLONG)& NameInfo->QueryReferences, -OBP_NAME_KERNEL_PROTECTED);
                 }
 
                 DirObject = NameInfo->Directory;

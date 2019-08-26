@@ -114,7 +114,9 @@ Arguments:
             Status = ObInsertObject(Mutant, NULL, DesiredAccess, 0, NULL, &Handle);
             if (NT_SUCCESS(Status)) {// If the mutant object was successfully inserted in the current process' handle table, then attempt to write the mutant object handle value.
                 try {
-                    *MutantHandle = Handle;// If the write attempt fails, then do not report an error. When the caller attempts to access the handle value, an access violation will occur.
+                    // If the write attempt fails, then do not report an error. 
+                    // When the caller attempts to access the handle value, an access violation will occur.
+                    *MutantHandle = Handle;
                 } except(ExSystemExceptionFilter())
                 {
                 }
@@ -122,7 +124,9 @@ Arguments:
         }
     } except(ExSystemExceptionFilter())
     {
-        return GetExceptionCode();// If an exception occurs during the probe of the output handle address, then always handle the exception and return the exception code as the status value.
+        // If an exception occurs during the probe of the output handle address, 
+        // then always handle the exception and return the exception code as the status value.
+        return GetExceptionCode();
     }
 
     return Status;// Return service status.
@@ -152,17 +156,22 @@ Arguments:
             ProbeForWriteHandle(MutantHandle);
         }
 
-        Status = ObOpenObjectByName(ObjectAttributes, ExMutantObjectType, PreviousMode, NULL, DesiredAccess, NULL, &Handle);// Open handle to the mutant object with the specified desired access.
+        // Open handle to the mutant object with the specified desired access.
+        Status = ObOpenObjectByName(ObjectAttributes, ExMutantObjectType, PreviousMode, NULL, DesiredAccess, NULL, &Handle);
         if (NT_SUCCESS(Status)) {// If the open was successful, then attempt to write the mutant object handle value.
             try {
-                *MutantHandle = Handle;// If the write attempt fails, then do not report an error. When the caller attempts to access the handle value, an access violation will occur.
+                // If the write attempt fails, then do not report an error. 
+                //When the caller attempts to access the handle value, an access violation will occur.
+                *MutantHandle = Handle;
             } except(ExSystemExceptionFilter())
             {
             }
         }
     } except(ExSystemExceptionFilter())
     {
-        return GetExceptionCode();// If an exception occurs during the probe of the output handle address, then always handle the exception and return the exception code as the status value.
+        // If an exception occurs during the probe of the output handle address, 
+        // then always handle the exception and return the exception code as the status value.
+        return GetExceptionCode();
     }
 
     return Status;// Return service status.
@@ -196,7 +205,8 @@ Arguments:
     NTSTATUS Status;
 
     // Establish an exception handler, probe the output arguments, reference the mutant object, and return the specified information.
-    // If the probe fails, then return the exception code as the service status. Otherwise return the status value returned by the reference object by handle routine.
+    // If the probe fails, then return the exception code as the service status.
+    // Otherwise return the status value returned by the reference object by handle routine.
     try {
         PreviousMode = KeGetPreviousMode();// Get previous processor mode and probe output arguments if necessary.
         if (PreviousMode != KernelMode) {
@@ -296,7 +306,8 @@ Arguments:
                     }
                 }
             } except(ExSystemExceptionFilter())
-            {// If an exception occurs because the caller is not the owner of the mutant object, then always handle the exception, dereference the mutant object, and return the exception code as the status value.
+            {   // If an exception occurs because the caller is not the owner of the mutant object, 
+                // then always handle the exception, dereference the mutant object, and return the exception code as the status value.
                 ObDereferenceObject(Mutant);
                 return GetExceptionCode();
             }

@@ -36,14 +36,12 @@ VOID RtlAssert(IN PVOID FailedAssertion, IN PVOID FileName, IN ULONG LineNumber,
 
 typedef LINK_TRACKING_INFORMATION FILE_VOLUMEID_WITH_TYPE, *PFILE_VOLUMEID_WITH_TYPE;
 
-typedef struct _TRACKING_BUFFER
-{
+typedef struct _TRACKING_BUFFER {
     FILE_TRACKING_INFORMATION TrackingInformation;
     UCHAR Buffer[256];
 } TRACKING_BUFFER, * PTRACKING_BUFFER;
 
-typedef struct _REMOTE_LINK_BUFFER
-{
+typedef struct _REMOTE_LINK_BUFFER {
     REMOTE_LINK_TRACKING_INFORMATION TrackingInformation;
     UCHAR Buffer[256];
 } REMOTE_LINK_BUFFER, * PREMOTE_LINK_BUFFER;
@@ -4810,7 +4808,8 @@ Arguments:
     SystemArgument1, SystemArgument2 - Supplies a set of two pointers to two arguments that contain untyped data.
 Note:
     If no other processing is ever needed, and the APC can be placed at the
-    beginning of the IRP, then this routine could be replaced by simply specifying the address of the pool deallocation routine in the APC instead of the address of this routine.
+    beginning of the IRP, 
+    then this routine could be replaced by simply specifying the address of the pool deallocation routine in the APC instead of the address of this routine.
 Caution:
     This routine is also invoked as a general purpose rundown routine for APCs.
     Should this code ever need to directly access any of the other parameters other than Apc,
