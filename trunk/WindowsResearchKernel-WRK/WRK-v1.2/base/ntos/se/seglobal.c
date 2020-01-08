@@ -142,7 +142,8 @@ GENERIC_MAPPING GenericMappingForMembershipCheck = {
     STANDARD_RIGHTS_READ,
     STANDARD_RIGHTS_EXECUTE,
     STANDARD_RIGHTS_WRITE,
-    STANDARD_RIGHTS_ALL};
+    STANDARD_RIGHTS_ALL
+};
 
 
 PACL SePublicDefaultDacl = NULL;
@@ -638,10 +639,10 @@ Return Value:
     }
 
     // create and initialize SepImportantProcessSd
-    AclLength = (ULONG)sizeof(ACL) + 
-        (3 * ((ULONG)sizeof(ACCESS_ALLOWED_ACE) - sizeof(ULONG))) + 
-        SeLengthSid(SeLocalSystemSid) + 
-        SeLengthSid(SeLocalServiceSid) + 
+    AclLength = (ULONG)sizeof(ACL) +
+        (3 * ((ULONG)sizeof(ACCESS_ALLOWED_ACE) - sizeof(ULONG))) +
+        SeLengthSid(SeLocalSystemSid) +
+        SeLengthSid(SeLocalServiceSid) +
         SeLengthSid(SeNetworkServiceSid);
 
     TotalSdLength = sizeof(SECURITY_DESCRIPTOR) + AclLength;
@@ -727,9 +728,9 @@ Return Value:
     PublicLength = SystemLength + ((ULONG)sizeof(ACCESS_ALLOWED_ACE)) + SeLengthSid(SeWorldSid);
     PublicUnrestrictedLength = PublicLength + ((ULONG)sizeof(ACCESS_ALLOWED_ACE)) + SeLengthSid(SeRestrictedSid);
     PublicOpenLength = PublicLength;
-    LocalServiceLength = (ULONG)sizeof(ACL) + 
-        4 * (ULONG)sizeof(ACCESS_ALLOWED_ACE) + 
-        SeLengthSid(SeWorldSid) + 
+    LocalServiceLength = (ULONG)sizeof(ACL) +
+        4 * (ULONG)sizeof(ACCESS_ALLOWED_ACE) +
+        SeLengthSid(SeWorldSid) +
         SeLengthSid(SeLocalSystemSid) +
         SeLengthSid(SeLocalServiceSid) +
         SeLengthSid(SeAliasAdminsSid);
@@ -767,10 +768,16 @@ Return Value:
     Status = RtlAddAccessAllowedAce(SePublicDefaultUnrestrictedDacl, ACL_REVISION2, GENERIC_EXECUTE, SeWorldSid);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = RtlAddAccessAllowedAce(SePublicOpenDacl, ACL_REVISION2, (GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE), SeWorldSid);
+    Status = RtlAddAccessAllowedAce(SePublicOpenDacl,
+                                    ACL_REVISION2, 
+                                    (GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE),
+                                    SeWorldSid);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = RtlAddAccessAllowedAce(SePublicOpenUnrestrictedDacl, ACL_REVISION2, (GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE), SeWorldSid);
+    Status = RtlAddAccessAllowedAce(SePublicOpenUnrestrictedDacl, 
+                                    ACL_REVISION2, 
+                                    (GENERIC_READ | GENERIC_WRITE | GENERIC_EXECUTE), 
+                                    SeWorldSid);
     ASSERT(NT_SUCCESS(Status));
 
     Status = RtlAddAccessAllowedAce(SeLocalServicePublicDacl, ACL_REVISION2, GENERIC_EXECUTE, SeWorldSid);
@@ -781,7 +788,10 @@ Return Value:
     Status = RtlAddAccessAllowedAce(SePublicDefaultDacl, ACL_REVISION2, GENERIC_ALL, SeLocalSystemSid);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = RtlAddAccessAllowedAce(SePublicDefaultUnrestrictedDacl, ACL_REVISION2, GENERIC_ALL, SeLocalSystemSid);
+    Status = RtlAddAccessAllowedAce(SePublicDefaultUnrestrictedDacl,
+                                    ACL_REVISION2,
+                                    GENERIC_ALL,
+                                    SeLocalSystemSid);
     ASSERT(NT_SUCCESS(Status));
 
     Status = RtlAddAccessAllowedAce(SePublicOpenDacl, ACL_REVISION2, GENERIC_ALL, SeLocalSystemSid);
@@ -810,7 +820,10 @@ Return Value:
     Status = RtlAddAccessAllowedAce(SePublicOpenUnrestrictedDacl, ACL_REVISION2, GENERIC_ALL, SeAliasAdminsSid);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = RtlAddAccessAllowedAce(SeSystemDefaultDacl, ACL_REVISION2, GENERIC_READ | GENERIC_EXECUTE | READ_CONTROL, SeAliasAdminsSid);
+    Status = RtlAddAccessAllowedAce(SeSystemDefaultDacl, 
+                                    ACL_REVISION2,
+                                    GENERIC_READ | GENERIC_EXECUTE | READ_CONTROL, 
+                                    SeAliasAdminsSid);
     ASSERT(NT_SUCCESS(Status));
 
     Status = RtlAddAccessAllowedAce(SeLocalServicePublicDacl, ACL_REVISION2, GENERIC_ALL, SeAliasAdminsSid);
@@ -821,7 +834,9 @@ Return Value:
     Status = RtlAddAccessAllowedAce(SePublicDefaultUnrestrictedDacl, ACL_REVISION2, GENERIC_EXECUTE, SeRestrictedSid);
     ASSERT(NT_SUCCESS(Status));
 
-    Status = RtlAddAccessAllowedAce(SePublicOpenUnrestrictedDacl, ACL_REVISION2, GENERIC_EXECUTE | GENERIC_READ, SeRestrictedSid);
+    Status = RtlAddAccessAllowedAce(SePublicOpenUnrestrictedDacl,
+                                    ACL_REVISION2, GENERIC_EXECUTE | GENERIC_READ, 
+                                    SeRestrictedSid);
     ASSERT(NT_SUCCESS(Status));
 
     // Local Service
@@ -845,8 +860,7 @@ Return Value:
     SePublicDefaultUnrestrictedSd = (PSECURITY_DESCRIPTOR)&SepPublicDefaultUnrestrictedSd;
     Status = RtlCreateSecurityDescriptor(SePublicDefaultUnrestrictedSd, SECURITY_DESCRIPTOR_REVISION1);
     ASSERT(NT_SUCCESS(Status));
-    Status = RtlSetDaclSecurityDescriptor(
-        SePublicDefaultUnrestrictedSd,
+    Status = RtlSetDaclSecurityDescriptor(SePublicDefaultUnrestrictedSd,
         TRUE,                       // DaclPresent
         SePublicDefaultUnrestrictedDacl,
         FALSE                       // DaclDefaulted
@@ -856,8 +870,7 @@ Return Value:
     SePublicOpenSd = (PSECURITY_DESCRIPTOR)&SepPublicOpenSd;
     Status = RtlCreateSecurityDescriptor(SePublicOpenSd, SECURITY_DESCRIPTOR_REVISION1);
     ASSERT(NT_SUCCESS(Status));
-    Status = RtlSetDaclSecurityDescriptor(
-        SePublicOpenSd,
+    Status = RtlSetDaclSecurityDescriptor(SePublicOpenSd,
         TRUE,                       // DaclPresent
         SePublicOpenDacl,
         FALSE                       // DaclDefaulted
@@ -867,8 +880,7 @@ Return Value:
     SePublicOpenUnrestrictedSd = (PSECURITY_DESCRIPTOR)&SepPublicOpenUnrestrictedSd;
     Status = RtlCreateSecurityDescriptor(SePublicOpenUnrestrictedSd, SECURITY_DESCRIPTOR_REVISION1);
     ASSERT(NT_SUCCESS(Status));
-    Status = RtlSetDaclSecurityDescriptor(
-        SePublicOpenUnrestrictedSd,
+    Status = RtlSetDaclSecurityDescriptor(SePublicOpenUnrestrictedSd,
         TRUE,                       // DaclPresent
         SePublicOpenUnrestrictedDacl,
         FALSE                       // DaclDefaulted
@@ -878,8 +890,7 @@ Return Value:
     SeSystemDefaultSd = (PSECURITY_DESCRIPTOR)&SepSystemDefaultSd;
     Status = RtlCreateSecurityDescriptor(SeSystemDefaultSd, SECURITY_DESCRIPTOR_REVISION1);
     ASSERT(NT_SUCCESS(Status));
-    Status = RtlSetDaclSecurityDescriptor(
-        SeSystemDefaultSd,
+    Status = RtlSetDaclSecurityDescriptor(SeSystemDefaultSd,
         TRUE,                       // DaclPresent
         SeSystemDefaultDacl,
         FALSE                       // DaclDefaulted
@@ -889,8 +900,7 @@ Return Value:
     SeLocalServicePublicSd = (PSECURITY_DESCRIPTOR)&SepLocalServicePublicSd;
     Status = RtlCreateSecurityDescriptor(SeLocalServicePublicSd, SECURITY_DESCRIPTOR_REVISION1);
     ASSERT(NT_SUCCESS(Status));
-    Status = RtlSetDaclSecurityDescriptor(
-        SeLocalServicePublicSd,
+    Status = RtlSetDaclSecurityDescriptor(SeLocalServicePublicSd,
         TRUE,                       // DaclPresent
         SeLocalServicePublicDacl,
         FALSE                       // DaclDefaulted
@@ -941,7 +951,11 @@ Return Value:
 }
 
 
-VOID SepAssemblePrivileges(IN ULONG PrivilegeCount, IN BOOLEAN SystemSecurity, IN BOOLEAN WriteOwner, OUT PPRIVILEGE_SET *Privileges)
+VOID SepAssemblePrivileges(IN ULONG PrivilegeCount, 
+                           IN BOOLEAN SystemSecurity, 
+                           IN BOOLEAN WriteOwner, 
+                           OUT PPRIVILEGE_SET* Privileges
+)
 /*
 Routine Description:
     This routine takes the results of the various privilege checks in SeAccessCheck and returns an appropriate privilege set.

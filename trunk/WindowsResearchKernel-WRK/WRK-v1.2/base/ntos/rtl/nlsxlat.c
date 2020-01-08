@@ -83,37 +83,37 @@ USHORT   OemTransUniDefaultChar = 0;
 #define UnicodeNull 0x0000
 
 
-NTSTATUS RtlConsoleMultiByteToUnicodeN(
-    __out_bcount_part(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG MaxBytesInUnicodeString,
-    __out_opt PULONG BytesInUnicodeString,
-    __in_bcount(BytesInMultiByteString) PCH MultiByteString,
-    __in ULONG BytesInMultiByteString,
-    __out PULONG pdwSpecialChar)
-    /*
-    Routine Description:
-        This function is a superset of MultiByteToUnicode for the console.
-        It works just like the other, except it will detect if any characters were under 0x20.
+NTSTATUS RtlConsoleMultiByteToUnicodeN(__out_bcount_part(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
+                                       __in ULONG MaxBytesInUnicodeString,
+                                       __out_opt PULONG BytesInUnicodeString,
+                                       __in_bcount(BytesInMultiByteString) PCH MultiByteString,
+                                       __in ULONG BytesInMultiByteString,
+                                       __out PULONG pdwSpecialChar
+)
+/*
+Routine Description:
+    This function is a superset of MultiByteToUnicode for the console.
+    It works just like the other, except it will detect if any characters were under 0x20.
 
-        This functions converts the specified ansi source string into a Unicode string.
-        The translation is done with respect to the ANSI Code Page (ACP) installed at boot time.
-        Single byte characters in the range 0x00 - 0x7f are simply zero extended as a performance enhancement.
-        In some far eastern code pages 0x5c is defined as the Yen sign.
-        For system translation we always want to consider 0x5c to be the backslash character.
-        We get this for free by zero extending.
+    This functions converts the specified ansi source string into a Unicode string.
+    The translation is done with respect to the ANSI Code Page (ACP) installed at boot time.
+    Single byte characters in the range 0x00 - 0x7f are simply zero extended as a performance enhancement.
+    In some far eastern code pages 0x5c is defined as the Yen sign.
+    For system translation we always want to consider 0x5c to be the backslash character.
+    We get this for free by zero extending.
 
-        NOTE: This routine only supports precomposed Unicode characters.
-    Arguments:
-        UnicodeString - Returns a unicode string that is equivalent to the ansi source string.
-        MaxBytesInUnicodeString - Supplies the maximum number of bytes to be written to UnicodeString.
-            If this causes UnicodeString to be a truncated equivalent of MultiByteString, no error condition results.
-        BytesInUnicodeString - Returns the number of bytes in the returned unicode string pointed to by UnicodeString.
-        MultiByteString - Supplies the ansi source string that is to be converted to unicode.
-        BytesInMultiByteString - The number of bytes in the string pointed to by MultiByteString.
-        pdwSpecialChar - will be zero if non detected, else it will contain the approximate index (can be off by 32).
-    Return Value:
-        SUCCESS - The conversion was successful.
-    */
+    NOTE: This routine only supports precomposed Unicode characters.
+Arguments:
+    UnicodeString - Returns a unicode string that is equivalent to the ansi source string.
+    MaxBytesInUnicodeString - Supplies the maximum number of bytes to be written to UnicodeString.
+        If this causes UnicodeString to be a truncated equivalent of MultiByteString, no error condition results.
+    BytesInUnicodeString - Returns the number of bytes in the returned unicode string pointed to by UnicodeString.
+    MultiByteString - Supplies the ansi source string that is to be converted to unicode.
+    BytesInMultiByteString - The number of bytes in the string pointed to by MultiByteString.
+    pdwSpecialChar - will be zero if non detected, else it will contain the approximate index (can be off by 32).
+Return Value:
+    SUCCESS - The conversion was successful.
+*/
 {
     ULONG LoopCount;
     PUSHORT TranslateTable;
@@ -323,38 +323,38 @@ bad_case:
 }
 
 
-NTSTATUS RtlMultiByteToUnicodeN(
-    __out_bcount_part(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG MaxBytesInUnicodeString,
-    __out_opt PULONG BytesInUnicodeString,
-    __in_bcount(BytesInMultiByteString) PCSTR MultiByteString,
-    __in ULONG BytesInMultiByteString)
-    /*
-    Routine Description:
-        This functions converts the specified ansi source string into a Unicode string.
-        The translation is done with respect to the ANSI Code Page (ACP) installed at boot time.
-        Single byte characters in the range 0x00 - 0x7f are simply zero extended as a performance enhancement.
-        In some far eastern code pages 0x5c is defined as the Yen sign.
-        For system translation we always want to consider 0x5c to be the backslash character.
-        We get this for free by zero extending.
+NTSTATUS RtlMultiByteToUnicodeN(__out_bcount_part(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
+                                __in ULONG MaxBytesInUnicodeString,
+                                __out_opt PULONG BytesInUnicodeString,
+                                __in_bcount(BytesInMultiByteString) PCSTR MultiByteString,
+                                __in ULONG BytesInMultiByteString
+)
+/*
+Routine Description:
+    This functions converts the specified ansi source string into a Unicode string.
+    The translation is done with respect to the ANSI Code Page (ACP) installed at boot time.
+    Single byte characters in the range 0x00 - 0x7f are simply zero extended as a performance enhancement.
+    In some far eastern code pages 0x5c is defined as the Yen sign.
+    For system translation we always want to consider 0x5c to be the backslash character.
+    We get this for free by zero extending.
 
-        NOTE: This routine only supports precomposed Unicode characters.
-    Arguments:
-        UnicodeString - Returns a unicode string that is equivalent to the ansi source string.
+    NOTE: This routine only supports precomposed Unicode characters.
+Arguments:
+    UnicodeString - Returns a unicode string that is equivalent to the ansi source string.
 
-        MaxBytesInUnicodeString - Supplies the maximum number of bytes to be written to UnicodeString.
-            If this causes UnicodeString to be a truncated equivalent of MultiByteString, no error condition results.
+    MaxBytesInUnicodeString - Supplies the maximum number of bytes to be written to UnicodeString.
+        If this causes UnicodeString to be a truncated equivalent of MultiByteString, no error condition results.
 
-        BytesInUnicodeString - Returns the number of bytes in the returned unicode string pointed to by UnicodeString.
+    BytesInUnicodeString - Returns the number of bytes in the returned unicode string pointed to by UnicodeString.
 
-        MultiByteString - Supplies the ansi source string that is to be converted to unicode.
-            For single-byte character sets, this address CAN be the same as UnicodeString.
+    MultiByteString - Supplies the ansi source string that is to be converted to unicode.
+        For single-byte character sets, this address CAN be the same as UnicodeString.
 
-        BytesInMultiByteString - The number of bytes in the string pointed to by MultiByteString.
+    BytesInMultiByteString - The number of bytes in the string pointed to by MultiByteString.
 
-    Return Value:
-        SUCCESS - The conversion was successful.
-    */
+Return Value:
+    SUCCESS - The conversion was successful.
+*/
 {
     ULONG LoopCount;
     ULONG TmpCount;
@@ -491,10 +491,16 @@ NTSTATUS RtlMultiByteToUnicodeN(
 }
 
 
-NTSTATUS RtlOemToUnicodeN(OUT PWCH UnicodeString, IN ULONG MaxBytesInUnicodeString, OUT PULONG BytesInUnicodeString OPTIONAL, IN PCH OemString, IN ULONG BytesInOemString)
+NTSTATUS RtlOemToUnicodeN(OUT PWCH UnicodeString,
+                          IN ULONG MaxBytesInUnicodeString,
+                          OUT PULONG BytesInUnicodeString OPTIONAL,
+                          IN PCH OemString,
+                          IN ULONG BytesInOemString
+)
 /*
 Routine Description:
-    This functions converts the specified oem source string into a Unicode string. The translation is done with respect to the OEM Code Page (OCP) installed at boot time.
+    This functions converts the specified oem source string into a Unicode string.
+    The translation is done with respect to the OEM Code Page (OCP) installed at boot time.
     Single byte characters in the range 0x00 - 0x7f are simply zero extended as a performance enhancement.
     In some far eastern code pages 0x5c is defined as the Yen sign.
     For system translation we always want to consider 0x5c to be the backslash character.
@@ -616,7 +622,10 @@ Return Value:
 }
 
 
-NTSTATUS RtlMultiByteToUnicodeSize(OUT PULONG BytesInUnicodeString, IN PCSTR MultiByteString, IN ULONG BytesInMultiByteString)
+NTSTATUS RtlMultiByteToUnicodeSize(OUT PULONG BytesInUnicodeString,
+                                   IN PCSTR MultiByteString,
+                                   IN ULONG BytesInMultiByteString
+)
 /*
 Routine Description:
     This functions determines how many bytes would be needed to represent the specified ANSI source string in Unicode string (not counting the null terminator)
@@ -669,7 +678,10 @@ Return Value:
 }
 
 
-NTSTATUS RtlUnicodeToMultiByteSize(__out PULONG BytesInMultiByteString, __in_bcount(BytesInUnicodeString) PWCH UnicodeString, __in ULONG BytesInUnicodeString)
+NTSTATUS RtlUnicodeToMultiByteSize(__out PULONG BytesInMultiByteString,
+                                   __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
+                                   __in ULONG BytesInUnicodeString
+)
 /*
 Routine Description:
     This functions determines how many bytes would be needed to represent the specified Unicode source string as an ANSI string (not counting the null terminator)
@@ -712,26 +724,26 @@ Return Value:
 }
 
 
-NTSTATUS RtlUnicodeToMultiByteN(
-    __out_bcount_part(MaxBytesInMultiByteString, *BytesInMultiByteString) PCH MultiByteString,
-    __in ULONG MaxBytesInMultiByteString,
-    __out_opt PULONG BytesInMultiByteString,
-    __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG BytesInUnicodeString)
-    /*
-    Routine Description:
-        This functions converts the specified unicode source string into an ansi string.
-        The translation is done with respect to the ANSI Code Page (ACP) loaded at boot time.
-    Arguments:
-        MultiByteString - Returns an ansi string that is equivalent to the unicode source string.  If the translation can not be done, an error is returned.
-        MaxBytesInMultiByteString - Supplies the maximum number of bytes to be written to MultiByteString.
-            If this causes MultiByteString to be a truncated equivalent of UnicodeString, no error condition results.
-        BytesInMultiByteString - Returns the number of bytes in the returned ansi string pointed to by MultiByteString.
-        UnicodeString - Supplies the unicode source string that is to be converted to ansi.
-        BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
-    Return Value:
-        SUCCESS - The conversion was successful
-    */
+NTSTATUS RtlUnicodeToMultiByteN(__out_bcount_part(MaxBytesInMultiByteString, *BytesInMultiByteString) PCH MultiByteString,
+                                __in ULONG MaxBytesInMultiByteString,
+                                __out_opt PULONG BytesInMultiByteString,
+                                __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
+                                __in ULONG BytesInUnicodeString
+)
+/*
+Routine Description:
+    This functions converts the specified unicode source string into an ansi string.
+    The translation is done with respect to the ANSI Code Page (ACP) loaded at boot time.
+Arguments:
+    MultiByteString - Returns an ansi string that is equivalent to the unicode source string.  If the translation can not be done, an error is returned.
+    MaxBytesInMultiByteString - Supplies the maximum number of bytes to be written to MultiByteString.
+        If this causes MultiByteString to be a truncated equivalent of UnicodeString, no error condition results.
+    BytesInMultiByteString - Returns the number of bytes in the returned ansi string pointed to by MultiByteString.
+    UnicodeString - Supplies the unicode source string that is to be converted to ansi.
+    BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
+Return Value:
+    SUCCESS - The conversion was successful
+*/
 {
     ULONG TmpCount;
     ULONG LoopCount;
@@ -830,27 +842,27 @@ NTSTATUS RtlUnicodeToMultiByteN(
 }
 
 
-NTSTATUS RtlUpcaseUnicodeToMultiByteN(
-    __out_bcount_part(MaxBytesInMultiByteString, *BytesInMultiByteString) PCH MultiByteString,
-    __in ULONG MaxBytesInMultiByteString,
-    __out_opt PULONG BytesInMultiByteString,
-    __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG BytesInUnicodeString)
-    /*
-    Routine Description:
-        This functions upper cases the specified unicode source string and converts it into an ansi string.
-        The translation is done with respect to the ANSI Code Page (ACP) loaded at boot time.
-    Arguments:
-        MultiByteString - Returns an ansi string that is equivalent to the upper case of the unicode source string.
-            If the translation can not be done, an error is returned.
-        MaxBytesInMultiByteString - Supplies the maximum number of bytes to be written to MultiByteString.
-            If this causes MultiByteString to be a truncated equivalent of UnicodeString, no error condition results.
-        BytesInMultiByteString - Returns the number of bytes in the returned ansi string pointed to by MultiByteString.
-        UnicodeString - Supplies the unicode source string that is to be converted to ansi.
-        BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
-    Return Value:
-        SUCCESS - The conversion was successful
-    */
+NTSTATUS RtlUpcaseUnicodeToMultiByteN(__out_bcount_part(MaxBytesInMultiByteString, *BytesInMultiByteString) PCH MultiByteString,
+                                      __in ULONG MaxBytesInMultiByteString,
+                                      __out_opt PULONG BytesInMultiByteString,
+                                      __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
+                                      __in ULONG BytesInUnicodeString
+)
+/*
+Routine Description:
+    This functions upper cases the specified unicode source string and converts it into an ansi string.
+    The translation is done with respect to the ANSI Code Page (ACP) loaded at boot time.
+Arguments:
+    MultiByteString - Returns an ansi string that is equivalent to the upper case of the unicode source string.
+        If the translation can not be done, an error is returned.
+    MaxBytesInMultiByteString - Supplies the maximum number of bytes to be written to MultiByteString.
+        If this causes MultiByteString to be a truncated equivalent of UnicodeString, no error condition results.
+    BytesInMultiByteString - Returns the number of bytes in the returned ansi string pointed to by MultiByteString.
+    UnicodeString - Supplies the unicode source string that is to be converted to ansi.
+    BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
+Return Value:
+    SUCCESS - The conversion was successful
+*/
 {
     ULONG TmpCount;
     ULONG LoopCount;
@@ -1013,28 +1025,28 @@ NTSTATUS RtlUpcaseUnicodeToMultiByteN(
 }
 
 
-NTSTATUS RtlUnicodeToOemN(
-    __out_bcount_part(MaxBytesInOemString, *BytesInOemString) PCH OemString,
-    __in ULONG MaxBytesInOemString,
-    __out_opt PULONG BytesInOemString,
-    __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG BytesInUnicodeString)
-    /*
-    Routine Description:
-        This functions converts the specified unicode source string into an oem string.
-        The translation is done with respect to the OEM Code Page (OCP) loaded at boot time.
-    Arguments:
-        OemString - Returns an oem string that is equivalent to the unicode source string.
-            If the translation can not be done, an error is returned.
-        MaxBytesInOemString - Supplies the maximum number of bytes to be written to OemString.
-            If this causes OemString to be a truncated equivalent of UnicodeString, no error condition results.
-        BytesInOemString - Returns the number of bytes in the returned oem string pointed to by OemString.
-        UnicodeString - Supplies the unicode source string that is to be converted to oem.
-        BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
-    Return Value:
-        SUCCESS - The conversion was successful
-        STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole Oem string.  It was converted correct to the point though.
-    */
+NTSTATUS RtlUnicodeToOemN(__out_bcount_part(MaxBytesInOemString, *BytesInOemString) PCH OemString,
+                          __in ULONG MaxBytesInOemString,
+                          __out_opt PULONG BytesInOemString,
+                          __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
+                          __in ULONG BytesInUnicodeString
+)
+/*
+Routine Description:
+    This functions converts the specified unicode source string into an oem string.
+    The translation is done with respect to the OEM Code Page (OCP) loaded at boot time.
+Arguments:
+    OemString - Returns an oem string that is equivalent to the unicode source string.
+        If the translation can not be done, an error is returned.
+    MaxBytesInOemString - Supplies the maximum number of bytes to be written to OemString.
+        If this causes OemString to be a truncated equivalent of UnicodeString, no error condition results.
+    BytesInOemString - Returns the number of bytes in the returned oem string pointed to by OemString.
+    UnicodeString - Supplies the unicode source string that is to be converted to oem.
+    BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
+Return Value:
+    SUCCESS - The conversion was successful
+    STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole Oem string.  It was converted correct to the point though.
+*/
 {
     ULONG TmpCount;
     ULONG LoopCount;
@@ -1134,28 +1146,28 @@ NTSTATUS RtlUnicodeToOemN(
 }
 
 
-NTSTATUS RtlUpcaseUnicodeToOemN(
-    __out_bcount_part(MaxBytesInOemString, *BytesInOemString) PCH OemString,
-    __in ULONG MaxBytesInOemString,
-    __out_opt PULONG BytesInOemString,
-    __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG BytesInUnicodeString)
-    /*
-    Routine Description:
-        This functions upper cases the specified unicode source string and converts it into an oem string.
-        The translation is done with respect to the OEM Code Page (OCP) loaded at boot time.
-    Arguments:
-        OemString - Returns an oem string that is equivalent to the upper case of the unicode source string.
-            If the translation can not be done, an error is returned.
-        MaxBytesInOemString - Supplies the maximum number of bytes to be written to OemString.
-            If this causes OemString to be a truncated equivalent of UnicodeString, no error condition results.
-        BytesInOemString - Returns the number of bytes in the returned oem string pointed to by OemString.
-        UnicodeString - Supplies the unicode source string that is to be converted to oem.
-        BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
-    Return Value:
-        SUCCESS - The conversion was successful
-        STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole Oem string.  It was converted correctly to that point, though.
-    */
+NTSTATUS RtlUpcaseUnicodeToOemN(__out_bcount_part(MaxBytesInOemString, *BytesInOemString) PCH OemString,
+                                __in ULONG MaxBytesInOemString,
+                                __out_opt PULONG BytesInOemString,
+                                __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
+                                __in ULONG BytesInUnicodeString
+)
+/*
+Routine Description:
+    This functions upper cases the specified unicode source string and converts it into an oem string.
+    The translation is done with respect to the OEM Code Page (OCP) loaded at boot time.
+Arguments:
+    OemString - Returns an oem string that is equivalent to the upper case of the unicode source string.
+        If the translation can not be done, an error is returned.
+    MaxBytesInOemString - Supplies the maximum number of bytes to be written to OemString.
+        If this causes OemString to be a truncated equivalent of UnicodeString, no error condition results.
+    BytesInOemString - Returns the number of bytes in the returned oem string pointed to by OemString.
+    UnicodeString - Supplies the unicode source string that is to be converted to oem.
+    BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
+Return Value:
+    SUCCESS - The conversion was successful
+    STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole Oem string.  It was converted correctly to that point, though.
+*/
 {
     ULONG TmpCount;
     ULONG LoopCount;
@@ -1338,7 +1350,8 @@ Return Value:
 
     if (!NlsMbOemCodePageTag) {
         for (OemOffset = 0; OemOffset < OemString->Length; OemOffset += 1) {
-            if ((OemString->Buffer[OemOffset] == (UCHAR)OemDefaultChar) && (UnicodeString->Buffer[OemOffset] != OemTransUniDefaultChar)) {
+            if ((OemString->Buffer[OemOffset] == (UCHAR)OemDefaultChar) &&
+                (UnicodeString->Buffer[OemOffset] != OemTransUniDefaultChar)) {
                 Result = FALSE;
                 break;
             }
@@ -1364,7 +1377,8 @@ Return Value:
                 continue;
             }
 
-            if ((OemString->Buffer[OemOffset] == (UCHAR)OemDefaultChar) && (UnicodeString->Buffer[UnicodeOffset] != OemTransUniDefaultChar)) {
+            if ((OemString->Buffer[OemOffset] == (UCHAR)OemDefaultChar) &&
+                (UnicodeString->Buffer[UnicodeOffset] != OemTransUniDefaultChar)) {
                 Result = FALSE;
                 break;
             }
@@ -1375,36 +1389,36 @@ Return Value:
 }
 
 
-NTSTATUS RtlCustomCPToUnicodeN(
-    __in PCPTABLEINFO CustomCP,
-    __out_bcount_part(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG MaxBytesInUnicodeString,
-    __out_opt PULONG BytesInUnicodeString,
-    __in_bcount(BytesInCustomCPString) PCH CustomCPString,
-    __in ULONG BytesInCustomCPString)
-    /*
-    Routine Description:
-        This functions converts the specified CustomCP source string into a Unicode string.
-        The translation is done with respect to the CustomCP Code Page specified.
-        Single byte characters in the range 0x00 - 0x7f are simply zero extended as a performance enhancement.
-        In some far eastern code pages 0x5c is defined as the Yen sign.
-        For system translation we always want to consider 0x5c to be the backslash character.
-        We get this for free by zero extending.
+NTSTATUS RtlCustomCPToUnicodeN(__in PCPTABLEINFO CustomCP,
+                               __out_bcount_part(MaxBytesInUnicodeString, *BytesInUnicodeString) PWCH UnicodeString,
+                               __in ULONG MaxBytesInUnicodeString,
+                               __out_opt PULONG BytesInUnicodeString,
+                               __in_bcount(BytesInCustomCPString) PCH CustomCPString,
+                               __in ULONG BytesInCustomCPString
+)
+/*
+Routine Description:
+    This functions converts the specified CustomCP source string into a Unicode string.
+    The translation is done with respect to the CustomCP Code Page specified.
+    Single byte characters in the range 0x00 - 0x7f are simply zero extended as a performance enhancement.
+    In some far eastern code pages 0x5c is defined as the Yen sign.
+    For system translation we always want to consider 0x5c to be the backslash character.
+    We get this for free by zero extending.
 
-        NOTE: This routine only supports precomposed Unicode characters.
-    Arguments:
-        CustomCP - Supplies the address of the code page that translations are done relative to
-        UnicodeString - Returns a unicode string that is equivalent to the CustomCP source string.
-        MaxBytesInUnicodeString - Supplies the maximum number of bytes to be written to UnicodeString.
-            If this causes UnicodeString to be a truncated equivalent of CustomCPString, no error condition results.
-        BytesInUnicodeString - Returns the number of bytes in the returned unicode string pointed to by UnicodeString.
-        CustomCPString - Supplies the CustomCP source string that is to be converted to unicode.
-        BytesInCustomCPString - The number of bytes in the string pointed to by CustomCPString.
-    Return Value:
-        SUCCESS - The conversion was successful
-        STATUS_ILLEGAL_CHARACTER - The final CustomCP character was illegal
-        STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole CustomCP string.  It was converted correct to the point though.
-    */
+    NOTE: This routine only supports precomposed Unicode characters.
+Arguments:
+    CustomCP - Supplies the address of the code page that translations are done relative to
+    UnicodeString - Returns a unicode string that is equivalent to the CustomCP source string.
+    MaxBytesInUnicodeString - Supplies the maximum number of bytes to be written to UnicodeString.
+        If this causes UnicodeString to be a truncated equivalent of CustomCPString, no error condition results.
+    BytesInUnicodeString - Returns the number of bytes in the returned unicode string pointed to by UnicodeString.
+    CustomCPString - Supplies the CustomCP source string that is to be converted to unicode.
+    BytesInCustomCPString - The number of bytes in the string pointed to by CustomCPString.
+Return Value:
+    SUCCESS - The conversion was successful
+    STATUS_ILLEGAL_CHARACTER - The final CustomCP character was illegal
+    STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole CustomCP string.  It was converted correct to the point though.
+*/
 {
     ULONG LoopCount;
     PUSHORT TranslateTable;
@@ -1509,30 +1523,30 @@ NTSTATUS RtlCustomCPToUnicodeN(
 }
 
 
-NTSTATUS RtlUnicodeToCustomCPN(
-    __in PCPTABLEINFO CustomCP,
-    __out_bcount_part(MaxBytesInCustomCPString, *BytesInCustomCPString) PCH CustomCPString,
-    __in ULONG MaxBytesInCustomCPString,
-    __out_opt PULONG BytesInCustomCPString,
-    __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG BytesInUnicodeString)
-    /*
-    Routine Description:
-        This functions converts the specified unicode source string into an CustomCP string.
-        The translation is done with respect to the CustomCP Code Page specified by CustomCp.
-    Arguments:
-        CustomCP - Supplies the address of the code page that translations are done relative to
-        CustomCPString - Returns an CustomCP string that is equivalent to the unicode source string.
-            If the translation can not be done, an error is returned.
-        MaxBytesInCustomCPString - Supplies the maximum number of bytes to be written to CustomCPString.
-            If this causes CustomCPString to be a truncated equivalent of UnicodeString, no error condition results.
-        BytesInCustomCPString - Returns the number of bytes in the returned CustomCP string pointed to by CustomCPString.
-        UnicodeString - Supplies the unicode source string that is to be converted to CustomCP.
-        BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
-    Return Value:
-        SUCCESS - The conversion was successful
-        STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole CustomCP string.  It was converted correct to the point though.
-    */
+NTSTATUS RtlUnicodeToCustomCPN(__in PCPTABLEINFO CustomCP,
+                               __out_bcount_part(MaxBytesInCustomCPString, *BytesInCustomCPString) PCH CustomCPString,
+                               __in ULONG MaxBytesInCustomCPString,
+                               __out_opt PULONG BytesInCustomCPString,
+                               __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
+                               __in ULONG BytesInUnicodeString
+)
+/*
+Routine Description:
+    This functions converts the specified unicode source string into an CustomCP string.
+    The translation is done with respect to the CustomCP Code Page specified by CustomCp.
+Arguments:
+    CustomCP - Supplies the address of the code page that translations are done relative to
+    CustomCPString - Returns an CustomCP string that is equivalent to the unicode source string.
+        If the translation can not be done, an error is returned.
+    MaxBytesInCustomCPString - Supplies the maximum number of bytes to be written to CustomCPString.
+        If this causes CustomCPString to be a truncated equivalent of UnicodeString, no error condition results.
+    BytesInCustomCPString - Returns the number of bytes in the returned CustomCP string pointed to by CustomCPString.
+    UnicodeString - Supplies the unicode source string that is to be converted to CustomCP.
+    BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
+Return Value:
+    SUCCESS - The conversion was successful
+    STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole CustomCP string.  It was converted correct to the point though.
+*/
 {
     ULONG TmpCount;
     ULONG LoopCount;
@@ -1634,30 +1648,30 @@ NTSTATUS RtlUnicodeToCustomCPN(
 }
 
 
-NTSTATUS RtlUpcaseUnicodeToCustomCPN(
-    __in PCPTABLEINFO CustomCP,
-    __out_bcount_part(MaxBytesInCustomCPString, *BytesInCustomCPString) PCH CustomCPString,
-    __in ULONG MaxBytesInCustomCPString,
-    __out_opt PULONG BytesInCustomCPString,
-    __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
-    __in ULONG BytesInUnicodeString)
-    /*
-    Routine Description:
-        This functions upper cases the specified unicode source string and converts it into a CustomCP string.
-        The translation is done with respect to the CustomCP Code Page specified by CustomCp.
-    Arguments:
-        CustomCP - Supplies the address of the code page that translations are done relative to
-        CustomCPString - Returns an CustomCP string that is equivalent to the unicode source string.
-            If the translation can not be done, an error is returned.
-        MaxBytesInCustomCPString - Supplies the maximum number of bytes to be written to CustomCPString.
-            If this causes CustomCPString to be a truncated equivalent of UnicodeString, no error condition results.
-        BytesInCustomCPString - Returns the number of bytes in the returned CustomCP string pointed to by CustomCPString.
-        UnicodeString - Supplies the unicode source string that is to be converted to CustomCP.
-        BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
-    Return Value:
-        SUCCESS - The conversion was successful
-        STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole CustomCP string.  It was converted correctly to that point, though.
-    */
+NTSTATUS RtlUpcaseUnicodeToCustomCPN(__in PCPTABLEINFO CustomCP,
+                                     __out_bcount_part(MaxBytesInCustomCPString, *BytesInCustomCPString) PCH CustomCPString,
+                                     __in ULONG MaxBytesInCustomCPString,
+                                     __out_opt PULONG BytesInCustomCPString,
+                                     __in_bcount(BytesInUnicodeString) PWCH UnicodeString,
+                                     __in ULONG BytesInUnicodeString
+)
+/*
+Routine Description:
+    This functions upper cases the specified unicode source string and converts it into a CustomCP string.
+    The translation is done with respect to the CustomCP Code Page specified by CustomCp.
+Arguments:
+    CustomCP - Supplies the address of the code page that translations are done relative to
+    CustomCPString - Returns an CustomCP string that is equivalent to the unicode source string.
+        If the translation can not be done, an error is returned.
+    MaxBytesInCustomCPString - Supplies the maximum number of bytes to be written to CustomCPString.
+        If this causes CustomCPString to be a truncated equivalent of UnicodeString, no error condition results.
+    BytesInCustomCPString - Returns the number of bytes in the returned CustomCP string pointed to by CustomCPString.
+    UnicodeString - Supplies the unicode source string that is to be converted to CustomCP.
+    BytesInUnicodeString - The number of bytes in the the string pointed to by UnicodeString.
+Return Value:
+    SUCCESS - The conversion was successful
+    STATUS_BUFFER_OVERFLOW - MaxBytesInUnicodeString was not enough to hold the whole CustomCP string.  It was converted correctly to that point, though.
+*/
 {
     ULONG TmpCount;
     ULONG LoopCount;
@@ -1892,7 +1906,11 @@ VOID RtlpInitUpcaseTable(IN PUSHORT TableBase, OUT PNLSTABLEINFO CodePageTable)
 }
 
 
-VOID RtlInitNlsTables(IN PUSHORT AnsiNlsBase, IN PUSHORT OemNlsBase, IN PUSHORT LanguageNlsBase, OUT PNLSTABLEINFO TableInfo)
+VOID RtlInitNlsTables(IN PUSHORT AnsiNlsBase,
+                      IN PUSHORT OemNlsBase,
+                      IN PUSHORT LanguageNlsBase,
+                      OUT PNLSTABLEINFO TableInfo
+)
 {
     RTL_PAGED_CODE();
 

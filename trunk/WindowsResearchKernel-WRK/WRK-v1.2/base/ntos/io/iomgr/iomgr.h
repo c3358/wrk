@@ -48,64 +48,64 @@ Abstract:
 #define ExAllocatePoolWithQuota(a,b) ExAllocatePoolWithQuotaTag(a,b,'  oI')
 #endif
 
-typedef struct _DUMP_CONTROL_BLOCK DUMP_CONTROL_BLOCK, *PDUMP_CONTROL_BLOCK;
+typedef struct _DUMP_CONTROL_BLOCK DUMP_CONTROL_BLOCK, * PDUMP_CONTROL_BLOCK;
 
 // Define the type for entries placed on the driver reinitialization queue.
 // These entries are entered onto the tail when the driver requests that it be reinitialized, 
 // and removed from the head by the code that actually performs the reinitialization.
-typedef struct _REINIT_PACKET{
+typedef struct _REINIT_PACKET {
     LIST_ENTRY ListEntry;
     PDRIVER_OBJECT DriverObject;
     PDRIVER_REINITIALIZE DriverReinitializationRoutine;
     PVOID Context;
-} REINIT_PACKET, *PREINIT_PACKET;
+} REINIT_PACKET, * PREINIT_PACKET;
 
-typedef enum _TRANSFER_TYPE{// Define transfer types for process counters.
+typedef enum _TRANSFER_TYPE {// Define transfer types for process counters.
     ReadTransfer,
     WriteTransfer,
     OtherTransfer
-} TRANSFER_TYPE, *PTRANSFER_TYPE;
+} TRANSFER_TYPE, * PTRANSFER_TYPE;
 
 // Define the maximum amount of memory that can be allocated for all outstanding error log packets.
 #define IOP_MAXIMUM_LOG_ALLOCATION (100*PAGE_SIZE)
 
-typedef struct _ERROR_LOG_ENTRY{// Define an error log entry.
+typedef struct _ERROR_LOG_ENTRY {// Define an error log entry.
     USHORT Type;
     USHORT Size;
     LIST_ENTRY ListEntry;
     PDEVICE_OBJECT DeviceObject;
     PDRIVER_OBJECT DriverObject;
     LARGE_INTEGER TimeStamp;
-} ERROR_LOG_ENTRY, *PERROR_LOG_ENTRY;
+} ERROR_LOG_ENTRY, * PERROR_LOG_ENTRY;
 
 
 //  Define both the global IOP_HARD_ERROR_QUEUE and IOP_HARD_ERROR_PACKET structures.
 //  Also set the maximum number of outstanding hard error packets allowed.
-typedef struct _IOP_HARD_ERROR_QUEUE{
+typedef struct _IOP_HARD_ERROR_QUEUE {
     WORK_QUEUE_ITEM ExWorkItem;
     LIST_ENTRY WorkQueue;
     KSPIN_LOCK WorkQueueSpinLock;
     KSEMAPHORE WorkQueueSemaphore;
     BOOLEAN ThreadStarted;
     LONG   NumPendingApcPopups;
-} IOP_HARD_ERROR_QUEUE, *PIOP_HARD_ERROR_QUEUE;
+} IOP_HARD_ERROR_QUEUE, * PIOP_HARD_ERROR_QUEUE;
 
-typedef struct _IOP_HARD_ERROR_PACKET{
+typedef struct _IOP_HARD_ERROR_PACKET {
     LIST_ENTRY WorkQueueLinks;
     NTSTATUS ErrorStatus;
     UNICODE_STRING String;
-} IOP_HARD_ERROR_PACKET, *PIOP_HARD_ERROR_PACKET;
+} IOP_HARD_ERROR_PACKET, * PIOP_HARD_ERROR_PACKET;
 
-typedef struct _IOP_APC_HARD_ERROR_PACKET{
+typedef struct _IOP_APC_HARD_ERROR_PACKET {
     WORK_QUEUE_ITEM Item;
     PIRP Irp;
     PVPB Vpb;
     PDEVICE_OBJECT RealDeviceObject;
-} IOP_APC_HARD_ERROR_PACKET, *PIOP_APC_HARD_ERROR_PACKET;
+} IOP_APC_HARD_ERROR_PACKET, * PIOP_APC_HARD_ERROR_PACKET;
 
-typedef NTSTATUS(FASTCALL *PIO_CALL_DRIVER) (IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp, IN PVOID ReturnAddress);
-typedef VOID(FASTCALL *PIO_COMPLETE_REQUEST) (IN PIRP Irp, IN CCHAR PriorityBoost);
-typedef VOID(*PIO_FREE_IRP) (IN struct _IRP *Irp);
+typedef NTSTATUS(FASTCALL* PIO_CALL_DRIVER) (IN PDEVICE_OBJECT DeviceObject, IN OUT PIRP Irp, IN PVOID ReturnAddress);
+typedef VOID(FASTCALL* PIO_COMPLETE_REQUEST) (IN PIRP Irp, IN CCHAR PriorityBoost);
+typedef VOID(*PIO_FREE_IRP) (IN struct _IRP* Irp);
 typedef PIRP(*PIO_ALLOCATE_IRP) (IN CCHAR StackSize, IN BOOLEAN ChargeQuota);
 
 extern IOP_HARD_ERROR_QUEUE IopHardError;
@@ -113,7 +113,7 @@ extern PIOP_HARD_ERROR_PACKET IopCurrentHardError;
 
 #define IOP_MAXIMUM_OUTSTANDING_HARD_ERRORS 25
 
-typedef struct _IO_WORKITEM{
+typedef struct _IO_WORKITEM {
     WORK_QUEUE_ITEM WorkItem;
     PIO_WORKITEM_ROUTINE Routine;
     PDEVICE_OBJECT DeviceObject;
@@ -136,10 +136,10 @@ extern const GENERIC_MAPPING IopFileMapping;
 
 
 // Define a dummy file object for use on stack for fast open operations.
-typedef struct _DUMMY_FILE_OBJECT{
+typedef struct _DUMMY_FILE_OBJECT {
     OBJECT_HEADER ObjectHeader;
     CHAR FileObjectBody[sizeof(FILE_OBJECT)];
-} DUMMY_FILE_OBJECT, *PDUMMY_FILE_OBJECT;
+} DUMMY_FILE_OBJECT, * PDUMMY_FILE_OBJECT;
 
 
 // Define the structures private to the I/O system.
@@ -149,7 +149,7 @@ typedef struct _DUMMY_FILE_OBJECT{
 // Define an Open Packet (OP).
 // An OP is used to communicate information between the NtCreateFile service executing in the context of the caller and the device object parse routine.
 // It is the parse routine who actually creates the file object for the file.
-typedef struct _OPEN_PACKET{
+typedef struct _OPEN_PACKET {
     CSHORT Type;
     CSHORT Size;
     PFILE_OBJECT FileObject;
@@ -212,58 +212,58 @@ typedef struct _OPEN_PACKET{
     // Device object where the create should start if present on the stack Applicable for kernel opens only.
     ULONG           InternalFlags;      // Passed from IopCreateFile
     PDEVICE_OBJECT  TopDeviceObjectHint;
-} OPEN_PACKET, *POPEN_PACKET;
+} OPEN_PACKET, * POPEN_PACKET;
 
 
 // Define a Load Packet (LDP).
 // An LDP is used to communicate load and unload driver information between the appropriate system services and the routine that actually performs the work.
 // This is implemented using a packet because various drivers need to be initialized in the context of THE system process because they create threads within its context which open
 // handles to objects that henceforth are only valid in the context of that process.
-typedef struct _LOAD_PACKET{
+typedef struct _LOAD_PACKET {
     WORK_QUEUE_ITEM WorkQueueItem;
     KEVENT Event;
     PDRIVER_OBJECT DriverObject;
     PUNICODE_STRING DriverServiceName;
     NTSTATUS FinalStatus;
-} LOAD_PACKET, *PLOAD_PACKET;
+} LOAD_PACKET, * PLOAD_PACKET;
 
 
 // Define a Link Tracking Packet.  
 // A link tracking packet is used to open the user-mode link tracking service's LPC port so that information about objects which have been moved can be tracked.
-typedef struct _LINK_TRACKING_PACKET{
+typedef struct _LINK_TRACKING_PACKET {
     WORK_QUEUE_ITEM WorkQueueItem;
     KEVENT Event;
     NTSTATUS FinalStatus;
-} LINK_TRACKING_PACKET, *PLINK_TRACKING_PACKET;
+} LINK_TRACKING_PACKET, * PLINK_TRACKING_PACKET;
 
 
 // Define the type for entries placed on the driver shutdown notification queue.
 // These entries represent those drivers that would like to be notified that the system is begin shutdown before it actually goes down.
-typedef struct _SHUTDOWN_PACKET{
+typedef struct _SHUTDOWN_PACKET {
     LIST_ENTRY ListEntry;
     PDEVICE_OBJECT DeviceObject;
-} SHUTDOWN_PACKET, *PSHUTDOWN_PACKET;
+} SHUTDOWN_PACKET, * PSHUTDOWN_PACKET;
 
 // Define the type for entries placed on the file system registration change notification queue.
-typedef struct _NOTIFICATION_PACKET{
+typedef struct _NOTIFICATION_PACKET {
     LIST_ENTRY ListEntry;
     PDRIVER_OBJECT DriverObject;
     PDRIVER_FS_NOTIFICATION NotificationRoutine;
-} NOTIFICATION_PACKET, *PNOTIFICATION_PACKET;
+} NOTIFICATION_PACKET, * PNOTIFICATION_PACKET;
 
 // Define I/O completion packet types.
-typedef enum _COMPLETION_PACKET_TYPE{
+typedef enum _COMPLETION_PACKET_TYPE {
     IopCompletionPacketIrp,
     IopCompletionPacketMini,
     IopCompletionPacketQuota
-} COMPLETION_PACKET_TYPE, *PCOMPLETION_PACKET_TYPE;
+} COMPLETION_PACKET_TYPE, * PCOMPLETION_PACKET_TYPE;
 
 
 // Define the type for completion packets inserted onto completion ports when there is no full I/O request packet that was used to perform the I/O operation.
 // This occurs when the fast I/O path is used, and when the user directly inserts a completion message.
-typedef struct _IOP_MINI_COMPLETION_PACKET{
+typedef struct _IOP_MINI_COMPLETION_PACKET {
     // The following unnamed structure must be exactly identical to the unnamed structure used in the IRP overlay section used for completion queue entries.
-    struct 
+    struct
     {
         LIST_ENTRY ListEntry;// List entry - used to queue the packet to completion queue, among others.
 
@@ -272,7 +272,7 @@ typedef struct _IOP_MINI_COMPLETION_PACKET{
             // Current stack location - contains a pointer to the current IO_STACK_LOCATION structure in the IRP stack.
             // This field should never be directly accessed by drivers.
             // They should use the standard functions.
-            struct _IO_STACK_LOCATION *CurrentStackLocation;
+            struct _IO_STACK_LOCATION* CurrentStackLocation;
 
             ULONG PacketType;// Minipacket type.
         };
@@ -282,43 +282,43 @@ typedef struct _IOP_MINI_COMPLETION_PACKET{
     PVOID ApcContext;
     NTSTATUS IoStatus;
     ULONG_PTR IoStatusInformation;
-} IOP_MINI_COMPLETION_PACKET, *PIOP_MINI_COMPLETION_PACKET;
+} IOP_MINI_COMPLETION_PACKET, * PIOP_MINI_COMPLETION_PACKET;
 
-typedef struct _IO_UNLOAD_SAFE_COMPLETION_CONTEXT{
+typedef struct _IO_UNLOAD_SAFE_COMPLETION_CONTEXT {
     PDEVICE_OBJECT DeviceObject;
     PVOID Context;
     PIO_COMPLETION_ROUTINE CompletionRoutine;
-} IO_UNLOAD_SAFE_COMPLETION_CONTEXT, *PIO_UNLOAD_SAFE_COMPLETION_CONTEXT;
+} IO_UNLOAD_SAFE_COMPLETION_CONTEXT, * PIO_UNLOAD_SAFE_COMPLETION_CONTEXT;
 
 
-typedef struct  _IOP_RESERVE_IRP_ALLOCATOR{
+typedef struct  _IOP_RESERVE_IRP_ALLOCATOR {
     PIRP    ReserveIrp;
     LONG    IrpAllocated;
     KEVENT  Event;
     CCHAR   ReserveIrpStackSize;
-} IOP_RESERVE_IRP_ALLOCATOR, *PIOP_RESERVE_IRP_ALLOCATOR;
+} IOP_RESERVE_IRP_ALLOCATOR, * PIOP_RESERVE_IRP_ALLOCATOR;
 
 
 // This structure is the extension to a fileobject if the flag FO_FILE_OBJECT_HAS_EXTENSION is set in the fileobject.
-typedef struct _IOP_FILE_OBJECT_EXTENSION{
+typedef struct _IOP_FILE_OBJECT_EXTENSION {
     ULONG           FileObjectExtensionFlags;
     PDEVICE_OBJECT  TopDeviceObjectHint;
     PVOID           FilterContext;          // Pointer where filter keeps its context
-} IOP_FILE_OBJECT_EXTENSION, *PIOP_FILE_OBJECT_EXTENSION;
+} IOP_FILE_OBJECT_EXTENSION, * PIOP_FILE_OBJECT_EXTENSION;
 
 
 // Structure to bookkeep stack profiler.
 
 #define MAX_LOOKASIDE_IRP_STACK_COUNT  20   // Highest value for a lookaside stack count
 
-typedef struct  _IOP_IRP_STACK_PROFILER{
+typedef struct  _IOP_IRP_STACK_PROFILER {
     ULONG   Profile[MAX_LOOKASIDE_IRP_STACK_COUNT];
     KTIMER  Timer;
     KDPC    Dpc;
     ULONG   Flags;
     ULONG   TriggerCount;
     ULONG   ProfileDuration;
-} IOP_IRP_STACK_PROFILER, *PIOP_IRP_STACK_PROFILER;
+} IOP_IRP_STACK_PROFILER, * PIOP_IRP_STACK_PROFILER;
 
 
 #define IOP_CREATE_USE_TOP_DEVICE_OBJECT_HINT   0x1 // Define for internal flags to IopCreateFile
@@ -513,23 +513,23 @@ VOID IopCloseFile(IN PEPROCESS Process OPTIONAL,
                   IN ULONG_PTR SystemHandleCount);
 VOID IopCompleteUnloadOrDelete(IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN OnCleanStack, IN KIRQL Irql);
 VOID IopCompletePageWrite(IN PKAPC Apc,
-                          IN PKNORMAL_ROUTINE *NormalRoutine,
-                          IN PVOID *NormalContext,
-                          IN PVOID *SystemArgument1,
-                          IN PVOID *SystemArgument2);
+                          IN PKNORMAL_ROUTINE* NormalRoutine,
+                          IN PVOID* NormalContext,
+                          IN PVOID* SystemArgument1,
+                          IN PVOID* SystemArgument2);
 VOID IopCompleteRequest(IN PKAPC Apc,
-                        IN PKNORMAL_ROUTINE *NormalRoutine,
-                        IN PVOID *NormalContext,
-                        IN PVOID *SystemArgument1,
-                        IN PVOID *SystemArgument2);
+                        IN PKNORMAL_ROUTINE* NormalRoutine,
+                        IN PVOID* NormalContext,
+                        IN PVOID* SystemArgument1,
+                        IN PVOID* SystemArgument2);
 BOOLEAN IopConfigureCrashDump(IN HANDLE HandlePagingFile);
 VOID IopConnectLinkTrackingPort(IN PVOID Parameter);
 NTSTATUS IopCreateVpb(IN PDEVICE_OBJECT DeviceObject);
 VOID IopDeallocateApc(IN PKAPC Apc,
-                      IN PKNORMAL_ROUTINE *NormalRoutine,
-                      IN PVOID *NormalContext,
-                      IN PVOID *SystemArgument1,
-                      IN PVOID *SystemArgument2);
+                      IN PKNORMAL_ROUTINE* NormalRoutine,
+                      IN PVOID* NormalContext,
+                      IN PVOID* SystemArgument1,
+                      IN PVOID* SystemArgument2);
 VOID IopDecrementDeviceObjectRef(IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN AlwaysUnload, IN BOOLEAN OnCleanStack);
 VOID IopDeleteDriver(IN PVOID    Object);
 VOID IopDeleteDevice(IN PVOID    Object);
@@ -586,21 +586,26 @@ NTSTATUS IopGetFileInformation(IN PFILE_OBJECT FileObject,
                                OUT PVOID FileInformation,
                                OUT PULONG ReturnedLength);
 BOOLEAN IopGetMountFlag(IN PDEVICE_OBJECT DeviceObject);
-NTSTATUS IopGetRegistryValues(IN HANDLE KeyHandle, IN PKEY_VALUE_FULL_INFORMATION *ValueList);
-NTSTATUS IopGetSetObjectId(IN PFILE_OBJECT FileObject, IN OUT PVOID Buffer, IN ULONG Length, IN ULONG OperationFlags);
-NTSTATUS IopGetSetSecurityObject(
-    IN PVOID Object,
-    IN SECURITY_OPERATION_CODE OperationCode,
-    IN PSECURITY_INFORMATION SecurityInformation,
-    IN OUT PSECURITY_DESCRIPTOR SecurityDescriptor,
-    IN OUT PULONG CapturedLength,
-    IN OUT PSECURITY_DESCRIPTOR *ObjectsSecurityDescriptor,
-    IN POOL_TYPE PoolType,
-    IN PGENERIC_MAPPING GenericMapping
-);
-NTSTATUS IopGetVolumeId(IN PFILE_OBJECT FileObject, IN OUT PLINK_TRACKING_INFORMATION ObjectId, IN ULONG Length);
+NTSTATUS IopGetRegistryValues(IN HANDLE KeyHandle, IN PKEY_VALUE_FULL_INFORMATION* ValueList);
+NTSTATUS IopGetSetObjectId(IN PFILE_OBJECT FileObject,
+                           IN OUT PVOID Buffer,
+                           IN ULONG Length,
+                           IN ULONG OperationFlags);
+NTSTATUS IopGetSetSecurityObject(IN PVOID Object,
+                                 IN SECURITY_OPERATION_CODE OperationCode,
+                                 IN PSECURITY_INFORMATION SecurityInformation,
+                                 IN OUT PSECURITY_DESCRIPTOR SecurityDescriptor,
+                                 IN OUT PULONG CapturedLength,
+                                 IN OUT PSECURITY_DESCRIPTOR* ObjectsSecurityDescriptor,
+                                 IN POOL_TYPE PoolType,
+                                 IN PGENERIC_MAPPING GenericMapping);
+NTSTATUS IopGetVolumeId(IN PFILE_OBJECT FileObject,
+                        IN OUT PLINK_TRACKING_INFORMATION ObjectId,
+                        IN ULONG Length);
 VOID IopHardErrorThread(PVOID StartContext);
-VOID IopInsertRemoveDevice(IN PDRIVER_OBJECT DriverObject, IN PDEVICE_OBJECT DeviceObject, IN BOOLEAN Insert);
+VOID IopInsertRemoveDevice(IN PDRIVER_OBJECT DriverObject,
+                           IN PDEVICE_OBJECT DeviceObject,
+                           IN BOOLEAN Insert);
 
 
 // Interlocked list manipulation functions using queued spin locks.
@@ -619,16 +624,14 @@ BOOLEAN IopCheckIfNotNativeDriver(IN NTSTATUS InitialDriverLoadStatus, IN PUNICO
 VOID IopLogBlockedDriverEvent(IN PUNICODE_STRING ImageFileName, IN NTSTATUS NtMessageStatus, IN NTSTATUS NtErrorStatus);
 #endif
 
-NTSTATUS IopLogErrorEvent(
-    IN ULONG            SequenceNumber,
-    IN ULONG            UniqueErrorValue,
-    IN NTSTATUS         FinalStatus,
-    IN NTSTATUS         SpecificIOStatus,
-    IN ULONG            LengthOfInsert1,
-    IN PWCHAR           Insert1,
-    IN ULONG            LengthOfInsert2,
-    IN PWCHAR           Insert2
-);
+NTSTATUS IopLogErrorEvent(IN ULONG            SequenceNumber,
+                          IN ULONG            UniqueErrorValue,
+                          IN NTSTATUS         FinalStatus,
+                          IN NTSTATUS         SpecificIOStatus,
+                          IN ULONG            LengthOfInsert1,
+                          IN PWCHAR           Insert1,
+                          IN ULONG            LengthOfInsert2,
+                          IN PWCHAR           Insert2);
 
 NTSTATUS IopLookupBusStringFromID(IN  HANDLE KeyHandle,
                                   IN  INTERFACE_TYPE InterfaceType,
@@ -639,7 +642,7 @@ NTSTATUS IopMountVolume(IN PDEVICE_OBJECT DeviceObject,
                         IN BOOLEAN AllowRawMount,
                         IN BOOLEAN DeviceLockAlreadyHeld,
                         IN BOOLEAN Alertable,
-                        OUT PVPB    *Vpb);
+                        OUT PVPB* Vpb);
 NTSTATUS IopOpenLinkOrRenameTarget(OUT PHANDLE TargetHandle,
                                    IN PIRP Irp,
                                    IN PVOID RenameBuffer,
@@ -650,29 +653,27 @@ NTSTATUS IopOpenRegistryKey(OUT PHANDLE Handle,
                             IN ACCESS_MASK DesiredAccess,
                             IN BOOLEAN Create);
 
-NTSTATUS IopParseDevice(
-    IN PVOID ParseObject,
-    IN PVOID ObjectType,
-    IN PACCESS_STATE AccessState,
-    IN KPROCESSOR_MODE AccessMode,
-    IN ULONG Attributes,
-    IN OUT PUNICODE_STRING CompleteName,
-    IN OUT PUNICODE_STRING RemainingName,
-    IN OUT PVOID Context OPTIONAL,
-    IN PSECURITY_QUALITY_OF_SERVICE SecurityQos OPTIONAL,
-    OUT PVOID *Object);
+NTSTATUS IopParseDevice(IN PVOID ParseObject,
+                        IN PVOID ObjectType,
+                        IN PACCESS_STATE AccessState,
+                        IN KPROCESSOR_MODE AccessMode,
+                        IN ULONG Attributes,
+                        IN OUT PUNICODE_STRING CompleteName,
+                        IN OUT PUNICODE_STRING RemainingName,
+                        IN OUT PVOID Context OPTIONAL,
+                        IN PSECURITY_QUALITY_OF_SERVICE SecurityQos OPTIONAL,
+                        OUT PVOID* Object);
 
-NTSTATUS IopParseFile(
-    IN PVOID ParseObject,
-    IN PVOID ObjectType,
-    IN PACCESS_STATE AccessState,
-    IN KPROCESSOR_MODE AccessMode,
-    IN ULONG Attributes,
-    IN OUT PUNICODE_STRING CompleteName,
-    IN OUT PUNICODE_STRING RemainingName,
-    IN OUT PVOID Context OPTIONAL,
-    IN PSECURITY_QUALITY_OF_SERVICE SecurityQos OPTIONAL,
-    OUT PVOID *Object);
+NTSTATUS IopParseFile(IN PVOID ParseObject,
+                      IN PVOID ObjectType,
+                      IN PACCESS_STATE AccessState,
+                      IN KPROCESSOR_MODE AccessMode,
+                      IN ULONG Attributes,
+                      IN OUT PUNICODE_STRING CompleteName,
+                      IN OUT PUNICODE_STRING RemainingName,
+                      IN OUT PVOID Context OPTIONAL,
+                      IN PSECURITY_QUALITY_OF_SERVICE SecurityQos OPTIONAL,
+                      OUT PVOID* Object);
 
 BOOLEAN IopProtectSystemPartition(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
 NTSTATUS IopQueryName(IN PVOID Object, IN BOOLEAN HasObjectName,
@@ -726,7 +727,7 @@ NTSTATUS IopSendMessageToTrackService(IN PLINK_TRACKING_INFORMATION SourceVolume
 #endif
 
 NTSTATUS IopSetEaOrQuotaInformationFile(IN HANDLE FileHandle,
-                                        OUT PIO_STATUS_BLOCK IoStatusBlock, 
+                                        OUT PIO_STATUS_BLOCK IoStatusBlock,
                                         IN PVOID Buffer,
                                         IN ULONG Length,
                                         IN BOOLEAN SetEa);
@@ -735,62 +736,57 @@ NTSTATUS IopSetRemoteLink(IN PFILE_OBJECT FileObject,
                           IN PFILE_TRACKING_INFORMATION FileInformation OPTIONAL);
 VOID IopStartApcHardError(IN PVOID StartContext);
 
-NTSTATUS IopSynchronousApiServiceTail(
-    IN NTSTATUS ReturnedStatus,
-    IN PKEVENT Event,
-    IN PIRP Irp,
-    IN KPROCESSOR_MODE RequestorMode,
-    IN PIO_STATUS_BLOCK LocalIoStatus,
-    OUT PIO_STATUS_BLOCK IoStatusBlock);
+NTSTATUS IopSynchronousApiServiceTail(IN NTSTATUS ReturnedStatus,
+                                      IN PKEVENT Event,
+                                      IN PIRP Irp,
+                                      IN KPROCESSOR_MODE RequestorMode,
+                                      IN PIO_STATUS_BLOCK LocalIoStatus,
+                                      OUT PIO_STATUS_BLOCK IoStatusBlock);
 
-NTSTATUS IopSynchronousServiceTail(
-    IN PDEVICE_OBJECT DeviceObject,
-    IN PIRP Irp,
-    IN PFILE_OBJECT FileObject,
-    IN BOOLEAN DeferredIoCompletion,
-    IN KPROCESSOR_MODE RequestorMode,
-    IN BOOLEAN SynchronousIo,
-    IN TRANSFER_TYPE TransferType);
+NTSTATUS IopSynchronousServiceTail(IN PDEVICE_OBJECT DeviceObject,
+                                   IN PIRP Irp,
+                                   IN PFILE_OBJECT FileObject,
+                                   IN BOOLEAN DeferredIoCompletion,
+                                   IN KPROCESSOR_MODE RequestorMode,
+                                   IN BOOLEAN SynchronousIo,
+                                   IN TRANSFER_TYPE TransferType);
 
 VOID IopTimerDispatch(IN PKDPC Dpc, IN PVOID DeferredContext, IN PVOID SystemArgument1, IN PVOID SystemArgument2);
 
-NTSTATUS IopTrackLink(
-    IN PFILE_OBJECT FileObject,
-    IN OUT PIO_STATUS_BLOCK IoStatusBlock,
-    IN PFILE_TRACKING_INFORMATION FileInformation,
-    IN ULONG Length,
-    IN PKEVENT Event,
-    IN KPROCESSOR_MODE RequestorMode);
+NTSTATUS IopTrackLink(IN PFILE_OBJECT FileObject,
+                      IN OUT PIO_STATUS_BLOCK IoStatusBlock,
+                      IN PFILE_TRACKING_INFORMATION FileInformation,
+                      IN ULONG Length,
+                      IN PKEVENT Event,
+                      IN KPROCESSOR_MODE RequestorMode);
 
 VOID IopUserCompletion(IN PKAPC Apc,
-                       IN PKNORMAL_ROUTINE *NormalRoutine,
-                       IN PVOID *NormalContext, 
-                       IN PVOID *SystemArgument1, 
-                       IN PVOID *SystemArgument2);
+                       IN PKNORMAL_ROUTINE* NormalRoutine,
+                       IN PVOID* NormalContext,
+                       IN PVOID* SystemArgument1,
+                       IN PVOID* SystemArgument2);
 
-NTSTATUS IopXxxControlFile(
-    IN HANDLE FileHandle,
-    IN HANDLE Event OPTIONAL,
-    IN PIO_APC_ROUTINE ApcRoutine OPTIONAL,
-    IN PVOID ApcContext OPTIONAL,
-    OUT PIO_STATUS_BLOCK IoStatusBlock,
-    IN ULONG IoControlCode,
-    IN PVOID InputBuffer OPTIONAL,
-    IN ULONG InputBufferLength,
-    OUT PVOID OutputBuffer OPTIONAL,
-    IN ULONG OutputBufferLength,
-    IN BOOLEAN DeviceIoControl);
+NTSTATUS IopXxxControlFile(IN HANDLE FileHandle,
+                           IN HANDLE Event OPTIONAL,
+                           IN PIO_APC_ROUTINE ApcRoutine OPTIONAL,
+                           IN PVOID ApcContext OPTIONAL,
+                           OUT PIO_STATUS_BLOCK IoStatusBlock,
+                           IN ULONG IoControlCode,
+                           IN PVOID InputBuffer OPTIONAL,
+                           IN ULONG InputBufferLength,
+                           OUT PVOID OutputBuffer OPTIONAL,
+                           IN ULONG OutputBufferLength,
+                           IN BOOLEAN DeviceIoControl);
 
-NTSTATUS IopReportResourceUsage(
-    IN PUNICODE_STRING DriverClassName OPTIONAL,
-    IN PDRIVER_OBJECT DriverObject,
-    IN PCM_RESOURCE_LIST DriverList OPTIONAL,
-    IN ULONG DriverListSize OPTIONAL,
-    IN PDEVICE_OBJECT DeviceObject OPTIONAL,
-    IN PCM_RESOURCE_LIST DeviceList OPTIONAL,
-    IN ULONG DeviceListSize OPTIONAL,
-    IN BOOLEAN OverrideConflict,
-    OUT PBOOLEAN ConflictDetected);
+NTSTATUS IopReportResourceUsage(IN PUNICODE_STRING DriverClassName OPTIONAL,
+                                IN PDRIVER_OBJECT DriverObject,
+                                IN PCM_RESOURCE_LIST DriverList OPTIONAL,
+                                IN ULONG DriverListSize OPTIONAL,
+                                IN PDEVICE_OBJECT DeviceObject OPTIONAL,
+                                IN PCM_RESOURCE_LIST DeviceList OPTIONAL,
+                                IN ULONG DeviceListSize OPTIONAL,
+                                IN BOOLEAN OverrideConflict,
+                                OUT PBOOLEAN ConflictDetected);
 
 VOID IopDoNameTransmogrify(IN PIRP Irp, IN PFILE_OBJECT FileObject, IN PREPARSE_DATA_BUFFER ReparseBuffer);
 
@@ -944,7 +940,7 @@ Return Value:
 
     irpSp = IoGetNextIrpStackLocation(Irp);
     Irp->Tail.Overlay.CurrentStackLocation = irpSp;
-    
+
     // Save a pointer to the device object for this request so that it can be used later in completion.
     irpSp->DeviceObject = DeviceObject;
 
@@ -959,7 +955,7 @@ VOID FASTCALL IopfCompleteRequest(IN PIRP Irp, IN  CCHAR   PriorityBost);
 PIRP IopAllocateIrpPrivate(IN  CCHAR   StackSize, IN  BOOLEAN ChargeQuota);
 VOID IopFreeIrp(IN  PIRP    Irp);
 PVOID IopAllocateErrorLogEntry(IN PDEVICE_OBJECT deviceObject, IN PDRIVER_OBJECT driverObject, IN UCHAR EntrySize);
-VOID IopNotifyAlreadyRegisteredFileSystems(IN PLIST_ENTRY  ListHead, 
+VOID IopNotifyAlreadyRegisteredFileSystems(IN PLIST_ENTRY  ListHead,
                                            IN PDRIVER_FS_NOTIFICATION DriverNotificationRoutine,
                                            IN BOOLEAN SkipRaw);
 NTSTATUS IopCheckUnloadDriver(IN PDRIVER_OBJECT driverObject, OUT PBOOLEAN unloadDriver);
@@ -992,25 +988,25 @@ NTSTATUS IopCreateFile(
     IN ULONG InternalFlags,
     IN PVOID DeviceObject);
 BOOLEAN IopVerifyDeviceObjectOnStack(IN PDEVICE_OBJECT BaseDeviceObject, IN PDEVICE_OBJECT TopDeviceObject);
-BOOLEAN IopVerifyDiskSignature(IN PDRIVE_LAYOUT_INFORMATION_EX DriveLayout, 
-                               IN PARC_DISK_SIGNATURE LoaderDiskBlock, 
+BOOLEAN IopVerifyDiskSignature(IN PDRIVE_LAYOUT_INFORMATION_EX DriveLayout,
+                               IN PARC_DISK_SIGNATURE LoaderDiskBlock,
                                OUT PULONG DiskSignature);
-NTSTATUS IopGetDriverPathInformation(IN PFILE_OBJECT FileObject, 
+NTSTATUS IopGetDriverPathInformation(IN PFILE_OBJECT FileObject,
                                      IN PFILE_FS_DRIVER_PATH_INFORMATION FsDpInfo,
                                      IN ULONG Length);
 BOOLEAN IopVerifyDriverObjectOnStack(IN PDEVICE_OBJECT DeviceObject, IN PDRIVER_OBJECT DriverObject);
 NTSTATUS IopInitializeIrpStackProfiler(VOID);
-VOID IopIrpStackProfilerTimer(IN struct _KDPC *Dpc,
+VOID IopIrpStackProfilerTimer(IN struct _KDPC* Dpc,
                               IN PVOID DeferredContext,
                               IN PVOID SystemArgument1,
                               IN PVOID SystemArgument2);
 VOID IopProcessIrpStackProfiler(VOID);
 PDEVICE_OBJECT IopAttachDeviceToDeviceStackSafe(IN PDEVICE_OBJECT SourceDevice,
                                                 IN PDEVICE_OBJECT TargetDevice,
-                                                OUT PDEVICE_OBJECT *AttachedToDeviceObject OPTIONAL);
+                                                OUT PDEVICE_OBJECT* AttachedToDeviceObject OPTIONAL);
 NTSTATUS IopCreateSecurityDescriptorPerType(IN PSECURITY_DESCRIPTOR  Descriptor,
                                             IN ULONG SecurityDescriptorFlavor,
                                             OUT PSECURITY_INFORMATION SecurityInformation OPTIONAL);
-BOOLEAN IopReferenceVerifyVpb(IN  PDEVICE_OBJECT  DeviceObject, OUT PVPB *Vpb, OUT PDEVICE_OBJECT  *FsDeviceObject);
+BOOLEAN IopReferenceVerifyVpb(IN  PDEVICE_OBJECT  DeviceObject, OUT PVPB* Vpb, OUT PDEVICE_OBJECT* FsDeviceObject);
 VOID IopDereferenceVpbAndFree(IN PVPB Vpb);
 #endif // _IOMGR_

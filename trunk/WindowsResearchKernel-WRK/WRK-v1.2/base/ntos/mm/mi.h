@@ -399,7 +399,7 @@ extern ULONG MiLastVadBit;
 #define MiGetFirstVad(Process)     ((PMMVAD)MiGetFirstNode(&Process->VadRoot))
 
 
-LOGICAL MiCheckForConflictingVadExistence (IN PEPROCESS Process, IN PVOID StartingAddress, IN PVOID EndingAddress);
+LOGICAL MiCheckForConflictingVadExistence(IN PEPROCESS Process, IN PVOID StartingAddress, IN PVOID EndingAddress);
 
 
 // PMMVAD MiCheckForConflictingVad (IN PVOID StartingAddress, IN PVOID EndingAddress)
@@ -513,7 +513,7 @@ typedef struct _MMPFNTIMINGS {
     LARGE_INTEGER HoldTime;     // Low bit is set if another processor waited
     PVOID AcquiredAddress;
     PVOID ReleasedAddress;
-} MMPFNTIMINGS, *PMMPFNTIMINGS;
+} MMPFNTIMINGS, * PMMPFNTIMINGS;
 
 extern ULONG MiPfnTimings;
 extern PVOID MiPfnAcquiredAddress;
@@ -522,9 +522,9 @@ extern LARGE_INTEGER MiPfnAcquired;
 extern LARGE_INTEGER MiPfnReleased;
 extern LARGE_INTEGER MiPfnThreshold;
 
-PVOID MiGetExecutionAddress (VOID);
-LARGE_INTEGER MiQueryPerformanceCounter (IN PLARGE_INTEGER PerformanceFrequency);
-VOID MiAddLockToTable (IN PVOID AcquireAddress, IN PVOID ReleaseAddress, IN LARGE_INTEGER HoldTime);
+PVOID MiGetExecutionAddress(VOID);
+LARGE_INTEGER MiQueryPerformanceCounter(IN PLARGE_INTEGER PerformanceFrequency);
+VOID MiAddLockToTable(IN PVOID AcquireAddress, IN PVOID ReleaseAddress, IN LARGE_INTEGER HoldTime);
 
 #if defined(_X86_) || defined(_AMD64_)
 #define MI_GET_EXECUTION_ADDRESS(varname) varname = MiGetExecutionAddress();
@@ -1048,7 +1048,7 @@ typedef enum _MI_PFN_CACHE_ATTRIBUTE {
     MiCached,
     MiWriteCombined,
     MiNotMapped
-} MI_PFN_CACHE_ATTRIBUTE, *PMI_PFN_CACHE_ATTRIBUTE;
+} MI_PFN_CACHE_ATTRIBUTE, * PMI_PFN_CACHE_ATTRIBUTE;
 
 
 // This conversion array is unfortunately needed because not all hardware platforms support all possible cache values.
@@ -1066,7 +1066,7 @@ extern MI_PFN_CACHE_ATTRIBUTE MiPlatformCacheAttributes[2 * MmMaximumCacheType];
 //     The actual cache type.
 FORCEINLINE MI_PFN_CACHE_ATTRIBUTE MI_TRANSLATE_CACHETYPE(IN MEMORY_CACHING_TYPE InputCacheType, IN ULONG IoSpace)
 {
-    ASSERT (InputCacheType <= MmWriteCombined);
+    ASSERT(InputCacheType <= MmWriteCombined);
 
     if (IoSpace != 0) {
         IoSpace = MmMaximumCacheType;
@@ -1085,7 +1085,7 @@ FORCEINLINE MI_PFN_CACHE_ATTRIBUTE MI_TRANSLATE_CACHETYPE(IN MEMORY_CACHING_TYPE
 //     NewAttribute - Supplies the desired attribute.
 FORCEINLINE VOID MI_SET_CACHETYPE_TRANSLATION(IN MEMORY_CACHING_TYPE InputCacheType, IN ULONG IoSpace, IN MI_PFN_CACHE_ATTRIBUTE NewAttribute)
 {
-    ASSERT (InputCacheType <= MmWriteCombined);
+    ASSERT(InputCacheType <= MmWriteCombined);
 
     if (IoSpace != 0) {
         IoSpace = MmMaximumCacheType;
@@ -1109,7 +1109,7 @@ typedef struct _MMPFNENTRY {
     USHORT Modified : 1;
     USHORT ReadInProgress : 1;
     USHORT WriteInProgress : 1;
-    USHORT PrototypePte: 1;
+    USHORT PrototypePte : 1;
     USHORT PageColor : 4;
     USHORT PageLocation : 3;
     USHORT RemovalRequested : 1;
@@ -1187,9 +1187,9 @@ typedef struct _MMPFN {
         ULONG_PTR EntireFrame;
         struct {
 #if defined (_WIN64)
-            ULONG_PTR PteFrame: 57;
+            ULONG_PTR PteFrame : 57;
 #else
-            ULONG_PTR PteFrame: 25;
+            ULONG_PTR PteFrame : 25;
 #endif
             ULONG_PTR InPageError : 1;
             ULONG_PTR VerifierAllocation : 1;
@@ -1198,7 +1198,7 @@ typedef struct _MMPFN {
             ULONG_PTR MustBeCached : 1;
         };
     } u4;
-} MMPFN, *PMMPFN;
+} MMPFN, * PMMPFN;
 
 #if defined (_X86PAE_)
 #pragma pack()
@@ -1212,7 +1212,7 @@ extern PMMPFN MmPfnDatabase;
 // No multiplier reciprocal needs to be inlined because the compiler (using Oxt) automatically computes the correct number, avoiding the expensive divide instruction.
 #define MI_PFN_ELEMENT_TO_INDEX(_Pfn) ((PFN_NUMBER)(((ULONG_PTR)(_Pfn) - (ULONG_PTR)MmPfnDatabase) / sizeof (MMPFN)))
 
-PVOID MiGetInstructionPointer (VOID);
+PVOID MiGetInstructionPointer(VOID);
 
 #define MI_SNAP_DIRTY(_Pfn, _NewValue, _Callerid)
 #define MI_LOG_PTE_CHANGE(_PointerPte, _PteContents)
@@ -1243,7 +1243,7 @@ PVOID MiGetInstructionPointer (VOID);
 
 #if (defined(_WIN64) || defined(_X86PAE_)) && !defined(NT_UP)
 #define MI_MULTINODE
-VOID MiDetermineNode (IN PFN_NUMBER Page, IN PMMPFN Pfn);
+VOID MiDetermineNode(IN PFN_NUMBER Page, IN PMMPFN Pfn);
 #else
 #define MiDetermineNode(x,y)    ((y)->u3.e1.PageColor = 0)
 #endif
@@ -1329,14 +1329,14 @@ typedef struct _MMIO_TRACKER {
     PFN_NUMBER NumberOfPages;
     MI_PFN_CACHE_ATTRIBUTE CacheAttribute;
     PVOID StackTrace[MI_IO_BACKTRACE_LENGTH];
-} MMIO_TRACKER, *PMMIO_TRACKER;
+} MMIO_TRACKER, * PMMIO_TRACKER;
 
 extern KSPIN_LOCK MmIoTrackerLock;
 extern LIST_ENTRY MmIoHeader;
 extern PCHAR MiCacheStrings[];
 
-MI_PFN_CACHE_ATTRIBUTE MiInsertIoSpaceMap (IN PVOID BaseVa, IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER NumberOfPages, IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute);
-LOGICAL MiIsProbeActive (IN PMMPTE InputPte, IN PFN_NUMBER InputPages);
+MI_PFN_CACHE_ATTRIBUTE MiInsertIoSpaceMap(IN PVOID BaseVa, IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER NumberOfPages, IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute);
+LOGICAL MiIsProbeActive(IN PMMPTE InputPte, IN PFN_NUMBER InputPages);
 
 
 // Total number of committed pages.
@@ -1367,7 +1367,7 @@ extern SPFN_NUMBER MiLockedCommit;
 extern ULONG MiChargeCommitmentFailures[3];   // referenced also in mi.h macros.
 
 
-FORCEINLINE LOGICAL MiChargeCommitmentPfnLockHeld (IN LOGICAL Force)
+FORCEINLINE LOGICAL MiChargeCommitmentPfnLockHeld(IN LOGICAL Force)
 /*
 Routine Description:
     This routine charges the specified commitment without attempting to expand paging files and waiting for the expansion.
@@ -1380,13 +1380,13 @@ Environment:
 */
 {
     if (MmTotalCommittedPages > MmTotalCommitLimit - 64) {
-        if ((Force == 0) && ((PsGetCurrentThread()->MemoryMaker == 0) || (KeIsExecutingDpc () == TRUE))) {
+        if ((Force == 0) && ((PsGetCurrentThread()->MemoryMaker == 0) || (KeIsExecutingDpc() == TRUE))) {
             MiChargeCommitmentFailures[2] += 1;
             return FALSE;
         }
     }
 
-    MiChargeCommitmentRegardless ();// No need to do an InterlockedCompareExchange for this, keep it fast.
+    MiChargeCommitmentRegardless();// No need to do an InterlockedCompareExchange for this, keep it fast.
 
     return TRUE;
 }
@@ -1522,41 +1522,41 @@ extern PFN_NUMBER MmSystemLockPagesCount;
 // Convert these to intrinsics as soon as compiler support is available...
 
 #if defined(_X86_)
-FORCEINLINE SHORT FASTCALL InterlockedCompareExchange16 (IN OUT SHORT volatile *Destination, IN SHORT Exchange, IN SHORT Comperand)
+FORCEINLINE SHORT FASTCALL InterlockedCompareExchange16(IN OUT SHORT volatile* Destination, IN SHORT Exchange, IN SHORT Comperand)
 {
     __asm {
         mov     ax, Comperand
         mov     ecx, Destination
         mov     dx, Exchange
-        lock cmpxchg word ptr [ecx], dx
+        lock cmpxchg word ptr[ecx], dx
     }
 }
 
-FORCEINLINE SHORT FASTCALL InterlockedIncrement16 (IN OUT PSHORT Addend)
+FORCEINLINE SHORT FASTCALL InterlockedIncrement16(IN OUT PSHORT Addend)
 {
     __asm {
         mov     ax, 1
         mov     ecx, Addend
-        lock xadd    word ptr [ecx], ax
+        lock xadd    word ptr[ecx], ax
         inc     ax
     }
 }
 
-FORCEINLINE SHORT FASTCALL InterlockedDecrement16 (IN OUT PSHORT Addend)
+FORCEINLINE SHORT FASTCALL InterlockedDecrement16(IN OUT PSHORT Addend)
 {
     __asm {
         mov     ax, -1
         mov     ecx, Addend
-        lock xadd    word ptr [ecx], ax
+        lock xadd    word ptr[ecx], ax
         dec     ax
     }
 }
 #else
 
 #if !defined(_AMD64_)
-SHORT InterlockedCompareExchange16 (IN OUT SHORT volatile *Destination, IN SHORT Exchange, IN SHORT Comperand);
-SHORT FASTCALL InterlockedIncrement16 (IN OUT PSHORT Addend);
-SHORT FASTCALL InterlockedDecrement16 (IN OUT PSHORT Addend);
+SHORT InterlockedCompareExchange16(IN OUT SHORT volatile* Destination, IN SHORT Exchange, IN SHORT Comperand);
+SHORT FASTCALL InterlockedIncrement16(IN OUT PSHORT Addend);
+SHORT FASTCALL InterlockedDecrement16(IN OUT PSHORT Addend);
 #endif
 
 #endif
@@ -1568,12 +1568,12 @@ SHORT FASTCALL InterlockedDecrement16 (IN OUT PSHORT Addend);
 #define InterlockedDecrementPfn       InterlockedDecrement16
 
 
-VOID MiBadRefCount (__in PMMPFN Pfn1);
-VOID FASTCALL MiDecrementReferenceCount (IN PMMPFN Pfn1, IN PFN_NUMBER PageFrameIndex);
+VOID MiBadRefCount(__in PMMPFN Pfn1);
+VOID FASTCALL MiDecrementReferenceCount(IN PMMPFN Pfn1, IN PFN_NUMBER PageFrameIndex);
 
 extern ULONG MmReferenceCountCheck;
 
-FORCEINLINE VOID MI_ADD_LOCKED_PAGE_CHARGE (IN PMMPFN Pfn1)
+FORCEINLINE VOID MI_ADD_LOCKED_PAGE_CHARGE(IN PMMPFN Pfn1)
 /*
 Routine Description:
     Charge the systemwide count of locked pages if this is the initial lock for this page (multiple concurrent locks are only charged once).
@@ -1595,37 +1595,37 @@ Environment:
         // This is a filesystem-backed page - charge commit for it as we have no way to tell when the caller will unlock the page.
         // Note this is a short term charge so always push it through.
         ChargedCommit = TRUE;
-        MiChargeCommitmentPfnLockHeld (TRUE);
+        MiChargeCommitmentPfnLockHeld(TRUE);
     } else {
         ChargedCommit = FALSE;
     }
 
     // Now charge resident available.
-    InterlockedIncrementSizeT (&MmSystemLockPagesCount);
-    NewRefCount = InterlockedIncrementPfn ((PSHORT)&Pfn1->u3.e2.ReferenceCount);
+    InterlockedIncrementSizeT(&MmSystemLockPagesCount);
+    NewRefCount = InterlockedIncrementPfn((PSHORT)&Pfn1->u3.e2.ReferenceCount);
     if (NewRefCount == 2) {
         if (Pfn1->u2.ShareCount != 0) {// This is the first thread to lock the page so keep the charges.
-            ASSERT (Pfn1->u3.e1.PageLocation == ActiveAndValid);
+            ASSERT(Pfn1->u3.e1.PageLocation == ActiveAndValid);
         } else {
             // The page is in transition with no share count so it has already been locked.
-            InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+            InterlockedDecrementSizeT(&MmSystemLockPagesCount);
             if (ChargedCommit == TRUE) {
-                MiReturnCommitment (1);
+                MiReturnCommitment(1);
             }
         }
     } else {
-        ASSERT (NewRefCount < MmReferenceCountCheck + 0x400);
+        ASSERT(NewRefCount < MmReferenceCountCheck + 0x400);
 
         // This thread was not the first one to lock this page so return the excess systemwide charges we had to allocate in advance (since some other thread has already incurred them).
-        InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+        InterlockedDecrementSizeT(&MmSystemLockPagesCount);
         if (ChargedCommit == TRUE) {
-            MiReturnCommitment (1);
+            MiReturnCommitment(1);
         }
     }
 }
 
 
-FORCEINLINE LOGICAL MI_ADD_LOCKED_PAGE_CHARGE_FOR_PROBE (IN PMMPFN Pfn1, IN LOGICAL Force, IN PMMPTE PointerPte)
+FORCEINLINE LOGICAL MI_ADD_LOCKED_PAGE_CHARGE_FOR_PROBE(IN PMMPFN Pfn1, IN LOGICAL Force, IN PMMPTE PointerPte)
 /*
 Routine Description:
     Charge the systemwide count of locked pages if this is the initial lock for this page (multiple concurrent locks are only charged once).
@@ -1648,10 +1648,10 @@ Environment:
     USHORT OldRefCount;
 
 #if !DBG
-    UNREFERENCED_PARAMETER (PointerPte);
+    UNREFERENCED_PARAMETER(PointerPte);
 #endif
 
-    ASSERT (Pfn1->u3.e2.ReferenceCount != 0);
+    ASSERT(Pfn1->u3.e2.ReferenceCount != 0);
 
     if ((Pfn1->u2.ShareCount != 0) && (Pfn1->u3.e1.PageLocation == ActiveAndValid)) {
         FunkyAddress = FALSE;
@@ -1661,10 +1661,10 @@ Environment:
 
         // Thus the PFNs will really point at PFNs which generally require the relevant process' working set pushlock, but in this instance we will be holding the PFN lock (not the process working set pushlock).
         // The PFN lock is used because it prevents the PFN sharecounts and active states from changing.
-        ASSERT (MiGetVirtualAddressMappedByPte (PointerPte) >= MmSystemRangeStart);
-        ASSERT (PointerPte->u.Hard.Valid == 1);
-        ASSERT (MI_PFN_ELEMENT (PointerPte->u.Hard.PageFrameNumber) == Pfn1);
-        MM_PFN_LOCK_ASSERT ();
+        ASSERT(MiGetVirtualAddressMappedByPte(PointerPte) >= MmSystemRangeStart);
+        ASSERT(PointerPte->u.Hard.Valid == 1);
+        ASSERT(MI_PFN_ELEMENT(PointerPte->u.Hard.PageFrameNumber) == Pfn1);
+        MM_PFN_LOCK_ASSERT();
         FunkyAddress = TRUE;
     }
 
@@ -1673,7 +1673,7 @@ Environment:
     // and if this thread were to instead charge afterwards, it may fail below and it would be unable to stop the other thread(s) that have already proceeded.
     if ((Pfn1->u3.e1.PrototypePte == 1) && (Pfn1->OriginalPte.u.Soft.Prototype == 1)) {
         // This is a filesystem-backed page - charge commit for it as we have no way to tell when the caller will unlock the page.
-        if (MiChargeCommitmentPfnLockHeld (Force) == FALSE) {
+        if (MiChargeCommitmentPfnLockHeld(Force) == FALSE) {
             return FALSE;
         }
         ChargedCommit = TRUE;
@@ -1682,36 +1682,36 @@ Environment:
     }
 
     // Now charge resident available.
-    InterlockedIncrementSizeT (&MmSystemLockPagesCount);
+    InterlockedIncrementSizeT(&MmSystemLockPagesCount);
     if ((MI_NONPAGEABLE_MEMORY_AVAILABLE() <= 0) && (Force == FALSE)) {
-        InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+        InterlockedDecrementSizeT(&MmSystemLockPagesCount);
         if (ChargedCommit == TRUE) {
-            MiReturnCommitment (1);
+            MiReturnCommitment(1);
         }
         return FALSE;
     }
 
     do {
         OldRefCount = Pfn1->u3.e2.ReferenceCount;
-        ASSERT (OldRefCount != 0);
+        ASSERT(OldRefCount != 0);
         if (OldRefCount >= MmReferenceCountCheck) {
-            ASSERT (FALSE);
-            InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+            ASSERT(FALSE);
+            InterlockedDecrementSizeT(&MmSystemLockPagesCount);
             if (ChargedCommit == TRUE) {
-                MiReturnCommitment (1);
+                MiReturnCommitment(1);
             }
             return FALSE;
         }
 
-        RefCount = InterlockedCompareExchangePfn ((PSHORT)&Pfn1->u3.e2.ReferenceCount, OldRefCount + 1, OldRefCount);
-        ASSERT (RefCount != 0);
+        RefCount = InterlockedCompareExchangePfn((PSHORT)&Pfn1->u3.e2.ReferenceCount, OldRefCount + 1, OldRefCount);
+        ASSERT(RefCount != 0);
     } while (OldRefCount != RefCount);
 
     if ((OldRefCount != 1) || (FunkyAddress == TRUE)) {
         // This thread was not the first one to lock this page so return the excess systemwide charges we had to allocate in advance (since some other thread has already incurred them).
-        InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+        InterlockedDecrementSizeT(&MmSystemLockPagesCount);
         if (ChargedCommit == TRUE) {
-            MiReturnCommitment (1);
+            MiReturnCommitment(1);
         }
     }
 
@@ -1719,7 +1719,7 @@ Environment:
 }
 
 
-FORCEINLINE VOID MI_ADD_LOCKED_PAGE_CHARGE_FOR_MODIFIED_PAGE (IN PMMPFN Pfn1)
+FORCEINLINE VOID MI_ADD_LOCKED_PAGE_CHARGE_FOR_MODIFIED_PAGE(IN PMMPFN Pfn1)
 /*
 Routine Description:
     Charge the systemwide count of locked pages if this is the initial lock for this page (multiple concurrent locks are only charged once).
@@ -1732,8 +1732,8 @@ Environment:
     LOGICAL ChargedCommit;
     USHORT NewRefCount;
 
-    ASSERT (Pfn1->u2.ShareCount == 0);
-    ASSERT (Pfn1->u3.e1.PageLocation != ActiveAndValid);
+    ASSERT(Pfn1->u2.ShareCount == 0);
+    ASSERT(Pfn1->u3.e1.PageLocation != ActiveAndValid);
 
     // We must charge systemwide resources (commit & resident available) in advance of incrementing the PFN reference count.
     // This is because the PFN reference count is updated lock free and so another thread can pass this one without charging against system,
@@ -1741,22 +1741,22 @@ Environment:
     if ((Pfn1->u3.e1.PrototypePte == 1) && (Pfn1->OriginalPte.u.Soft.Prototype == 1)) {
         // This is a filesystem-backed page - charge commit for it as we have no way to tell when the caller will unlock the page.
         // Note this is a short term charge so always push it through.
-         ChargedCommit = TRUE;
-        MiChargeCommitmentPfnLockHeld (TRUE);
+        ChargedCommit = TRUE;
+        MiChargeCommitmentPfnLockHeld(TRUE);
     } else {
         ChargedCommit = FALSE;
     }
 
     // Now charge resident available.
-    InterlockedIncrementSizeT (&MmSystemLockPagesCount);
-    NewRefCount = InterlockedIncrementPfn ((PSHORT)&Pfn1->u3.e2.ReferenceCount);
+    InterlockedIncrementSizeT(&MmSystemLockPagesCount);
+    NewRefCount = InterlockedIncrementPfn((PSHORT)&Pfn1->u3.e2.ReferenceCount);
     if (NewRefCount != 1) {
-        ASSERT (NewRefCount < MmReferenceCountCheck + 0x400);
+        ASSERT(NewRefCount < MmReferenceCountCheck + 0x400);
 
         // This thread was not the first one to lock this page so return the excess systemwide charges we had to allocate in advance (since some other thread has already incurred them).
-        InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+        InterlockedDecrementSizeT(&MmSystemLockPagesCount);
         if (ChargedCommit == TRUE) {
-            MiReturnCommitment (1);
+            MiReturnCommitment(1);
         }
     } else {
         NOTHING;// This is the first thread to lock the page so keep the charges.
@@ -1764,7 +1764,7 @@ Environment:
 }
 
 
-FORCEINLINE VOID MI_REMOVE_LOCKED_PAGE_CHARGE (IN PMMPFN Pfn1)
+FORCEINLINE VOID MI_REMOVE_LOCKED_PAGE_CHARGE(IN PMMPFN Pfn1)
 /*
 Routine Description:
     Remove the charge from the systemwide count of locked pages if this is the last lock for this page (multiple concurrent locks are only charged once).
@@ -1775,22 +1775,22 @@ Environment:
     Kernel mode.  PFN lock held.
 */
 {
-    ASSERT (Pfn1->u3.e2.ReferenceCount != 0);
-    ASSERT (Pfn1->u2.ShareCount == 0);
+    ASSERT(Pfn1->u3.e2.ReferenceCount != 0);
+    ASSERT(Pfn1->u2.ShareCount == 0);
 
     if (Pfn1->u3.e2.ReferenceCount == 1) {
         // This page has already been deleted from all process address spaces.
         // It is sitting in limbo (not on any list) awaiting this last dereference.
-        ASSERT (Pfn1->u3.e1.PageLocation != ActiveAndValid);
+        ASSERT(Pfn1->u3.e1.PageLocation != ActiveAndValid);
         if ((Pfn1->u3.e1.PrototypePte == 1) && (Pfn1->OriginalPte.u.Soft.Prototype == 1)) {
-            MiReturnCommitmentRegardless ();
+            MiReturnCommitmentRegardless();
         }
-        InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+        InterlockedDecrementSizeT(&MmSystemLockPagesCount);
     }
 }
 
 
-FORCEINLINE VOID MI_REMOVE_LOCKED_PAGE_CHARGE_AND_DECREF (IN PMMPFN Pfn1)
+FORCEINLINE VOID MI_REMOVE_LOCKED_PAGE_CHARGE_AND_DECREF(IN PMMPFN Pfn1)
 /*
 Routine Description:
     Remove the charge from the systemwide count of locked pages if this is the last lock for this page (multiple concurrent locks are only charged once).
@@ -1815,36 +1815,36 @@ Environment:
     do {
         OldRefCount = Pfn1->u3.e2.ReferenceCount;
         if (OldRefCount == 0) {
-            MiBadRefCount (Pfn1);
+            MiBadRefCount(Pfn1);
         }
 
         if (OldRefCount == 1) {
             // This page has already been deleted from all process address spaces.  It is sitting in limbo (not on any list) awaiting this last dereference.
-            ASSERT (Pfn1->u3.e2.ReferenceCount == 1);
-            ASSERT (Pfn1->u3.e1.PageLocation != ActiveAndValid);
-            ASSERT (Pfn1->u2.ShareCount == 0);
+            ASSERT(Pfn1->u3.e2.ReferenceCount == 1);
+            ASSERT(Pfn1->u3.e1.PageLocation != ActiveAndValid);
+            ASSERT(Pfn1->u2.ShareCount == 0);
             if ((Pfn1->u3.e1.PrototypePte == 1) && (Pfn1->OriginalPte.u.Soft.Prototype == 1)) {
-                MiReturnCommitmentRegardless ();
+                MiReturnCommitmentRegardless();
             }
 
-            InterlockedDecrementSizeT (&MmSystemLockPagesCount);
-            PageFrameIndex = MI_PFN_ELEMENT_TO_INDEX (Pfn1);
-            MiDecrementReferenceCount (Pfn1, PageFrameIndex);
+            InterlockedDecrementSizeT(&MmSystemLockPagesCount);
+            PageFrameIndex = MI_PFN_ELEMENT_TO_INDEX(Pfn1);
+            MiDecrementReferenceCount(Pfn1, PageFrameIndex);
             return;
         }
 
-        RefCount = InterlockedCompareExchangePfn ((PSHORT)&Pfn1->u3.e2.ReferenceCount, OldRefCount - 1, OldRefCount);
-        ASSERT (RefCount != 0);
+        RefCount = InterlockedCompareExchangePfn((PSHORT)&Pfn1->u3.e2.ReferenceCount, OldRefCount - 1, OldRefCount);
+        ASSERT(RefCount != 0);
     } while (OldRefCount != RefCount);
 
-    ASSERT (RefCount > 1);
+    ASSERT(RefCount > 1);
     if (RefCount == 2) {
         if (Pfn1->u2.ShareCount >= 1) {
-            ASSERT (Pfn1->u3.e1.PageLocation == ActiveAndValid);
+            ASSERT(Pfn1->u3.e1.PageLocation == ActiveAndValid);
             if ((Pfn1->u3.e1.PrototypePte == 1) && (Pfn1->OriginalPte.u.Soft.Prototype == 1)) {
-                MiReturnCommitmentRegardless ();
+                MiReturnCommitmentRegardless();
             }
-            InterlockedDecrementSizeT (&MmSystemLockPagesCount);
+            InterlockedDecrementSizeT(&MmSystemLockPagesCount);
         } else {
             // There are multiple referencers to this page and the page is no longer valid in any process address space.
             // The systemwide lock count can only be decremented by the last dereference.
@@ -1876,7 +1876,7 @@ typedef enum _MMSHARE_TYPE {
 typedef struct _MMWSLE_HASH {
     PVOID Key;
     WSLE_NUMBER Index;
-} MMWSLE_HASH, *PMMWSLE_HASH;
+} MMWSLE_HASH, * PMMWSLE_HASH;
 
 
 // WSLE_NUMBER MI_WSLE_HASH (IN ULONG_PTR VirtualAddress, IN PMMWSL WorkingSetList)
@@ -1922,7 +1922,7 @@ typedef struct _MMWSLE {
 #define MI_GENERATE_VALID_WSLE(Wsle)                           ((PVOID)(ULONG_PTR)((Wsle)->u1.Long & (~(PAGE_SIZE - 1) | 0x1)))
 #define MI_GET_PROTECTION_FROM_WSLE(Wsl) ((Wsl)->u1.e1.Protection)
 
-typedef MMWSLE *PMMWSLE;
+typedef MMWSLE* PMMWSLE;
 
 // Working Set List.  Must be quadword sized.
 typedef struct _MMWSL {
@@ -1957,19 +1957,19 @@ typedef struct _MMWSL {
     PULONG CommittedPageDirectories;
 
     ULONG NumberOfCommittedPageDirectoryParents;
-    ULONG_PTR CommittedPageDirectoryParents[(MM_USER_PAGE_DIRECTORY_PARENT_PAGES + sizeof(ULONG_PTR)*8-1)/(sizeof(ULONG_PTR)*8)];
+    ULONG_PTR CommittedPageDirectoryParents[(MM_USER_PAGE_DIRECTORY_PARENT_PAGES + sizeof(ULONG_PTR) * 8 - 1) / (sizeof(ULONG_PTR) * 8)];
 
 #elif (_MI_PAGING_LEVELS >= 3)
     PULONG CommittedPageTables;
     ULONG NumberOfCommittedPageDirectories;
-    ULONG_PTR CommittedPageDirectories[(MM_USER_PAGE_DIRECTORY_PAGES + sizeof(ULONG_PTR)*8-1)/(sizeof(ULONG_PTR)*8)];
+    ULONG_PTR CommittedPageDirectories[(MM_USER_PAGE_DIRECTORY_PAGES + sizeof(ULONG_PTR) * 8 - 1) / (sizeof(ULONG_PTR) * 8)];
 #else
     // This must be at the end.
     // Not used in system cache or session working set lists.
     USHORT UsedPageTableEntries[MM_USER_PAGE_TABLE_PAGES];
-    ULONG CommittedPageTables[MM_USER_PAGE_TABLE_PAGES/(sizeof(ULONG)*8)];
+    ULONG CommittedPageTables[MM_USER_PAGE_TABLE_PAGES / (sizeof(ULONG) * 8)];
 #endif
-} MMWSL, *PMMWSL;
+} MMWSL, * PMMWSL;
 
 #define MI_LOG_WSLE_CHANGE(_WorkingSetList, _WorkingSetIndex, _WsleValue)
 
@@ -2165,7 +2165,7 @@ typedef enum _SECTION_CHECK_TYPE {
 typedef struct _MMEXTEND_INFO {
     UINT64 CommittedSize;
     ULONG ReferenceCount;
-} MMEXTEND_INFO, *PMMEXTEND_INFO;
+} MMEXTEND_INFO, * PMMEXTEND_INFO;
 
 typedef struct _SEGMENT_FLAGS {
     ULONG_PTR TotalNumberOfPtes4132 : 10;
@@ -2176,10 +2176,10 @@ typedef struct _SEGMENT_FLAGS {
 #else
     ULONG_PTR Spare : 20;
 #endif
-} SEGMENT_FLAGS, *PSEGMENT_FLAGS;
+} SEGMENT_FLAGS, * PSEGMENT_FLAGS;
 
 typedef struct _SEGMENT {
-    struct _CONTROL_AREA *ControlArea;
+    struct _CONTROL_AREA* ControlArea;
     ULONG TotalNumberOfPtes;
     ULONG NonExtendedPtes;
     ULONG Spare0;
@@ -2208,10 +2208,10 @@ typedef struct _SEGMENT {
     PMMPTE PrototypePte;
     MMPTE ThePtes[MM_PROTO_PTE_ALIGNMENT / PAGE_SIZE];
 
-} SEGMENT, *PSEGMENT;
+} SEGMENT, * PSEGMENT;
 
 typedef struct _MAPPED_FILE_SEGMENT {
-    struct _CONTROL_AREA *ControlArea;
+    struct _CONTROL_AREA* ControlArea;
     ULONG TotalNumberOfPtes;
     ULONG NonExtendedPtes;
     ULONG Spare0;
@@ -2225,14 +2225,14 @@ typedef struct _MAPPED_FILE_SEGMENT {
     SEGMENT_FLAGS SegmentFlags;
     PVOID BasedAddress;
 
-    struct _MSUBSECTION *LastSubsectionHint;
-} MAPPED_FILE_SEGMENT, *PMAPPED_FILE_SEGMENT;
+    struct _MSUBSECTION* LastSubsectionHint;
+} MAPPED_FILE_SEGMENT, * PMAPPED_FILE_SEGMENT;
 
 typedef struct _EVENT_COUNTER {
     SLIST_ENTRY ListEntry;
     ULONG RefCount;
     KEVENT Event;
-} EVENT_COUNTER, *PEVENT_COUNTER;
+} EVENT_COUNTER, * PEVENT_COUNTER;
 
 typedef struct _MMSECTION_FLAGS {
     unsigned BeingDeleted : 1;
@@ -2297,7 +2297,7 @@ typedef struct _CONTROL_AREA {
 #if !defined (_WIN64)
     ULONG QuadwordPad;
 #endif
-} CONTROL_AREA, *PCONTROL_AREA;
+} CONTROL_AREA, * PCONTROL_AREA;
 
 typedef struct _LARGE_CONTROL_AREA {
     PSEGMENT Segment;
@@ -2323,13 +2323,13 @@ typedef struct _LARGE_CONTROL_AREA {
     PFN_NUMBER StartingFrame;       // only used if Flags.Rom == 1.
     LIST_ENTRY UserGlobalList;
     ULONG SessionId;
-} LARGE_CONTROL_AREA, *PLARGE_CONTROL_AREA;
+} LARGE_CONTROL_AREA, * PLARGE_CONTROL_AREA;
 
 typedef struct _MMSUBSECTION_FLAGS {
     unsigned ReadOnly : 1;
     unsigned ReadWrite : 1;
     unsigned SubsectionStatic : 1;
-    unsigned GlobalMemory: 1;
+    unsigned GlobalMemory : 1;
     unsigned Protection : 5;
     unsigned Spare : 1;
     unsigned StartingSector4132 : 10;   // 2 ** (42+12) == 4MB*4GB == 16K TB
@@ -2347,8 +2347,8 @@ typedef struct _SUBSECTION { // Must start on quadword boundary and be quad size
     PMMPTE SubsectionBase;
     ULONG UnusedPtes;
     ULONG PtesInSubsection;
-    struct _SUBSECTION *NextSubsection;
-} SUBSECTION, *PSUBSECTION;
+    struct _SUBSECTION* NextSubsection;
+} SUBSECTION, * PSUBSECTION;
 
 extern const ULONG MMSECT;
 
@@ -2373,23 +2373,23 @@ typedef struct _MSUBSECTION { // Must start on quadword boundary and be quad siz
     PMMPTE SubsectionBase;
     ULONG UnusedPtes;
     ULONG PtesInSubsection;
-    struct _SUBSECTION *NextSubsection;
+    struct _SUBSECTION* NextSubsection;
     LIST_ENTRY DereferenceList;
     ULONG_PTR NumberOfMappedViews;
     union {
         ULONG LongFlags2;
         MMSUBSECTION_FLAGS2 SubsectionFlags2;
     } u2;
-} MSUBSECTION, *PMSUBSECTION;
+} MSUBSECTION, * PMSUBSECTION;
 
 #define MI_MAXIMUM_SECTION_SIZE ((UINT64)16*1024*1024*1024*1024*1024 - ((UINT64)1<<MM4K_SHIFT))
 
-VOID MiDecrementSubsections (IN PSUBSECTION FirstSubsection, IN PSUBSECTION LastSubsection OPTIONAL);
-NTSTATUS MiAddViewsForSectionWithPfn (IN PMSUBSECTION StartMappedSubsection, IN UINT64 LastPteOffset OPTIONAL);
-NTSTATUS MiAddViewsForSection (IN PMSUBSECTION MappedSubsection, IN UINT64 LastPteOffset OPTIONAL, IN KIRQL OldIrql, OUT PULONG Waited);
-LOGICAL MiReferenceSubsection (IN PMSUBSECTION MappedSubsection);
-VOID MiRemoveViewsFromSection (IN PMSUBSECTION StartMappedSubsection, IN UINT64 LastPteOffset OPTIONAL);
-VOID MiRemoveViewsFromSectionWithPfn (IN PMSUBSECTION StartMappedSubsection, IN UINT64 LastPteOffset OPTIONAL);
+VOID MiDecrementSubsections(IN PSUBSECTION FirstSubsection, IN PSUBSECTION LastSubsection OPTIONAL);
+NTSTATUS MiAddViewsForSectionWithPfn(IN PMSUBSECTION StartMappedSubsection, IN UINT64 LastPteOffset OPTIONAL);
+NTSTATUS MiAddViewsForSection(IN PMSUBSECTION MappedSubsection, IN UINT64 LastPteOffset OPTIONAL, IN KIRQL OldIrql, OUT PULONG Waited);
+LOGICAL MiReferenceSubsection(IN PMSUBSECTION MappedSubsection);
+VOID MiRemoveViewsFromSection(IN PMSUBSECTION StartMappedSubsection, IN UINT64 LastPteOffset OPTIONAL);
+VOID MiRemoveViewsFromSectionWithPfn(IN PMSUBSECTION StartMappedSubsection, IN UINT64 LastPteOffset OPTIONAL);
 VOID MiSubsectionConsistent(IN PSUBSECTION Subsection);
 
 #if DBG
@@ -2444,7 +2444,7 @@ typedef struct _MMPAGE_FILE_EXPANSION {
     KEVENT Event;
     LONG InProgress;
     ULONG PageFileNumber;
-} MMPAGE_FILE_EXPANSION, *PMMPAGE_FILE_EXPANSION;
+} MMPAGE_FILE_EXPANSION, * PMMPAGE_FILE_EXPANSION;
 
 #define MI_EXTEND_ANY_PAGEFILE      ((ULONG)-1)
 #define MI_CONTRACT_PAGEFILES       ((SIZE_T)-1)
@@ -2470,7 +2470,7 @@ typedef struct _MMINPAGE_FLAGS {
 #else
     ULONG_PTR PrefetchMdlHighBits : 29;
 #endif
-} MMINPAGE_FLAGS, *PMMINPAGE_FLAGS;
+} MMINPAGE_FLAGS, * PMMINPAGE_FLAGS;
 
 #define MI_EXTRACT_PREFETCH_MDL(_Support) ((PMDL)((ULONG_PTR)(_Support->u1.PrefetchMdl) & ~(sizeof(QUAD) - 1)))
 
@@ -2494,7 +2494,7 @@ typedef struct _MMINPAGE_SUPPORT {
     MDL Mdl;
     PFN_NUMBER Page[MM_MAXIMUM_READ_CLUSTER_SIZE + 1];
     SINGLE_LIST_ENTRY ListEntry;
-} MMINPAGE_SUPPORT, *PMMINPAGE_SUPPORT;
+} MMINPAGE_SUPPORT, * PMMINPAGE_SUPPORT;
 
 #define MI_PF_DUMMY_PAGE_PTE ((PMMPTE)0x23452345)   // Only used by _PREFETCH_
 
@@ -2510,7 +2510,7 @@ typedef struct _SECTION {
         MMSECTION_FLAGS Flags;
     } u;
     MM_PROTECTION_MASK InitialPageProtection;
-} SECTION, *PSECTION;
+} SECTION, * PSECTION;
 
 
 // Banked memory descriptor.  Pointed to by VAD which has the PhysicalMemory flags set and the Banked pointer field as non-NULL.
@@ -2523,7 +2523,7 @@ typedef struct _MMBANKED_SECTION {
     PVOID Context;
     PMMPTE CurrentMappedPte;
     MMPTE BankTemplate[1];
-} MMBANKED_SECTION, *PMMBANKED_SECTION;
+} MMBANKED_SECTION, * PMMBANKED_SECTION;
 
 
 // Virtual address descriptor
@@ -2560,13 +2560,13 @@ typedef enum _MI_VAD_TYPE {
     VadLargePages,
     VadRotatePhysical,
     VadLargePageSection
-} MI_VAD_TYPE, *PMI_VAD_TYPE;
+} MI_VAD_TYPE, * PMI_VAD_TYPE;
 
 typedef struct _MMVAD_FLAGS {
     ULONG_PTR CommitCharge : COMMIT_SIZE; // limits system to 4k pages or bigger!
     ULONG_PTR NoChange : 1;
     ULONG_PTR VadType : 3;
-    ULONG_PTR MemCommit: 1;
+    ULONG_PTR MemCommit : 1;
     ULONG_PTR Protection : 5;
     ULONG_PTR Spare : 2;
     ULONG_PTR PrivateMemory : 1;    // used to tell VAD from VAD_SHORT
@@ -2587,7 +2587,7 @@ typedef struct _MMVAD_FLAGS2 {
 typedef struct _MMADDRESS_LIST {
     ULONG_PTR StartVpn;
     ULONG_PTR EndVpn;
-} MMADDRESS_LIST, *PMMADDRESS_LIST;
+} MMADDRESS_LIST, * PMMADDRESS_LIST;
 
 typedef struct _MMSECURE_ENTRY {
     union {
@@ -2597,26 +2597,26 @@ typedef struct _MMSECURE_ENTRY {
     ULONG_PTR StartVpn;
     ULONG_PTR EndVpn;
     LIST_ENTRY List;
-} MMSECURE_ENTRY, *PMMSECURE_ENTRY;
+} MMSECURE_ENTRY, * PMMSECURE_ENTRY;
 
 typedef struct _ALIAS_VAD_INFO {
     KAPC Apc;
     ULONG NumberOfEntries;
     ULONG MaximumEntries;
-} ALIAS_VAD_INFO, *PALIAS_VAD_INFO;
+} ALIAS_VAD_INFO, * PALIAS_VAD_INFO;
 
 typedef struct _ALIAS_VAD_INFO2 {
     ULONG BaseAddress;
     HANDLE SecureHandle;
-} ALIAS_VAD_INFO2, *PALIAS_VAD_INFO2;
+} ALIAS_VAD_INFO2, * PALIAS_VAD_INFO2;
 
 typedef struct _MMVAD {
     union {
         LONG_PTR Balance : 2;
-        struct _MMVAD *Parent;
+        struct _MMVAD* Parent;
     } u1;
-    struct _MMVAD *LeftChild;
-    struct _MMVAD *RightChild;
+    struct _MMVAD* LeftChild;
+    struct _MMVAD* RightChild;
     ULONG_PTR StartingVpn;
     ULONG_PTR EndingVpn;
 
@@ -2631,15 +2631,15 @@ typedef struct _MMVAD {
         ULONG LongFlags2;
         MMVAD_FLAGS2 VadFlags2;
     } u2;
-} MMVAD, *PMMVAD;
+} MMVAD, * PMMVAD;
 
 typedef struct _MMVAD_LONG {
     union {
         LONG_PTR Balance : 2;
-        struct _MMVAD *Parent;
+        struct _MMVAD* Parent;
     } u1;
-    struct _MMVAD *LeftChild;
-    struct _MMVAD *RightChild;
+    struct _MMVAD* LeftChild;
+    struct _MMVAD* RightChild;
     ULONG_PTR StartingVpn;
     ULONG_PTR EndingVpn;
 
@@ -2662,15 +2662,15 @@ typedef struct _MMVAD_LONG {
         PMMBANKED_SECTION Banked;
         PMMEXTEND_INFO ExtendedInfo;
     } u4;
-} MMVAD_LONG, *PMMVAD_LONG;
+} MMVAD_LONG, * PMMVAD_LONG;
 
 typedef struct _MMVAD_SHORT {
     union {
         LONG_PTR Balance : 2;
-        struct _MMVAD *Parent;
+        struct _MMVAD* Parent;
     } u1;
-    struct _MMVAD *LeftChild;
-    struct _MMVAD *RightChild;
+    struct _MMVAD* LeftChild;
+    struct _MMVAD* RightChild;
     ULONG_PTR StartingVpn;
     ULONG_PTR EndingVpn;
 
@@ -2678,17 +2678,17 @@ typedef struct _MMVAD_SHORT {
         ULONG_PTR LongFlags;
         MMVAD_FLAGS VadFlags;
     } u;
-} MMVAD_SHORT, *PMMVAD_SHORT;
+} MMVAD_SHORT, * PMMVAD_SHORT;
 
 #define MI_GET_PROTECTION_FROM_VAD(_Vad) ((ULONG)(_Vad)->u.VadFlags.Protection)
 
 typedef struct _MI_PHYSICAL_VIEW {
     union {
         LONG_PTR Balance : 2;
-        struct _MMADDRESS_NODE *Parent;
+        struct _MMADDRESS_NODE* Parent;
     } u1;
-    struct _MMADDRESS_NODE *LeftChild;
-    struct _MMADDRESS_NODE *RightChild;
+    struct _MMADDRESS_NODE* LeftChild;
+    struct _MMADDRESS_NODE* RightChild;
     ULONG_PTR StartingVpn;      // Actually a virtual address, not a VPN
     ULONG_PTR EndingVpn;        // Actually a virtual address, not a VPN
     PMMVAD Vad;
@@ -2698,7 +2698,7 @@ typedef struct _MI_PHYSICAL_VIEW {
         PRTL_BITMAP BitMap;     // only if Vad->u.VadFlags.WriteWatch == 1
     } u;
     PMMINPAGE_SUPPORT InPageSupport;
-} MI_PHYSICAL_VIEW, *PMI_PHYSICAL_VIEW;
+} MI_PHYSICAL_VIEW, * PMI_PHYSICAL_VIEW;
 
 #define MI_PHYSICAL_VIEW_ROOT_KEY   'rpmM'
 #define MI_PHYSICAL_VIEW_KEY        'vpmM'
@@ -2707,7 +2707,7 @@ typedef struct _MI_PHYSICAL_VIEW {
 
 
 // Stuff for support of Write Watch.
-VOID MiCaptureWriteWatchDirtyBit (IN PEPROCESS Process, IN PVOID VirtualAddress);
+VOID MiCaptureWriteWatchDirtyBit(IN PEPROCESS Process, IN PVOID VirtualAddress);
 
 
 // Stuff for support of AWE (Address Windowing Extensions).
@@ -2723,44 +2723,44 @@ typedef struct _AWEINFO {
     PMI_PHYSICAL_VIEW PhysicalViewHint[MAXIMUM_PROCESSORS];
 
     MM_AVL_TABLE AweVadRoot;
-} AWEINFO, *PAWEINFO;
+} AWEINFO, * PAWEINFO;
 
-VOID MiAweViewInserter (IN PEPROCESS Process, IN PMI_PHYSICAL_VIEW PhysicalView);
-VOID MiAweViewRemover (IN PEPROCESS Process, IN PMMVAD Vad);
-WIN32_PROTECTION_MASK MiProtectAweRegion (IN PVOID StartingAddress, IN PVOID EndingAddress, IN MM_PROTECTION_MASK ProtectionMask);
-VOID MiReleasePhysicalCharges (IN SIZE_T NumberOfPages, IN PEPROCESS Process);
+VOID MiAweViewInserter(IN PEPROCESS Process, IN PMI_PHYSICAL_VIEW PhysicalView);
+VOID MiAweViewRemover(IN PEPROCESS Process, IN PMMVAD Vad);
+WIN32_PROTECTION_MASK MiProtectAweRegion(IN PVOID StartingAddress, IN PVOID EndingAddress, IN MM_PROTECTION_MASK ProtectionMask);
+VOID MiReleasePhysicalCharges(IN SIZE_T NumberOfPages, IN PEPROCESS Process);
 
 #define MI_ALLOCATION_IS_AWE       0x80000000
 
 PMDL
-MiAllocatePagesForMdl (
+MiAllocatePagesForMdl(
     IN PHYSICAL_ADDRESS LowAddress,
     IN PHYSICAL_ADDRESS HighAddress,
     IN PHYSICAL_ADDRESS SkipBytes,
     IN SIZE_T TotalBytes,
     IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute,
     IN ULONG Flags
-    );
+);
 
 // Stuff for support of POSIX Fork.
 typedef struct _MMCLONE_BLOCK {
     MMPTE ProtoPte;
     LONG CloneRefCount;
-} MMCLONE_BLOCK, *PMMCLONE_BLOCK;
+} MMCLONE_BLOCK, * PMMCLONE_BLOCK;
 
 typedef struct _MMCLONE_HEADER {
     ULONG NumberOfPtes;
     LONG NumberOfProcessReferences;
     PMMCLONE_BLOCK ClonePtes;
-} MMCLONE_HEADER, *PMMCLONE_HEADER;
+} MMCLONE_HEADER, * PMMCLONE_HEADER;
 
 typedef struct _MMCLONE_DESCRIPTOR {
     union {
         LONG_PTR Balance : 2;
-        struct _MMADDRESS_NODE *Parent;
+        struct _MMADDRESS_NODE* Parent;
     } u1;
-    struct _MMADDRESS_NODE *LeftChild;
-    struct _MMADDRESS_NODE *RightChild;
+    struct _MMADDRESS_NODE* LeftChild;
+    struct _MMADDRESS_NODE* RightChild;
     ULONG_PTR StartingVpn;
     ULONG_PTR EndingVpn;
     ULONG NumberOfPtes;
@@ -2768,7 +2768,7 @@ typedef struct _MMCLONE_DESCRIPTOR {
     LONG NumberOfReferences;
     LONG FinalNumberOfReferences;
     SIZE_T PagedPoolQuotaCharge;
-} MMCLONE_DESCRIPTOR, *PMMCLONE_DESCRIPTOR;
+} MMCLONE_DESCRIPTOR, * PMMCLONE_DESCRIPTOR;
 
 
 // The following macro allocates and initializes a bitmap from the specified pool of the specified size.
@@ -2800,7 +2800,7 @@ typedef struct _MMCLONE_DESCRIPTOR {
 typedef struct _MMMOD_WRITER_LISTHEAD {
     LIST_ENTRY ListHead;
     KEVENT Event;
-} MMMOD_WRITER_LISTHEAD, *PMMMOD_WRITER_LISTHEAD;
+} MMMOD_WRITER_LISTHEAD, * PMMMOD_WRITER_LISTHEAD;
 
 typedef struct _MMMOD_WRITER_MDL_ENTRY {
     LIST_ENTRY Links;
@@ -2813,14 +2813,14 @@ typedef struct _MMMOD_WRITER_MDL_ENTRY {
     ULONG_PTR LastPageToWrite;
     PMMMOD_WRITER_LISTHEAD PagingListHead;
     PLIST_ENTRY CurrentList;
-    struct _MMPAGING_FILE *PagingFile;
+    struct _MMPAGING_FILE* PagingFile;
     PFILE_OBJECT File;
     PCONTROL_AREA ControlArea;
     PERESOURCE FileResource;
     LARGE_INTEGER IssueTime;
     MDL Mdl;
     PFN_NUMBER Page[1];
-} MMMOD_WRITER_MDL_ENTRY, *PMMMOD_WRITER_MDL_ENTRY;
+} MMMOD_WRITER_MDL_ENTRY, * PMMMOD_WRITER_MDL_ENTRY;
 
 
 #define MM_PAGING_FILE_MDLS 2
@@ -2838,13 +2838,13 @@ typedef struct _MMPAGING_FILE {
     UNICODE_STRING PageFileName;
     PRTL_BITMAP Bitmap;
     struct {
-        ULONG PageFileNumber :  4;
-        ULONG ReferenceCount :  4;      // really only need 1 bit for this.
-        ULONG BootPartition  :  1;
-        ULONG Reserved       : 23;
+        ULONG PageFileNumber : 4;
+        ULONG ReferenceCount : 4;      // really only need 1 bit for this.
+        ULONG BootPartition : 1;
+        ULONG Reserved : 23;
     };
     HANDLE FileHandle;
-} MMPAGING_FILE, *PMMPAGING_FILE;
+} MMPAGING_FILE, * PMMPAGING_FILE;
 
 
 // System PTE structures.
@@ -2853,21 +2853,21 @@ typedef struct _MMFREE_POOL_ENTRY {
     LIST_ENTRY List;        // maintained free&chk, 1st entry only
     PFN_NUMBER Size;        // maintained free&chk, 1st entry only
     ULONG Signature;        // maintained chk only, all entries
-    struct _MMFREE_POOL_ENTRY *Owner; // maintained free&chk, all entries
-} MMFREE_POOL_ENTRY, *PMMFREE_POOL_ENTRY;
+    struct _MMFREE_POOL_ENTRY* Owner; // maintained free&chk, all entries
+} MMFREE_POOL_ENTRY, * PMMFREE_POOL_ENTRY;
 
 
 typedef struct _MMLOCK_CONFLICT {
     LIST_ENTRY List;
     PETHREAD Thread;
-} MMLOCK_CONFLICT, *PMMLOCK_CONFLICT;
+} MMLOCK_CONFLICT, * PMMLOCK_CONFLICT;
 
 
 // System view structures
 typedef struct _MMVIEW {
     ULONG_PTR Entry;
     PCONTROL_AREA ControlArea;
-} MMVIEW, *PMMVIEW;
+} MMVIEW, * PMMVIEW;
 
 
 // The MMSESSION structure represents kernel memory that is only valid on a per-session basis, thus the calling thread must be in the proper session to access this structure.
@@ -2884,7 +2884,7 @@ typedef struct _MMSESSION {
     ULONG SystemSpaceHashKey;
     ULONG BitmapFailures;
     PRTL_BITMAP SystemSpaceBitMap;
-} MMSESSION, *PMMSESSION;
+} MMSESSION, * PMMSESSION;
 
 extern MMSESSION   MmSession;
 
@@ -2896,14 +2896,14 @@ extern MMSESSION   MmSession;
 typedef struct _MMPTE_FLUSH_LIST {
     ULONG Count;
     PVOID FlushVa[MM_MAXIMUM_FLUSH_COUNT];
-} MMPTE_FLUSH_LIST, *PMMPTE_FLUSH_LIST;
+} MMPTE_FLUSH_LIST, * PMMPTE_FLUSH_LIST;
 
 
 // List for flushing WSLEs and TBs singularly.
 typedef struct _MMWSLE_FLUSH_LIST {
     ULONG Count;
     WSLE_NUMBER FlushIndex[MM_MAXIMUM_FLUSH_COUNT];
-} MMWSLE_FLUSH_LIST, *PMMWSLE_FLUSH_LIST;
+} MMWSLE_FLUSH_LIST, * PMMWSLE_FLUSH_LIST;
 
 typedef struct _LOCK_TRACKER {
     LIST_ENTRY ListEntry;
@@ -2917,19 +2917,19 @@ typedef struct _LOCK_TRACKER {
     PVOID CallersCaller;
     ULONG Who;
     PEPROCESS Process;
-} LOCK_TRACKER, *PLOCK_TRACKER;
+} LOCK_TRACKER, * PLOCK_TRACKER;
 
 extern LOGICAL  MmTrackLockedPages;
 extern BOOLEAN  MiTrackingAborted;
 
-LOGICAL MiDereferenceIoSpace (IN PMDL MemoryDescriptorList);
+LOGICAL MiDereferenceIoSpace(IN PMDL MemoryDescriptorList);
 
 typedef struct _LOCK_HEADER {
     LIST_ENTRY ListHead;
     PFN_NUMBER Count;
     KSPIN_LOCK Lock;
     LOGICAL Valid;
-} LOCK_HEADER, *PLOCK_HEADER;
+} LOCK_HEADER, * PLOCK_HEADER;
 
 extern LOGICAL MmSnapUnloads;
 
@@ -2941,21 +2941,21 @@ extern BOOLEAN MiAllMainMemoryMustBeCached;
 extern ULONG MiFullyInitialized;
 
 
-VOID MiInitMachineDependent (IN PLOADER_PARAMETER_BLOCK LoaderBlock);
-VOID MiAddHalIoMappings (VOID);
-VOID MiReportPhysicalMemory (VOID);
+VOID MiInitMachineDependent(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+VOID MiAddHalIoMappings(VOID);
+VOID MiReportPhysicalMemory(VOID);
 
 extern PFN_NUMBER MiNumberOfCompressionPages;
 
-NTSTATUS MiArmCompressionInterrupt (VOID);
-VOID MiBuildPagedPool (VOID);
-VOID MiInitializeNonPagedPool (VOID);
-VOID MiAddExpansionNonPagedPool (IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER NumberOfPages, IN LOGICAL PfnHeld);
-VOID MiInitializePoolEvents (VOID);
-VOID MiInitializeNonPagedPoolThresholds (VOID);
-LOGICAL MiInitializeSystemSpaceMap (PVOID Session OPTIONAL);
-VOID MiFindInitializationCode (OUT PVOID *StartVa, OUT PVOID *EndVa);
-VOID MiFreeInitializationCode (IN PVOID StartVa, IN PVOID EndVa);
+NTSTATUS MiArmCompressionInterrupt(VOID);
+VOID MiBuildPagedPool(VOID);
+VOID MiInitializeNonPagedPool(VOID);
+VOID MiAddExpansionNonPagedPool(IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER NumberOfPages, IN LOGICAL PfnHeld);
+VOID MiInitializePoolEvents(VOID);
+VOID MiInitializeNonPagedPoolThresholds(VOID);
+LOGICAL MiInitializeSystemSpaceMap(PVOID Session OPTIONAL);
+VOID MiFindInitializationCode(OUT PVOID* StartVa, OUT PVOID* EndVa);
+VOID MiFreeInitializationCode(IN PVOID StartVa, IN PVOID EndVa);
 
 extern ULONG MiNonCachedCollisions;
 
@@ -2963,7 +2963,7 @@ extern ULONG MiNonCachedCollisions;
 extern PFN_NUMBER MiNoLowMemory;
 
 PVOID
-MiAllocateLowMemory (
+MiAllocateLowMemory(
     IN SIZE_T NumberOfBytes,
     IN PFN_NUMBER LowestAcceptablePfn,
     IN PFN_NUMBER HighestAcceptablePfn,
@@ -2971,15 +2971,15 @@ MiAllocateLowMemory (
     IN PVOID CallingAddress,
     IN MEMORY_CACHING_TYPE CacheType,
     IN ULONG Tag
-    );
+);
 
-LOGICAL MiFreeLowMemory (IN PVOID BaseAddress, IN ULONG Tag);
+LOGICAL MiFreeLowMemory(IN PVOID BaseAddress, IN ULONG Tag);
 
 // Move drivers out of the low 16mb that ntldr placed them at - this makes more memory below 16mb available for ISA-type drivers that cannot run without it.
 extern LOGICAL MmMakeLowMemory;
 
-VOID MiRemoveLowPages (IN ULONG RemovePhase);
-ULONG MiSectionInitialization (VOID);
+VOID MiRemoveLowPages(IN ULONG RemovePhase);
+ULONG MiSectionInitialization(VOID);
 
 #define MI_MAX_DEREFERENCE_CHUNK (64 * 1024 / PAGE_SIZE)
 
@@ -2988,7 +2988,7 @@ typedef struct _MI_PFN_DEREFERENCE_CHUNK {
     CSHORT Flags;
     USHORT NumberOfPages;
     PFN_NUMBER Pfns[MI_MAX_DEREFERENCE_CHUNK];
-} MI_PFN_DEREFERENCE_CHUNK, *PMI_PFN_DEREFERENCE_CHUNK;
+} MI_PFN_DEREFERENCE_CHUNK, * PMI_PFN_DEREFERENCE_CHUNK;
 
 extern SLIST_HEADER MmPfnDereferenceSListHead;
 extern PSLIST_ENTRY MmPfnDeferredList;
@@ -2996,9 +2996,9 @@ extern PSLIST_ENTRY MmPfnDeferredList;
 #define MI_DEFER_PFN_HELD               0x1
 #define MI_DEFER_DRAIN_LOCAL_ONLY       0x2
 
-VOID MiDeferredUnlockPages (ULONG Flags);
-LOGICAL MiFreeAllExpansionNonPagedPool (VOID);
-VOID MiDecrementReferenceCountForAwePage (IN PMMPFN Pfn1, IN LOGICAL PfnHeld);
+VOID MiDeferredUnlockPages(ULONG Flags);
+LOGICAL MiFreeAllExpansionNonPagedPool(VOID);
+VOID MiDecrementReferenceCountForAwePage(IN PMMPFN Pfn1, IN LOGICAL PfnHeld);
 
 
 // VOID MiDecrementReferenceCountInline (
@@ -3023,7 +3023,7 @@ VOID MiDecrementReferenceCountForAwePage (IN PMMPFN Pfn1, IN LOGICAL PfnHeld);
                 MiDecrementReferenceCount (PFN, FRAME);                 \
             }
 
-VOID FASTCALL MiDecrementShareCount (IN PMMPFN Pfn1, IN PFN_NUMBER PageFrameIndex);
+VOID FASTCALL MiDecrementShareCount(IN PMMPFN Pfn1, IN PFN_NUMBER PageFrameIndex);
 
 
 // VOID MiDecrementShareCountInline (IN PMMPFN PFN, IN PFN_NUMBER FRAME);
@@ -3053,14 +3053,14 @@ VOID FASTCALL MiDecrementShareCount (IN PMMPFN Pfn1, IN PFN_NUMBER PageFrameInde
 
 
 // Routines which operate on the Page Frame Database Lists
-VOID FASTCALL MiInsertPageInList (IN PMMPFNLIST ListHead, IN PFN_NUMBER PageFrameIndex);
-VOID FASTCALL MiInsertPageInFreeList (IN PFN_NUMBER PageFrameIndex);
-VOID FASTCALL MiInsertZeroListAtBack (IN PFN_NUMBER PageFrameIndex);
-VOID FASTCALL MiInsertStandbyListAtFront (IN PFN_NUMBER PageFrameIndex);
-PFN_NUMBER FASTCALL MiRemovePageFromList (IN PMMPFNLIST ListHead);
-VOID FASTCALL MiUnlinkPageFromList (IN PMMPFN Pfn);
-VOID MiUnlinkFreeOrZeroedPage (IN PMMPFN Pfn);
-VOID FASTCALL MiInsertFrontModifiedNoWrite (IN PFN_NUMBER PageFrameIndex);
+VOID FASTCALL MiInsertPageInList(IN PMMPFNLIST ListHead, IN PFN_NUMBER PageFrameIndex);
+VOID FASTCALL MiInsertPageInFreeList(IN PFN_NUMBER PageFrameIndex);
+VOID FASTCALL MiInsertZeroListAtBack(IN PFN_NUMBER PageFrameIndex);
+VOID FASTCALL MiInsertStandbyListAtFront(IN PFN_NUMBER PageFrameIndex);
+PFN_NUMBER FASTCALL MiRemovePageFromList(IN PMMPFNLIST ListHead);
+VOID FASTCALL MiUnlinkPageFromList(IN PMMPFN Pfn);
+VOID MiUnlinkFreeOrZeroedPage(IN PMMPFN Pfn);
+VOID FASTCALL MiInsertFrontModifiedNoWrite(IN PFN_NUMBER PageFrameIndex);
 
 // These are the thresholds for handing out an available page.
 #define MM_LOW_LIMIT                2
@@ -3074,10 +3074,10 @@ VOID FASTCALL MiInsertFrontModifiedNoWrite (IN PFN_NUMBER PageFrameIndex);
 #define MM_VERY_HIGH_LIMIT      10000
 #define MM_ENORMOUS_LIMIT       20000
 
-ULONG FASTCALL MiEnsureAvailablePageOrWait (IN PEPROCESS Process, IN KIRQL OldIrql);
-PFN_NUMBER MiAllocatePfn (IN PMMPTE PointerPte, IN ULONG Protection);
-PFN_NUMBER FASTCALL MiRemoveAnyPage (IN ULONG PageColor);
-PFN_NUMBER FASTCALL MiRemoveZeroPage (IN ULONG PageColor);
+ULONG FASTCALL MiEnsureAvailablePageOrWait(IN PEPROCESS Process, IN KIRQL OldIrql);
+PFN_NUMBER MiAllocatePfn(IN PMMPTE PointerPte, IN ULONG Protection);
+PFN_NUMBER FASTCALL MiRemoveAnyPage(IN ULONG PageColor);
+PFN_NUMBER FASTCALL MiRemoveZeroPage(IN ULONG PageColor);
 
 typedef struct _COLORED_PAGE_INFO {
     union {
@@ -3090,103 +3090,97 @@ typedef struct _COLORED_PAGE_INFO {
     SCHAR BasePriority;
     PMMPFN PfnAllocation;
     KEVENT Event;
-} COLORED_PAGE_INFO, *PCOLORED_PAGE_INFO;
+} COLORED_PAGE_INFO, * PCOLORED_PAGE_INFO;
 
-VOID MiZeroInParallel (IN PCOLORED_PAGE_INFO ColoredPageInfoBase);
-VOID MiStartZeroPageWorkers (VOID);
-VOID MiPurgeTransitionList (VOID);
+VOID MiZeroInParallel(IN PCOLORED_PAGE_INFO ColoredPageInfoBase);
+VOID MiStartZeroPageWorkers(VOID);
+VOID MiPurgeTransitionList(VOID);
 
 typedef struct _MM_LDW_WORK_CONTEXT {
     WORK_QUEUE_ITEM WorkItem;
     PFILE_OBJECT FileObject;
-} MM_LDW_WORK_CONTEXT, *PMM_LDW_WORK_CONTEXT;
+} MM_LDW_WORK_CONTEXT, * PMM_LDW_WORK_CONTEXT;
 
-VOID MiLdwPopupWorker (IN PVOID Context);
-LOGICAL  MiDereferenceLastChanceLdw (IN PMM_LDW_WORK_CONTEXT LdwContext);
+VOID MiLdwPopupWorker(IN PVOID Context);
+LOGICAL  MiDereferenceLastChanceLdw(IN PMM_LDW_WORK_CONTEXT LdwContext);
 
 #define MI_LARGE_PAGE_DRIVER_BUFFER_LENGTH 512
 
 extern WCHAR MmLargePageDriverBuffer[];
 extern ULONG MmLargePageDriverBufferLength;
 
-VOID MiInitializeDriverLargePageList (VOID);
-VOID MiInitializeLargePageSupport (VOID);
+VOID MiInitializeDriverLargePageList(VOID);
+VOID MiInitializeLargePageSupport(VOID);
 
 typedef struct _MI_LARGEPAGE_MEMORY_RUN {
-    struct _MI_LARGEPAGE_MEMORY_RUN *Next;
+    struct _MI_LARGEPAGE_MEMORY_RUN* Next;
     PFN_NUMBER BasePage;
     PFN_NUMBER PageCount;
-} MI_LARGEPAGE_MEMORY_RUN, *PMI_LARGEPAGE_MEMORY_RUN;
+} MI_LARGEPAGE_MEMORY_RUN, * PMI_LARGEPAGE_MEMORY_RUN;
 
-VOID MiReturnLargePages (IN PMI_LARGEPAGE_MEMORY_RUN LargePageListHead);
-PMI_LARGEPAGE_MEMORY_RUN MiAllocateLargeZeroPages (IN PFN_NUMBER NumberOfPages, IN MM_PROTECTION_MASK ProtectionMask);
-NTSTATUS MiAllocateLargePages (IN PVOID StartingAddress, IN PVOID EndingAddress, IN MM_PROTECTION_MASK ProtectionMask, IN LOGICAL CallerHasPages);
-PFN_NUMBER MiFindLargePageMemory (IN PCOLORED_PAGE_INFO ColoredPageInfo, IN PFN_NUMBER SizeInPages, IN MM_PROTECTION_MASK ProtectionMask, OUT PPFN_NUMBER OutZeroCount);
-VOID MiFreeLargePageMemory (IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER SizeInPages);
-VOID MiFreeLargePages (IN PVOID StartingAddress, IN PVOID EndingAddress, IN LOGICAL CallerHadPages);
-PVOID MiMapWithLargePages (IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER NumberOfPages, IN ULONG Protection, IN MEMORY_CACHING_TYPE CacheType);
-VOID MiUnmapLargePages (IN PVOID BaseAddress, IN SIZE_T NumberOfBytes);
-LOGICAL MiMustFrameBeCached (IN PFN_NUMBER PageFrameIndex);
-VOID MiSyncCachedRanges (VOID);
-LOGICAL MiAddCachedRange (IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER LastPageFrameIndex);
-VOID MiRemoveCachedRange (IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER LastPageFrameIndex);
+VOID MiReturnLargePages(IN PMI_LARGEPAGE_MEMORY_RUN LargePageListHead);
+PMI_LARGEPAGE_MEMORY_RUN MiAllocateLargeZeroPages(IN PFN_NUMBER NumberOfPages, IN MM_PROTECTION_MASK ProtectionMask);
+NTSTATUS MiAllocateLargePages(IN PVOID StartingAddress, IN PVOID EndingAddress, IN MM_PROTECTION_MASK ProtectionMask, IN LOGICAL CallerHasPages);
+PFN_NUMBER MiFindLargePageMemory(IN PCOLORED_PAGE_INFO ColoredPageInfo, IN PFN_NUMBER SizeInPages, IN MM_PROTECTION_MASK ProtectionMask, OUT PPFN_NUMBER OutZeroCount);
+VOID MiFreeLargePageMemory(IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER SizeInPages);
+VOID MiFreeLargePages(IN PVOID StartingAddress, IN PVOID EndingAddress, IN LOGICAL CallerHadPages);
+PVOID MiMapWithLargePages(IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER NumberOfPages, IN ULONG Protection, IN MEMORY_CACHING_TYPE CacheType);
+VOID MiUnmapLargePages(IN PVOID BaseAddress, IN SIZE_T NumberOfBytes);
+LOGICAL MiMustFrameBeCached(IN PFN_NUMBER PageFrameIndex);
+VOID MiSyncCachedRanges(VOID);
+LOGICAL MiAddCachedRange(IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER LastPageFrameIndex);
+VOID MiRemoveCachedRange(IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER LastPageFrameIndex);
 
 #define MI_PAGE_FRAME_INDEX_MUST_BE_CACHED(PageFrameIndex)                              MiMustFrameBeCached(PageFrameIndex)
 
-VOID MiFreeContiguousPages (IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER SizeInPages);
+VOID MiFreeContiguousPages(IN PFN_NUMBER PageFrameIndex, IN PFN_NUMBER SizeInPages);
 
-PFN_NUMBER
-MiFindContiguousPages (
-    IN PFN_NUMBER LowestPfn,
-    IN PFN_NUMBER HighestPfn,
-    IN PFN_NUMBER BoundaryPfn,
-    IN PFN_NUMBER SizeInPages,
-    IN MEMORY_CACHING_TYPE CacheType
-    );
+PFN_NUMBER MiFindContiguousPages(IN PFN_NUMBER LowestPfn,
+                                 IN PFN_NUMBER HighestPfn,
+                                 IN PFN_NUMBER BoundaryPfn,
+                                 IN PFN_NUMBER SizeInPages,
+                                 IN MEMORY_CACHING_TYPE CacheType
+);
 
-PVOID
-MiFindContiguousMemory (
-    IN PFN_NUMBER LowestPfn,
-    IN PFN_NUMBER HighestPfn,
-    IN PFN_NUMBER BoundaryPfn,
-    IN PFN_NUMBER SizeInPages,
-    IN MEMORY_CACHING_TYPE CacheType,
-    IN PVOID CallingAddress
-    );
+PVOID MiFindContiguousMemory(IN PFN_NUMBER LowestPfn,
+                             IN PFN_NUMBER HighestPfn,
+                             IN PFN_NUMBER BoundaryPfn,
+                             IN PFN_NUMBER SizeInPages,
+                             IN MEMORY_CACHING_TYPE CacheType,
+                             IN PVOID CallingAddress
+);
 
-PVOID
-MiCheckForContiguousMemory (
-    IN PVOID BaseAddress,
-    IN PFN_NUMBER BaseAddressPages,
-    IN PFN_NUMBER SizeInPages,
-    IN PFN_NUMBER LowestPfn,
-    IN PFN_NUMBER HighestPfn,
-    IN PFN_NUMBER BoundaryPfn,
-    IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute
-    );
+PVOID MiCheckForContiguousMemory(IN PVOID BaseAddress,
+                                 IN PFN_NUMBER BaseAddressPages,
+                                 IN PFN_NUMBER SizeInPages,
+                                 IN PFN_NUMBER LowestPfn,
+                                 IN PFN_NUMBER HighestPfn,
+                                 IN PFN_NUMBER BoundaryPfn,
+                                 IN MI_PFN_CACHE_ATTRIBUTE CacheAttribute
+);
 
 
 // Routines which operate on the page frame database entry.
-VOID MiInitializePfn (IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN ULONG ModifiedState);
-VOID MiInitializePfnAndMakePteValid (IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN MMPTE NewPteContents);
-VOID MiInitializePfnForOtherProcess (IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN PFN_NUMBER ContainingPageFrame);
-VOID MiInitializeCopyOnWritePfn (IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN WSLE_NUMBER WorkingSetIndex, IN PMMWSL WorkingSetList);
-VOID MiInitializeTransitionPfn (IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte);
+VOID MiInitializePfn(IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN ULONG ModifiedState);
+VOID MiInitializePfnAndMakePteValid(IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN MMPTE NewPteContents);
+VOID MiInitializePfnForOtherProcess(IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN PFN_NUMBER ContainingPageFrame);
+VOID MiInitializeCopyOnWritePfn(IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte, IN WSLE_NUMBER WorkingSetIndex, IN PMMWSL WorkingSetList);
+VOID MiInitializeTransitionPfn(IN PFN_NUMBER PageFrameIndex, IN PMMPTE PointerPte);
 extern SLIST_HEADER MmInPageSupportSListHead;
-VOID MiFreeInPageSupportBlock (IN PMMINPAGE_SUPPORT Support);
-PMMINPAGE_SUPPORT MiGetInPageSupportBlock (IN KIRQL OldIrql, IN PNTSTATUS Status);
+VOID MiFreeInPageSupportBlock(IN PMMINPAGE_SUPPORT Support);
+PMMINPAGE_SUPPORT MiGetInPageSupportBlock(IN KIRQL OldIrql, IN PNTSTATUS Status);
 
 
 // Routines which require a physical page to be mapped into hyperspace within the current process.
-VOID FASTCALL MiZeroPhysicalPage (IN PFN_NUMBER PageFrameIndex);
-VOID FASTCALL MiRestoreTransitionPte (IN PMMPFN Pfn1);
-PSUBSECTION MiGetSubsectionAndProtoFromPte (IN PMMPTE PointerPte, IN PMMPTE *ProtoPte);
-PVOID MiMapPageInHyperSpace (IN PEPROCESS Process, IN PFN_NUMBER PageFrameIndex, OUT PKIRQL OldIrql);
-PVOID MiMapPageInHyperSpaceAtDpc (IN PEPROCESS Process, IN PFN_NUMBER PageFrameIndex);
-VOID MiUnmapPagesInZeroSpace (IN PVOID VirtualAddress, IN PFN_COUNT NumberOfPages);
-PFN_NUMBER MiGetPageForHeader (LOGICAL ZeroPage);
-VOID MiRemoveImageHeaderPage (IN PFN_NUMBER PageFrameNumber);
-PVOID MiMapPagesToZeroInHyperSpace (IN PMMPFN PfnAllocation, IN PFN_COUNT NumberOfPages);
+VOID FASTCALL MiZeroPhysicalPage(IN PFN_NUMBER PageFrameIndex);
+VOID FASTCALL MiRestoreTransitionPte(IN PMMPFN Pfn1);
+PSUBSECTION MiGetSubsectionAndProtoFromPte(IN PMMPTE PointerPte, IN PMMPTE* ProtoPte);
+PVOID MiMapPageInHyperSpace(IN PEPROCESS Process, IN PFN_NUMBER PageFrameIndex, OUT PKIRQL OldIrql);
+PVOID MiMapPageInHyperSpaceAtDpc(IN PEPROCESS Process, IN PFN_NUMBER PageFrameIndex);
+VOID MiUnmapPagesInZeroSpace(IN PVOID VirtualAddress, IN PFN_COUNT NumberOfPages);
+PFN_NUMBER MiGetPageForHeader(LOGICAL ZeroPage);
+VOID MiRemoveImageHeaderPage(IN PFN_NUMBER PageFrameNumber);
+PVOID MiMapPagesToZeroInHyperSpace(IN PMMPFN PfnAllocation, IN PFN_COUNT NumberOfPages);
 
 
 // Routines to obtain and release system PTEs.
@@ -3199,7 +3193,7 @@ extern PVOID MiLowestSystemPteVirtualAddress;
 typedef struct _MI_PTE_RANGES {
     PVOID StartingVa;
     PVOID EndingVa;
-} MI_PTE_RANGES, *PMI_PTE_RANGES;
+} MI_PTE_RANGES, * PMI_PTE_RANGES;
 
 #if defined (_WIN64)
 #define MI_NUMBER_OF_PTE_RANGES 1
@@ -3210,30 +3204,37 @@ typedef struct _MI_PTE_RANGES {
 extern ULONG MiPteRangeIndex;
 extern MI_PTE_RANGES MiPteRanges[MI_NUMBER_OF_PTE_RANGES];
 
-PMMPTE MiReserveSystemPtes (IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
-PMMPTE MiReserveAlignedSystemPtes (IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPtePoolType, IN ULONG Alignment);
-VOID MiReleaseSystemPtes (IN PMMPTE StartingPte, IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
-VOID MiReleaseSplitSystemPtes (IN PMMPTE StartingPte, IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPtePoolType);
-VOID MiIncrementSystemPtes (IN ULONG  NumberOfPtes);
-VOID MiIssueNoPtesBugcheck (IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
-VOID MiInitializeSystemPtes (IN PMMPTE StartingPte, IN PFN_NUMBER NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
-NTSTATUS MiAddMappedPtes (IN PMMPTE FirstPte, IN PFN_NUMBER NumberOfPtes, IN PCONTROL_AREA ControlArea);
-VOID MiInitializeIoTrackers (VOID);
-VOID MiAddMdlTracker (IN PMDL MemoryDescriptorList, IN PVOID CallingAddress, IN PVOID CallersCaller, IN PFN_NUMBER NumberOfPagesToLock, IN ULONG Who);
-PVOID MiMapSinglePage (IN PVOID VirtualAddress OPTIONAL, IN PFN_NUMBER PageFrameIndex, IN MEMORY_CACHING_TYPE CacheType, IN MM_PAGE_PRIORITY Priority);
-VOID MiUnmapSinglePage (IN PVOID BaseAddress);
+PMMPTE MiReserveSystemPtes(IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
+PMMPTE MiReserveAlignedSystemPtes(IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPtePoolType, IN ULONG Alignment);
+VOID MiReleaseSystemPtes(IN PMMPTE StartingPte, IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
+VOID MiReleaseSplitSystemPtes(IN PMMPTE StartingPte, IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPtePoolType);
+VOID MiIncrementSystemPtes(IN ULONG  NumberOfPtes);
+VOID MiIssueNoPtesBugcheck(IN ULONG NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
+VOID MiInitializeSystemPtes(IN PMMPTE StartingPte, IN PFN_NUMBER NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPteType);
+NTSTATUS MiAddMappedPtes(IN PMMPTE FirstPte, IN PFN_NUMBER NumberOfPtes, IN PCONTROL_AREA ControlArea);
+VOID MiInitializeIoTrackers(VOID);
+VOID MiAddMdlTracker(IN PMDL MemoryDescriptorList,
+                     IN PVOID CallingAddress,
+                     IN PVOID CallersCaller,
+                     IN PFN_NUMBER NumberOfPagesToLock,
+                     IN ULONG Who);
+PVOID MiMapSinglePage(IN PVOID VirtualAddress OPTIONAL,
+                      IN PFN_NUMBER PageFrameIndex,
+                      IN MEMORY_CACHING_TYPE CacheType,
+                      IN MM_PAGE_PRIORITY Priority);
+VOID MiUnmapSinglePage(IN PVOID BaseAddress);
 
 typedef struct _MM_PTE_MAPPING {
     LIST_ENTRY ListEntry;
     PVOID SystemVa;
     PVOID SystemEndVa;
     ULONG Protection;
-} MM_PTE_MAPPING, *PMM_PTE_MAPPING;
+} MM_PTE_MAPPING, * PMM_PTE_MAPPING;
 
 extern LIST_ENTRY MmProtectedPteList;
 extern KSPIN_LOCK MmProtectedPteLock;
 
-LOGICAL MiCheckSystemPteProtection (IN ULONG_PTR StoreInstruction, IN PVOID VirtualAddress);
+LOGICAL MiCheckSystemPteProtection(IN ULONG_PTR StoreInstruction, IN PVOID VirtualAddress);
 
 // Access Fault routines.
 
@@ -3241,22 +3242,48 @@ LOGICAL MiCheckSystemPteProtection (IN ULONG_PTR StoreInstruction, IN PVOID Virt
 
 #define MM_NOIRQL (HIGH_LEVEL + 2)
 
-NTSTATUS MiDispatchFault (IN ULONG_PTR FaultStatus, IN PVOID VirtualAdress, IN PMMPTE PointerPte, IN PMMPTE PointerProtoPte, IN LOGICAL RecheckAccess, IN PEPROCESS Process, IN PVOID TrapInformation, IN PMMVAD Vad);
-NTSTATUS MiResolveDemandZeroFault (IN PVOID VirtualAddress, IN PMMPTE PointerPte, IN PEPROCESS Process, IN KIRQL OldIrql);
-BOOLEAN MiIsAddressValid (IN PVOID VirtualAddress, IN LOGICAL UseForceIfPossible);
-VOID MiAllowWorkingSetExpansion (IN PMMSUPPORT WsInfo);
-WSLE_NUMBER MiAddValidPageToWorkingSet (IN PVOID VirtualAddress, IN PMMPTE PointerPte, IN PMMPFN Pfn1, IN ULONG WsleMask);
-VOID MiTrimPte (IN PVOID VirtualAddress, IN PMMPTE ReadPte, IN PMMPFN Pfn1, IN PEPROCESS CurrentProcess, IN MMPTE NewPteContents);
-NTSTATUS MiWaitForInPageComplete (IN PMMPFN Pfn, IN PMMPTE PointerPte, IN PVOID FaultingAddress, IN PMMPTE PointerPteContents, IN PMMINPAGE_SUPPORT InPageSupport, IN PEPROCESS CurrentProcess);
-LOGICAL FASTCALL MiCopyOnWrite (IN PVOID FaultingAddress, IN PMMPTE PointerPte);
-LOGICAL MiSetDirtyBit (IN PVOID FaultingAddress, IN PMMPTE PointerPte, IN ULONG PfnHeld);
-PMMPTE MiFindActualFaultingPte (IN PVOID FaultingAddress);
-VOID MiInitializeReadInProgressSinglePfn (IN PFN_NUMBER PageFrameIndex, IN PMMPTE BasePte, IN PKEVENT Event, IN WSLE_NUMBER WorkingSetIndex);
-VOID MiInitializeReadInProgressPfn (IN PMDL Mdl, IN PMMPTE BasePte, IN PKEVENT Event, IN WSLE_NUMBER WorkingSetIndex);
-NTSTATUS MiAccessCheck (IN PMMPTE PointerPte, IN ULONG_PTR WriteOperation, IN KPROCESSOR_MODE PreviousMode, IN ULONG Protection, IN PVOID TrapInformation, IN BOOLEAN CallerHoldsPfnLock);
-NTSTATUS FASTCALL MiCheckForUserStackOverflow (IN PVOID FaultingAddress, IN PVOID TrapInformation);
-PMMPTE MiCheckVirtualAddress (IN PVOID VirtualAddress, OUT PULONG ProtectCode, OUT PMMVAD *VadOut);
-NTSTATUS FASTCALL MiCheckPdeForPagedPool (IN PVOID VirtualAddress);
+NTSTATUS MiDispatchFault(IN ULONG_PTR FaultStatus,
+                         IN PVOID VirtualAdress,
+                         IN PMMPTE PointerPte,
+                         IN PMMPTE PointerProtoPte,
+                         IN LOGICAL RecheckAccess,
+                         IN PEPROCESS Process,
+                         IN PVOID TrapInformation, IN PMMVAD Vad);
+NTSTATUS MiResolveDemandZeroFault(IN PVOID VirtualAddress, IN PMMPTE PointerPte, IN PEPROCESS Process, IN KIRQL OldIrql);
+BOOLEAN MiIsAddressValid(IN PVOID VirtualAddress, IN LOGICAL UseForceIfPossible);
+VOID MiAllowWorkingSetExpansion(IN PMMSUPPORT WsInfo);
+WSLE_NUMBER MiAddValidPageToWorkingSet(IN PVOID VirtualAddress, IN PMMPTE PointerPte, IN PMMPFN Pfn1, IN ULONG WsleMask);
+VOID MiTrimPte(IN PVOID VirtualAddress,
+               IN PMMPTE ReadPte,
+               IN PMMPFN Pfn1,
+               IN PEPROCESS CurrentProcess,
+               IN MMPTE NewPteContents);
+NTSTATUS MiWaitForInPageComplete(IN PMMPFN Pfn,
+                                 IN PMMPTE PointerPte,
+                                 IN PVOID FaultingAddress,
+                                 IN PMMPTE PointerPteContents,
+                                 IN PMMINPAGE_SUPPORT InPageSupport,
+                                 IN PEPROCESS CurrentProcess);
+LOGICAL FASTCALL MiCopyOnWrite(IN PVOID FaultingAddress, IN PMMPTE PointerPte);
+LOGICAL MiSetDirtyBit(IN PVOID FaultingAddress, IN PMMPTE PointerPte, IN ULONG PfnHeld);
+PMMPTE MiFindActualFaultingPte(IN PVOID FaultingAddress);
+VOID MiInitializeReadInProgressSinglePfn(IN PFN_NUMBER PageFrameIndex,
+                                         IN PMMPTE BasePte,
+                                         IN PKEVENT Event,
+                                         IN WSLE_NUMBER WorkingSetIndex);
+VOID MiInitializeReadInProgressPfn(IN PMDL Mdl,
+                                   IN PMMPTE BasePte,
+                                   IN PKEVENT Event,
+                                   IN WSLE_NUMBER WorkingSetIndex);
+NTSTATUS MiAccessCheck(IN PMMPTE PointerPte,
+                       IN ULONG_PTR WriteOperation,
+                       IN KPROCESSOR_MODE PreviousMode,
+                       IN ULONG Protection,
+                       IN PVOID TrapInformation,
+                       IN BOOLEAN CallerHoldsPfnLock);
+NTSTATUS FASTCALL MiCheckForUserStackOverflow(IN PVOID FaultingAddress, IN PVOID TrapInformation);
+PMMPTE MiCheckVirtualAddress(IN PVOID VirtualAddress, OUT PULONG ProtectCode, OUT PMMVAD* VadOut);
+NTSTATUS FASTCALL MiCheckPdeForPagedPool(IN PVOID VirtualAddress);
 
 #if defined (_WIN64)
 #define MI_IS_WOW64_PROCESS(PROCESS) (PROCESS->Wow64Process)
@@ -3268,28 +3295,28 @@ NTSTATUS FASTCALL MiCheckPdeForPagedPool (IN PVOID VirtualAddress);
 
 
 // Routines which operate on an address tree.
-PMMADDRESS_NODE FASTCALL MiGetNextNode (IN PMMADDRESS_NODE Node);
-PMMADDRESS_NODE FASTCALL MiGetPreviousNode (IN PMMADDRESS_NODE Node);
-PMMADDRESS_NODE FASTCALL MiGetFirstNode (IN PMM_AVL_TABLE Root);
-PMMADDRESS_NODE MiGetLastNode (IN PMM_AVL_TABLE Root);
-VOID FASTCALL MiInsertNode (IN PMMADDRESS_NODE Node, IN PMM_AVL_TABLE Root);
-VOID FASTCALL MiRemoveNode (IN PMMADDRESS_NODE Node, IN PMM_AVL_TABLE Root);
-PMMADDRESS_NODE FASTCALL MiLocateAddressInTree (IN ULONG_PTR Vpn, IN PMM_AVL_TABLE Root);
-PMMADDRESS_NODE MiCheckForConflictingNode (IN ULONG_PTR StartVpn, IN ULONG_PTR EndVpn, IN PMM_AVL_TABLE Root);
-NTSTATUS MiFindEmptyAddressRangeInTree (IN SIZE_T SizeOfRange, IN ULONG_PTR Alignment, IN PMM_AVL_TABLE Root, OUT PMMADDRESS_NODE *PreviousVad, OUT PVOID *Base);
-NTSTATUS MiFindEmptyAddressRangeDownTree (IN SIZE_T SizeOfRange, IN PVOID HighestAddressToEndAt, IN ULONG_PTR Alignment, IN PMM_AVL_TABLE Root, OUT PVOID *Base);
-NTSTATUS MiFindEmptyAddressRangeDownBasedTree (IN SIZE_T SizeOfRange, IN PVOID HighestAddressToEndAt, IN ULONG_PTR Alignment, IN PMM_AVL_TABLE Root, OUT PVOID *Base);
-PVOID MiEnumerateGenericTableWithoutSplayingAvl (IN PMM_AVL_TABLE Table, IN PVOID *RestartKey);
-VOID NodeTreeWalk (PMMADDRESS_NODE Start);
-TABLE_SEARCH_RESULT MiFindNodeOrParent (IN PMM_AVL_TABLE Table, IN ULONG_PTR StartingVpn, OUT PMMADDRESS_NODE *NodeOrParent);
+PMMADDRESS_NODE FASTCALL MiGetNextNode(IN PMMADDRESS_NODE Node);
+PMMADDRESS_NODE FASTCALL MiGetPreviousNode(IN PMMADDRESS_NODE Node);
+PMMADDRESS_NODE FASTCALL MiGetFirstNode(IN PMM_AVL_TABLE Root);
+PMMADDRESS_NODE MiGetLastNode(IN PMM_AVL_TABLE Root);
+VOID FASTCALL MiInsertNode(IN PMMADDRESS_NODE Node, IN PMM_AVL_TABLE Root);
+VOID FASTCALL MiRemoveNode(IN PMMADDRESS_NODE Node, IN PMM_AVL_TABLE Root);
+PMMADDRESS_NODE FASTCALL MiLocateAddressInTree(IN ULONG_PTR Vpn, IN PMM_AVL_TABLE Root);
+PMMADDRESS_NODE MiCheckForConflictingNode(IN ULONG_PTR StartVpn, IN ULONG_PTR EndVpn, IN PMM_AVL_TABLE Root);
+NTSTATUS MiFindEmptyAddressRangeInTree(IN SIZE_T SizeOfRange, IN ULONG_PTR Alignment, IN PMM_AVL_TABLE Root, OUT PMMADDRESS_NODE* PreviousVad, OUT PVOID* Base);
+NTSTATUS MiFindEmptyAddressRangeDownTree(IN SIZE_T SizeOfRange, IN PVOID HighestAddressToEndAt, IN ULONG_PTR Alignment, IN PMM_AVL_TABLE Root, OUT PVOID* Base);
+NTSTATUS MiFindEmptyAddressRangeDownBasedTree(IN SIZE_T SizeOfRange, IN PVOID HighestAddressToEndAt, IN ULONG_PTR Alignment, IN PMM_AVL_TABLE Root, OUT PVOID* Base);
+PVOID MiEnumerateGenericTableWithoutSplayingAvl(IN PMM_AVL_TABLE Table, IN PVOID* RestartKey);
+VOID NodeTreeWalk(PMMADDRESS_NODE Start);
+TABLE_SEARCH_RESULT MiFindNodeOrParent(IN PMM_AVL_TABLE Table, IN ULONG_PTR StartingVpn, OUT PMMADDRESS_NODE* NodeOrParent);
 
 
 // Routines which operate on the tree of virtual address descriptors.
-NTSTATUS MiInsertVadCharges (IN PMMVAD Vad, IN PEPROCESS CurrentProcess);
-VOID MiRemoveVadCharges (IN PMMVAD Vad, IN PEPROCESS CurrentProcess);
+NTSTATUS MiInsertVadCharges(IN PMMVAD Vad, IN PEPROCESS CurrentProcess);
+VOID MiRemoveVadCharges(IN PMMVAD Vad, IN PEPROCESS CurrentProcess);
 
 
-VOID FORCEINLINE MiInsertVad (IN PMMVAD Vad, IN PEPROCESS CurrentProcess)
+VOID FORCEINLINE MiInsertVad(IN PMMVAD Vad, IN PEPROCESS CurrentProcess)
 /*
 Routine Description:
     This function inserts a virtual address descriptor into the tree and rebalances the AVL tree as appropriate.
@@ -3300,18 +3327,18 @@ Arguments:
 {
     PMM_AVL_TABLE Root;
 
-    ASSERT (Vad->EndingVpn >= Vad->StartingVpn);
-    ASSERT (CurrentProcess == PsGetCurrentProcess ());
+    ASSERT(Vad->EndingVpn >= Vad->StartingVpn);
+    ASSERT(CurrentProcess == PsGetCurrentProcess());
 
     Root = &CurrentProcess->VadRoot;
 
     // Set the hint field in the process to this VAD.
     CurrentProcess->VadRoot.NodeHint = Vad;
-    MiInsertNode ((PMMADDRESS_NODE)Vad, Root);
+    MiInsertNode((PMMADDRESS_NODE)Vad, Root);
 }
 
 
-VOID FORCEINLINE MiRemoveVad (IN PMMVAD Vad, IN PEPROCESS CurrentProcess)
+VOID FORCEINLINE MiRemoveVad(IN PMMVAD Vad, IN PEPROCESS CurrentProcess)
 /*
 Routine Description:
     This function removes a virtual address descriptor from the tree and rebalances the AVL tree as appropriate.
@@ -3323,38 +3350,42 @@ Arguments:
 {
     PMM_AVL_TABLE Root;
 
-    ASSERT (CurrentProcess == PsGetCurrentProcess ());
+    ASSERT(CurrentProcess == PsGetCurrentProcess());
     Root = &CurrentProcess->VadRoot;
-    ASSERT (Root->NumberGenericTableElements >= 1);
-    MiRemoveNode ((PMMADDRESS_NODE)Vad, Root);
+    ASSERT(Root->NumberGenericTableElements >= 1);
+    MiRemoveNode((PMMADDRESS_NODE)Vad, Root);
 
     // If the hint points at the removed VAD, change the hint.
     if (Root->NodeHint == Vad) {
         Root->NodeHint = Root->BalancedRoot.RightChild;
-        if(Root->NumberGenericTableElements == 0) {
+        if (Root->NumberGenericTableElements == 0) {
             Root->NodeHint = NULL;
         }
     }
 }
 
-PMMVAD FASTCALL MiLocateAddress (IN PVOID VirtualAddress);
-NTSTATUS MiFindEmptyAddressRange (IN SIZE_T SizeOfRange, IN ULONG_PTR Alignment, IN ULONG QuickCheck, IN PVOID *Base);
-ULONG MiQueryAddressState (IN PVOID Va, IN PMMVAD Vad, IN PEPROCESS TargetProcess, OUT PULONG ReturnedProtect, OUT PVOID *NextVaToQuery);
+PMMVAD FASTCALL MiLocateAddress(IN PVOID VirtualAddress);
+NTSTATUS MiFindEmptyAddressRange(IN SIZE_T SizeOfRange, IN ULONG_PTR Alignment, IN ULONG QuickCheck, IN PVOID* Base);
+ULONG MiQueryAddressState(IN PVOID Va, IN PMMVAD Vad, IN PEPROCESS TargetProcess, OUT PULONG ReturnedProtect, OUT PVOID* NextVaToQuery);
 
 
 // Routines which operate on the clone tree structure.
-NTSTATUS MiCloneProcessAddressSpace (IN PEPROCESS ProcessToClone, IN PEPROCESS ProcessToInitialize);
-ULONG MiDecrementCloneBlockReference (IN PMMCLONE_DESCRIPTOR CloneDescriptor, IN PMMCLONE_BLOCK CloneBlock, IN PEPROCESS CurrentProcess, IN PMMPTE_FLUSH_LIST PteFlushList OPTIONAL, IN KIRQL OldIrql);
-LOGICAL MiWaitForForkToComplete (IN PEPROCESS CurrentProcess);
+NTSTATUS MiCloneProcessAddressSpace(IN PEPROCESS ProcessToClone, IN PEPROCESS ProcessToInitialize);
+ULONG MiDecrementCloneBlockReference(IN PMMCLONE_DESCRIPTOR CloneDescriptor,
+                                     IN PMMCLONE_BLOCK CloneBlock,
+                                     IN PEPROCESS CurrentProcess,
+                                     IN PMMPTE_FLUSH_LIST PteFlushList OPTIONAL,
+                                     IN KIRQL OldIrql);
+LOGICAL MiWaitForForkToComplete(IN PEPROCESS CurrentProcess);
 
 
 // Routines which operate on the working set list.
-WSLE_NUMBER MiAllocateWsle (IN PMMSUPPORT WsInfo, IN PMMPTE PointerPte, IN PMMPFN Pfn1, IN ULONG_PTR WsleMask);
-VOID MiReleaseWsle (IN WSLE_NUMBER WorkingSetIndex, IN PMMSUPPORT WsInfo);
-VOID MiInitializeWorkingSetList (IN PEPROCESS CurrentProcess);
-VOID MiGrowWsleHash (IN PMMSUPPORT WsInfo);
-VOID MiFillWsleHash (IN PMMWSL WorkingSetList);
-WSLE_NUMBER MiTrimWorkingSet (IN WSLE_NUMBER Reduction, IN PMMSUPPORT WsInfo, IN ULONG TrimAge);
+WSLE_NUMBER MiAllocateWsle(IN PMMSUPPORT WsInfo, IN PMMPTE PointerPte, IN PMMPFN Pfn1, IN ULONG_PTR WsleMask);
+VOID MiReleaseWsle(IN WSLE_NUMBER WorkingSetIndex, IN PMMSUPPORT WsInfo);
+VOID MiInitializeWorkingSetList(IN PEPROCESS CurrentProcess);
+VOID MiGrowWsleHash(IN PMMSUPPORT WsInfo);
+VOID MiFillWsleHash(IN PMMWSL WorkingSetList);
+WSLE_NUMBER MiTrimWorkingSet(IN WSLE_NUMBER Reduction, IN PMMSUPPORT WsInfo, IN ULONG TrimAge);
 
 
 #if defined(_AMD64_)
@@ -3369,59 +3400,68 @@ WSLE_NUMBER MiTrimWorkingSet (IN WSLE_NUMBER Reduction, IN PMMSUPPORT WsInfo, IN
 #define MI_USER_LOCAL       1
 #define MI_SESSION_LOCAL    2
 
-LOGICAL MiTrimAllSystemPageableMemory (IN ULONG MemoryType, IN LOGICAL PurgeTransition);
-VOID MiRemoveWorkingSetPages (IN PMMSUPPORT WsInfo);
-VOID MiAgeWorkingSet (IN PMMSUPPORT VmSupport, IN LOGICAL DoAging, IN PWSLE_NUMBER WslesScanned, IN OUT PPFN_NUMBER TotalClaim, IN OUT PPFN_NUMBER TotalEstimatedAvailable);
-VOID FASTCALL MiInsertWsleHash (IN WSLE_NUMBER Entry, IN PMMSUPPORT WsInfo);
-VOID FASTCALL MiRemoveWsle (IN WSLE_NUMBER Entry, IN PMMWSL WorkingSetList);
-VOID FASTCALL MiTerminateWsle (IN PVOID VirtualAddress, IN PMMSUPPORT WsInfo, IN WSLE_NUMBER WsPfnIndex);
-WSLE_NUMBER FASTCALL MiLocateWsle (IN PVOID VirtualAddress, IN PMMWSL WorkingSetList, IN WSLE_NUMBER WsPfnIndex, IN LOGICAL Deletion);
-ULONG MiFreeWsle (IN WSLE_NUMBER WorkingSetIndex, IN PMMSUPPORT WsInfo, IN PMMPTE PointerPte);
-WSLE_NUMBER MiFreeWsleList (IN PMMSUPPORT WsInfo, IN PMMWSLE_FLUSH_LIST WsleFlushList);
-VOID MiSwapWslEntries (IN WSLE_NUMBER SwapEntry, IN WSLE_NUMBER Entry, IN PMMSUPPORT WsInfo, IN LOGICAL EntryNotInHash);
-VOID MiRemoveWsleFromFreeList (IN WSLE_NUMBER Entry, IN PMMWSLE Wsle, IN PMMWSL WorkingSetList);
-ULONG MiRemovePageFromWorkingSet (IN PMMPTE PointerPte, IN PMMPFN Pfn1, IN PMMSUPPORT WsInfo);
+LOGICAL MiTrimAllSystemPageableMemory(IN ULONG MemoryType, IN LOGICAL PurgeTransition);
+VOID MiRemoveWorkingSetPages(IN PMMSUPPORT WsInfo);
+VOID MiAgeWorkingSet(IN PMMSUPPORT VmSupport,
+                     IN LOGICAL DoAging,
+                     IN PWSLE_NUMBER WslesScanned,
+                     IN OUT PPFN_NUMBER TotalClaim,
+                     IN OUT PPFN_NUMBER TotalEstimatedAvailable);
+VOID FASTCALL MiInsertWsleHash(IN WSLE_NUMBER Entry, IN PMMSUPPORT WsInfo);
+VOID FASTCALL MiRemoveWsle(IN WSLE_NUMBER Entry, IN PMMWSL WorkingSetList);
+VOID FASTCALL MiTerminateWsle(IN PVOID VirtualAddress, IN PMMSUPPORT WsInfo, IN WSLE_NUMBER WsPfnIndex);
+WSLE_NUMBER FASTCALL MiLocateWsle(IN PVOID VirtualAddress, IN PMMWSL WorkingSetList, IN WSLE_NUMBER WsPfnIndex, IN LOGICAL Deletion);
+ULONG MiFreeWsle(IN WSLE_NUMBER WorkingSetIndex, IN PMMSUPPORT WsInfo, IN PMMPTE PointerPte);
+WSLE_NUMBER MiFreeWsleList(IN PMMSUPPORT WsInfo, IN PMMWSLE_FLUSH_LIST WsleFlushList);
+VOID MiSwapWslEntries(IN WSLE_NUMBER SwapEntry, IN WSLE_NUMBER Entry, IN PMMSUPPORT WsInfo, IN LOGICAL EntryNotInHash);
+VOID MiRemoveWsleFromFreeList(IN WSLE_NUMBER Entry, IN PMMWSLE Wsle, IN PMMWSL WorkingSetList);
+ULONG MiRemovePageFromWorkingSet(IN PMMPTE PointerPte, IN PMMPFN Pfn1, IN PMMSUPPORT WsInfo);
 #define MI_DELETE_FLUSH_TB  0x1
-PFN_NUMBER MiDeleteSystemPageableVm (IN PMMPTE PointerPte, IN PFN_NUMBER NumberOfPtes, IN ULONG Flags, OUT PPFN_NUMBER ResidentPages OPTIONAL);
-VOID MiLockCode (IN PMMPTE FirstPte, IN PMMPTE LastPte, IN ULONG LockType);
-PKLDR_DATA_TABLE_ENTRY MiLookupDataTableEntry (IN PVOID AddressWithinSection, IN ULONG ResourceHeld);
+PFN_NUMBER MiDeleteSystemPageableVm(IN PMMPTE PointerPte,
+                                    IN PFN_NUMBER NumberOfPtes,
+                                    IN ULONG Flags,
+                                    OUT PPFN_NUMBER ResidentPages OPTIONAL);
+VOID MiLockCode(IN PMMPTE FirstPte, IN PMMPTE LastPte, IN ULONG LockType);
+PKLDR_DATA_TABLE_ENTRY MiLookupDataTableEntry(IN PVOID AddressWithinSection, IN ULONG ResourceHeld);
 
 
 // Routines which perform working set management.
-VOID MiObtainFreePages (VOID);
-VOID MiModifiedPageWriter (IN PVOID StartContext);
-VOID MiMappedPageWriter (IN PVOID StartContext);
-LOGICAL MiIssuePageExtendRequest (IN PMMPAGE_FILE_EXPANSION PageExtend);
-VOID MiIssuePageExtendRequestNoWait (IN PFN_NUMBER SizeInPages);
-SIZE_T MiExtendPagingFiles (IN PMMPAGE_FILE_EXPANSION PageExpand);
-VOID MiContractPagingFiles (VOID);
-VOID MiAttemptPageFileReduction (VOID);
-LOGICAL MiCancelWriteOfMappedPfn (IN PFN_NUMBER PageToStop, IN KIRQL OldIrql);
+VOID MiObtainFreePages(VOID);
+VOID MiModifiedPageWriter(IN PVOID StartContext);
+VOID MiMappedPageWriter(IN PVOID StartContext);
+LOGICAL MiIssuePageExtendRequest(IN PMMPAGE_FILE_EXPANSION PageExtend);
+VOID MiIssuePageExtendRequestNoWait(IN PFN_NUMBER SizeInPages);
+SIZE_T MiExtendPagingFiles(IN PMMPAGE_FILE_EXPANSION PageExpand);
+VOID MiContractPagingFiles(VOID);
+VOID MiAttemptPageFileReduction(VOID);
+LOGICAL MiCancelWriteOfMappedPfn(IN PFN_NUMBER PageToStop, IN KIRQL OldIrql);
 
 
 // Routines to delete address space.
-VOID MiDeletePteRange (IN PMMSUPPORT WsInfo, IN PMMPTE PointerPte, IN PMMPTE LastPte, IN LOGICAL AddressSpaceDeletion);
-VOID MiDeleteVirtualAddresses (IN PUCHAR StartingAddress, IN PUCHAR EndingAddress, IN PMMVAD Vad);
-ULONG MiDeletePte (
-    IN PMMPTE PointerPte,
-    IN PVOID VirtualAddress,
-    IN ULONG AddressSpaceDeletion,
-    IN PEPROCESS CurrentProcess,
-    IN PMMPTE PrototypePte,
-    IN PMMPTE_FLUSH_LIST PteFlushList OPTIONAL,
-    IN KIRQL OldIrql
-    );
-VOID MiDeleteValidSystemPte (IN PMMPTE PointerPte, IN PVOID VirtualAddress, IN PMMSUPPORT WsInfo, IN PMMPTE_FLUSH_LIST PteFlushList OPTIONAL);
-LOGICAL MiCreatePageTablesForPhysicalRange (IN PEPROCESS Process, IN PVOID StartingAddress, IN PVOID EndingAddress);
-VOID MiDeletePageTablesForPhysicalRange (IN PVOID StartingAddress, IN PVOID EndingAddress);
+VOID MiDeletePteRange(IN PMMSUPPORT WsInfo, IN PMMPTE PointerPte, IN PMMPTE LastPte, IN LOGICAL AddressSpaceDeletion);
+VOID MiDeleteVirtualAddresses(IN PUCHAR StartingAddress, IN PUCHAR EndingAddress, IN PMMVAD Vad);
+ULONG MiDeletePte(IN PMMPTE PointerPte,
+                  IN PVOID VirtualAddress,
+                  IN ULONG AddressSpaceDeletion,
+                  IN PEPROCESS CurrentProcess,
+                  IN PMMPTE PrototypePte,
+                  IN PMMPTE_FLUSH_LIST PteFlushList OPTIONAL,
+                  IN KIRQL OldIrql
+);
+VOID MiDeleteValidSystemPte(IN PMMPTE PointerPte,
+                            IN PVOID VirtualAddress,
+                            IN PMMSUPPORT WsInfo,
+                            IN PMMPTE_FLUSH_LIST PteFlushList OPTIONAL);
+LOGICAL MiCreatePageTablesForPhysicalRange(IN PEPROCESS Process, IN PVOID StartingAddress, IN PVOID EndingAddress);
+VOID MiDeletePageTablesForPhysicalRange(IN PVOID StartingAddress, IN PVOID EndingAddress);
 
 #if defined (_WIN64)
-LOGICAL MiCreatePageDirectoriesForPhysicalRange (IN PEPROCESS Process, IN PVOID StartingAddress, IN PVOID EndingAddress);
-VOID MiDeletePageDirectoriesForPhysicalRange (IN PVOID StartingAddress, IN PVOID EndingAddress);
+LOGICAL MiCreatePageDirectoriesForPhysicalRange(IN PEPROCESS Process, IN PVOID StartingAddress, IN PVOID EndingAddress);
+VOID MiDeletePageDirectoriesForPhysicalRange(IN PVOID StartingAddress, IN PVOID EndingAddress);
 #endif
 
 
-FORCEINLINE VOID MiFlushPteList (IN PMMPTE_FLUSH_LIST PteFlushList)
+FORCEINLINE VOID MiFlushPteList(IN PMMPTE_FLUSH_LIST PteFlushList)
 /*
 Routine Description:
     This routine flushes all the PTEs in the PTE flush list.
@@ -3437,32 +3477,32 @@ Environment:
 
     count = PteFlushList->Count;
 
-    ASSERT (count != 0);
+    ASSERT(count != 0);
 
     if (count == 1) {
-        MI_FLUSH_SINGLE_TB (PteFlushList->FlushVa[0], FALSE);
+        MI_FLUSH_SINGLE_TB(PteFlushList->FlushVa[0], FALSE);
     } else if (count < MM_MAXIMUM_FLUSH_COUNT) {
-        MI_FLUSH_MULTIPLE_TB (count, &PteFlushList->FlushVa[0], FALSE);
+        MI_FLUSH_MULTIPLE_TB(count, &PteFlushList->FlushVa[0], FALSE);
     } else {
-        MI_FLUSH_PROCESS_TB (FALSE);// Array has overflowed, flush the entire TB.
+        MI_FLUSH_PROCESS_TB(FALSE);// Array has overflowed, flush the entire TB.
     }
 
     PteFlushList->Count = 0;
 }
 
 
-ULONG FASTCALL MiReleasePageFileSpace (IN MMPTE PteContents);
-VOID FASTCALL MiUpdateModifiedWriterMdls (IN ULONG PageFileNumber);
-PVOID MiAllocateAweInfo (VOID);
-VOID MiFreeAweInfo (IN PAWEINFO AweInfo);
-PVOID MiInsertAweInfo (IN PAWEINFO AweInfo);
-VOID MiRemoveUserPhysicalPagesVad (IN PMMVAD_SHORT FoundVad);
-VOID MiCleanPhysicalProcessPages (IN PEPROCESS Process);
-PFN_NUMBER MiResidentPagesForSpan (IN PVOID StartingAddress, IN PVOID EndingAddress);
-LOGICAL MiChargeResidentAvailable (IN PFN_NUMBER NumberOfPages, IN ULONG Id);
-PVOID MiCreatePhysicalVadRoot (IN PEPROCESS Process, IN LOGICAL WsHeld);
-VOID MiPhysicalViewRemover (IN PEPROCESS Process, IN PMMVAD Vad);
-VOID MiPhysicalViewAdjuster (IN PEPROCESS Process, IN PMMVAD OldVad, IN PMMVAD NewVad);
+ULONG FASTCALL MiReleasePageFileSpace(IN MMPTE PteContents);
+VOID FASTCALL MiUpdateModifiedWriterMdls(IN ULONG PageFileNumber);
+PVOID MiAllocateAweInfo(VOID);
+VOID MiFreeAweInfo(IN PAWEINFO AweInfo);
+PVOID MiInsertAweInfo(IN PAWEINFO AweInfo);
+VOID MiRemoveUserPhysicalPagesVad(IN PMMVAD_SHORT FoundVad);
+VOID MiCleanPhysicalProcessPages(IN PEPROCESS Process);
+PFN_NUMBER MiResidentPagesForSpan(IN PVOID StartingAddress, IN PVOID EndingAddress);
+LOGICAL MiChargeResidentAvailable(IN PFN_NUMBER NumberOfPages, IN ULONG Id);
+PVOID MiCreatePhysicalVadRoot(IN PEPROCESS Process, IN LOGICAL WsHeld);
+VOID MiPhysicalViewRemover(IN PEPROCESS Process, IN PMMVAD Vad);
+VOID MiPhysicalViewAdjuster(IN PEPROCESS Process, IN PMMVAD OldVad, IN PMMVAD NewVad);
 
 
 // MM_SYSTEM_PAGE_COLOR - MmSystemPageColor
@@ -3495,7 +3535,7 @@ extern PKNODE KeNodeBlock[];
 #endif
 
 
-FORCEINLINE PFN_NUMBER MiRemoveZeroPageMayReleaseLocks (IN ULONG Color, IN KIRQL OldIrql)
+FORCEINLINE PFN_NUMBER MiRemoveZeroPageMayReleaseLocks(IN ULONG Color, IN KIRQL OldIrql)
 /*
 Routine Description:
     This routine returns a zeroed page.
@@ -3506,12 +3546,12 @@ Environment:
 {
     PFN_NUMBER PageFrameIndex;
 
-    PageFrameIndex = MiRemoveZeroPageIfAny (Color);
+    PageFrameIndex = MiRemoveZeroPageIfAny(Color);
     if (PageFrameIndex == 0) {
-        PageFrameIndex = MiRemoveAnyPage (Color);
-        UNLOCK_PFN (OldIrql);
-        MiZeroPhysicalPage (PageFrameIndex);
-        LOCK_PFN (OldIrql);
+        PageFrameIndex = MiRemoveAnyPage(Color);
+        UNLOCK_PFN(OldIrql);
+        MiZeroPhysicalPage(PageFrameIndex);
+        LOCK_PFN(OldIrql);
     }
 
     return PageFrameIndex;
@@ -3567,7 +3607,7 @@ Environment:
 #endif
 
 
-ULONG MiDoesPdeExistAndMakeValid (IN PMMPTE PointerPde, IN PEPROCESS TargetProcess, IN KIRQL OldIrql, OUT PULONG Waited);
+ULONG MiDoesPdeExistAndMakeValid(IN PMMPTE PointerPde, IN PEPROCESS TargetProcess, IN KIRQL OldIrql, OUT PULONG Waited);
 
 
 #if (_MI_PAGING_LEVELS >= 3)
@@ -3582,14 +3622,14 @@ ULONG MiDoesPdeExistAndMakeValid (IN PMMPTE PointerPde, IN PEPROCESS TargetProce
 #define MiDoesPxeExistAndMakeValid(PXE, PROCESS, PFNLOCKIRQL, WAITED) 1
 #endif
 
-VOID MiMakePdeExistAndMakeValid (IN PMMPTE PointerPde, IN PEPROCESS TargetProcess, IN KIRQL OldIrql);
-ULONG FASTCALL MiMakeSystemAddressValid (IN PVOID VirtualAddress, IN PEPROCESS CurrentProcess);
-ULONG FASTCALL MiMakeSystemAddressValidPfnWs (IN PVOID VirtualAddress, IN PEPROCESS CurrentProcess, IN KIRQL OldIrql);
-ULONG FASTCALL MiMakeSystemAddressValidPfnSystemWs (IN PVOID VirtualAddress, IN KIRQL OldIrql);
-ULONG FASTCALL MiMakeSystemAddressValidPfn (IN PVOID VirtualAddress, IN KIRQL OldIrql);
+VOID MiMakePdeExistAndMakeValid(IN PMMPTE PointerPde, IN PEPROCESS TargetProcess, IN KIRQL OldIrql);
+ULONG FASTCALL MiMakeSystemAddressValid(IN PVOID VirtualAddress, IN PEPROCESS CurrentProcess);
+ULONG FASTCALL MiMakeSystemAddressValidPfnWs(IN PVOID VirtualAddress, IN PEPROCESS CurrentProcess, IN KIRQL OldIrql);
+ULONG FASTCALL MiMakeSystemAddressValidPfnSystemWs(IN PVOID VirtualAddress, IN KIRQL OldIrql);
+ULONG FASTCALL MiMakeSystemAddressValidPfn(IN PVOID VirtualAddress, IN KIRQL OldIrql);
 
 
-ULONG FORCEINLINE MiDoesPdeExistAndMakeValid (IN PMMPTE PointerPde, IN PEPROCESS TargetProcess, IN KIRQL OldIrql, OUT PULONG Waited)
+ULONG FORCEINLINE MiDoesPdeExistAndMakeValid(IN PMMPTE PointerPde, IN PEPROCESS TargetProcess, IN KIRQL OldIrql, OUT PULONG Waited)
 /*
 Routine Description:
     This routine examines the specified Page Directory Entry to determine if the page table page mapped by the PDE exists.
@@ -3611,7 +3651,7 @@ Environment:
 {
     PMMPTE PointerPte;
 
-    ASSERT (KeAreAllApcsDisabled () == TRUE);
+    ASSERT(KeAreAllApcsDisabled() == TRUE);
 
     if (PointerPde->u.Long == 0) {
         return FALSE;// This page directory entry doesn't exist, return FALSE.
@@ -3623,28 +3663,28 @@ Environment:
 
     // Page directory entry exists, it is either valid, in transition or in the paging file.  Fault it in.
     if (OldIrql != MM_NOIRQL) {
-        UNLOCK_PFN (OldIrql);
-        ASSERT (KeAreAllApcsDisabled () == TRUE);
+        UNLOCK_PFN(OldIrql);
+        ASSERT(KeAreAllApcsDisabled() == TRUE);
         *Waited += 1;
     }
 
-    PointerPte = MiGetVirtualAddressMappedByPte (PointerPde);
+    PointerPte = MiGetVirtualAddressMappedByPte(PointerPde);
 
-    *Waited += MiMakeSystemAddressValid (PointerPte, TargetProcess);
+    *Waited += MiMakeSystemAddressValid(PointerPte, TargetProcess);
 
     if (OldIrql != MM_NOIRQL) {
-        LOCK_PFN (OldIrql);
+        LOCK_PFN(OldIrql);
     }
 
     return TRUE;
 }
 
 
-VOID FASTCALL MiLockPagedAddress (IN PVOID VirtualAddress);
-VOID FASTCALL MiUnlockPagedAddress (IN PVOID VirtualAddress);
+VOID FASTCALL MiLockPagedAddress(IN PVOID VirtualAddress);
+VOID FASTCALL MiUnlockPagedAddress(IN PVOID VirtualAddress);
 
 
-ULONG FORCEINLINE MiIsPteDecommittedPage (IN PMMPTE PointerPte)
+ULONG FORCEINLINE MiIsPteDecommittedPage(IN PMMPTE PointerPte)
 /*
 Routine Description:
     This function checks the contents of a PTE to determine if the PTE is explicitly decommitted.
@@ -3680,12 +3720,12 @@ Environment:
 }
 
 
-ULONG FASTCALL MiIsProtectionCompatible (IN ULONG OldProtect, IN ULONG NewProtect);
-ULONG FASTCALL MiIsPteProtectionCompatible (IN ULONG OldPteProtection, IN ULONG NewProtect);
-ULONG FASTCALL MiMakeProtectionMask (IN ULONG Protect);
-ULONG MiIsEntireRangeCommitted (IN PVOID StartingAddress, IN PVOID EndingAddress, IN PMMVAD Vad, IN PEPROCESS Process);
-ULONG MiIsEntireRangeDecommitted (IN PVOID StartingAddress, IN PVOID EndingAddress, IN PMMVAD Vad, IN PEPROCESS Process);
-LOGICAL MiCheckProtoPtePageState (IN PMMPTE PrototypePte, IN KIRQL OldIrql, OUT PLOGICAL DroppedPfnLock);
+ULONG FASTCALL MiIsProtectionCompatible(IN ULONG OldProtect, IN ULONG NewProtect);
+ULONG FASTCALL MiIsPteProtectionCompatible(IN ULONG OldPteProtection, IN ULONG NewProtect);
+ULONG FASTCALL MiMakeProtectionMask(IN ULONG Protect);
+ULONG MiIsEntireRangeCommitted(IN PVOID StartingAddress, IN PVOID EndingAddress, IN PMMVAD Vad, IN PEPROCESS Process);
+ULONG MiIsEntireRangeDecommitted(IN PVOID StartingAddress, IN PVOID EndingAddress, IN PMMVAD Vad, IN PEPROCESS Process);
+LOGICAL MiCheckProtoPtePageState(IN PMMPTE PrototypePte, IN KIRQL OldIrql, OUT PLOGICAL DroppedPfnLock);
 
 
 // PMMPTE MiGetProtoPteAddress (IN PMMPTE VAD, IN ULONG_PTR VPN);
@@ -3703,9 +3743,9 @@ LOGICAL MiCheckProtoPtePageState (IN PMMPTE PrototypePte, IN KIRQL OldIrql, OUT 
         (ULONG_PTR)(VAD)->FirstPrototypePte))) :                                  \
         MiGetProtoPteAddressExtended ((VAD),(VPN)))
 
-PMMPTE FASTCALL MiGetProtoPteAddressExtended (IN PMMVAD Vad, IN ULONG_PTR Vpn);
-PSUBSECTION FASTCALL MiLocateSubsection (IN PMMVAD Vad, IN ULONG_PTR Vpn);
-VOID MiInitializeSystemCache (IN ULONG MinimumWorkingSet, IN ULONG MaximumWorkingSet);
+PMMPTE FASTCALL MiGetProtoPteAddressExtended(IN PMMVAD Vad, IN ULONG_PTR Vpn);
+PSUBSECTION FASTCALL MiLocateSubsection(IN PMMVAD Vad, IN ULONG_PTR Vpn);
+VOID MiInitializeSystemCache(IN ULONG MinimumWorkingSet, IN ULONG MaximumWorkingSet);
 VOID MiAdjustWorkingSetManagerParameters(IN LOGICAL WorkStation);
 
 extern PFN_NUMBER MmLowMemoryThreshold;
@@ -3725,120 +3765,135 @@ extern PKEVENT MiHighNonPagedPoolEvent;
 
 
 // Section support
-VOID FASTCALL MiInsertBasedSection (IN PSECTION Section);
-NTSTATUS MiMapViewOfPhysicalSection (
-    IN PCONTROL_AREA ControlArea,
-    IN PEPROCESS Process,
-    IN PVOID *CapturedBase,
-    IN PLARGE_INTEGER SectionOffset,
-    IN PSIZE_T CapturedViewSize,
-    IN ULONG ProtectionMask,
-    IN ULONG_PTR ZeroBits,
-    IN ULONG AllocationType
-    );
-NTSTATUS MiMapViewOfDataSection (
-    IN PCONTROL_AREA ControlArea,
-    IN PEPROCESS Process,
-    IN PVOID *CapturedBase,
-    IN PLARGE_INTEGER SectionOffset,
-    IN PSIZE_T CapturedViewSize,
-    IN PSECTION Section,
-    IN SECTION_INHERIT InheritDisposition,
-    IN ULONG ProtectionMask,
-    IN SIZE_T CommitSize,
-    IN ULONG_PTR ZeroBits,
-    IN ULONG AllocationType
-    );
+VOID FASTCALL MiInsertBasedSection(IN PSECTION Section);
+NTSTATUS MiMapViewOfPhysicalSection(IN PCONTROL_AREA ControlArea,
+                                    IN PEPROCESS Process,
+                                    IN PVOID* CapturedBase,
+                                    IN PLARGE_INTEGER SectionOffset,
+                                    IN PSIZE_T CapturedViewSize,
+                                    IN ULONG ProtectionMask,
+                                    IN ULONG_PTR ZeroBits,
+                                    IN ULONG AllocationType
+);
+NTSTATUS MiMapViewOfDataSection(IN PCONTROL_AREA ControlArea,
+                                IN PEPROCESS Process,
+                                IN PVOID* CapturedBase,
+                                IN PLARGE_INTEGER SectionOffset,
+                                IN PSIZE_T CapturedViewSize,
+                                IN PSECTION Section,
+                                IN SECTION_INHERIT InheritDisposition,
+                                IN ULONG ProtectionMask,
+                                IN SIZE_T CommitSize,
+                                IN ULONG_PTR ZeroBits,
+                                IN ULONG AllocationType
+);
 
 #define UNMAP_ADDRESS_SPACE_HELD    0x1
 #define UNMAP_ROTATE_PHYSICAL_OK    0x2
 
-NTSTATUS MiUnmapViewOfSection (IN PEPROCESS Process, IN PVOID BaseAddress, IN ULONG UnmapFlags);
+NTSTATUS MiUnmapViewOfSection(IN PEPROCESS Process, IN PVOID BaseAddress, IN ULONG UnmapFlags);
 VOID MiRemoveImageSectionObject(IN PFILE_OBJECT File, IN PCONTROL_AREA ControlArea);
 VOID MiAddSystemPtes(IN PMMPTE StartingPte, IN ULONG  NumberOfPtes, IN MMSYSTEM_PTE_POOL_TYPE SystemPtePoolType);
-VOID MiRemoveMappedView (IN PEPROCESS CurrentProcess, IN PMMVAD Vad);
-VOID MiSegmentDelete (PSEGMENT Segment);
-VOID MiSectionDelete (IN PVOID Object);
-VOID MiDereferenceSegmentThread (IN PVOID StartContext);
-NTSTATUS MiCreateImageFileMap (IN PFILE_OBJECT File, OUT PSEGMENT *Segment);
-NTSTATUS MiCreateDataFileMap (
-    IN PFILE_OBJECT File,
-    OUT PSEGMENT *Segment,
-    IN PUINT64 MaximumSize,
-    IN ULONG SectionPageProtection,
-    IN ULONG AllocationAttributes,
-    IN ULONG IgnoreFileSizing
-    );
-NTSTATUS MiCreatePagingFileMap (OUT PSEGMENT *Segment, IN PUINT64 MaximumSize, IN ULONG ProtectionMask, IN ULONG AllocationAttributes);
-VOID MiPurgeSubsectionInternal (IN PSUBSECTION Subsection, IN ULONG PteOffset);
-VOID MiPurgeImageSection (IN PCONTROL_AREA ControlArea, IN KIRQL OldIrql);
-PCONTROL_AREA MiFindImageSectionObject (IN PFILE_OBJECT File, IN LOGICAL PfnLockHeld, OUT PLOGICAL GlobalNeeded);
-VOID MiCleanSection (IN PCONTROL_AREA ControlArea, IN LOGICAL DirtyDataPagesOk);
-VOID MiDereferenceControlArea (IN PCONTROL_AREA ControlArea);
-VOID MiDereferenceControlAreaBySection (IN PCONTROL_AREA ControlArea, IN ULONG UserRef);
-VOID MiCheckControlArea (IN PCONTROL_AREA ControlArea, IN KIRQL PreviousIrql);
-NTSTATUS MiCheckPurgeAndUpMapCount (IN PCONTROL_AREA ControlArea, IN LOGICAL FailIfSystemViews);
-VOID MiCheckForControlAreaDeletion (IN PCONTROL_AREA ControlArea);
-LOGICAL MiCheckControlAreaStatus (
+VOID MiRemoveMappedView(IN PEPROCESS CurrentProcess, IN PMMVAD Vad);
+VOID MiSegmentDelete(PSEGMENT Segment);
+VOID MiSectionDelete(IN PVOID Object);
+VOID MiDereferenceSegmentThread(IN PVOID StartContext);
+NTSTATUS MiCreateImageFileMap(IN PFILE_OBJECT File, OUT PSEGMENT* Segment);
+NTSTATUS MiCreateDataFileMap(IN PFILE_OBJECT File,
+                             OUT PSEGMENT* Segment,
+                             IN PUINT64 MaximumSize,
+                             IN ULONG SectionPageProtection,
+                             IN ULONG AllocationAttributes,
+                             IN ULONG IgnoreFileSizing
+);
+NTSTATUS MiCreatePagingFileMap(OUT PSEGMENT* Segment,
+                               IN PUINT64 MaximumSize,
+                               IN ULONG ProtectionMask,
+                               IN ULONG AllocationAttributes);
+VOID MiPurgeSubsectionInternal(IN PSUBSECTION Subsection, IN ULONG PteOffset);
+VOID MiPurgeImageSection(IN PCONTROL_AREA ControlArea, IN KIRQL OldIrql);
+PCONTROL_AREA MiFindImageSectionObject(IN PFILE_OBJECT File, IN LOGICAL PfnLockHeld, OUT PLOGICAL GlobalNeeded);
+VOID MiCleanSection(IN PCONTROL_AREA ControlArea, IN LOGICAL DirtyDataPagesOk);
+VOID MiDereferenceControlArea(IN PCONTROL_AREA ControlArea);
+VOID MiDereferenceControlAreaBySection(IN PCONTROL_AREA ControlArea, IN ULONG UserRef);
+VOID MiCheckControlArea(IN PCONTROL_AREA ControlArea, IN KIRQL PreviousIrql);
+NTSTATUS MiCheckPurgeAndUpMapCount(IN PCONTROL_AREA ControlArea, IN LOGICAL FailIfSystemViews);
+VOID MiCheckForControlAreaDeletion(IN PCONTROL_AREA ControlArea);
+LOGICAL MiCheckControlAreaStatus(
     IN SECTION_CHECK_TYPE SectionCheckType,
     IN PSECTION_OBJECT_POINTERS SectionObjectPointers,
     IN ULONG DelayClose,
-    OUT PCONTROL_AREA *ControlArea,
+    OUT PCONTROL_AREA* ControlArea,
     OUT PKIRQL OldIrql
-    );
+);
 
 extern SLIST_HEADER MmEventCountSListHead;
 
-PEVENT_COUNTER MiGetEventCounter (VOID);
-VOID MiFreeEventCounter (IN PEVENT_COUNTER Support);
-ULONG MiCanFileBeTruncatedInternal (IN PSECTION_OBJECT_POINTERS SectionPointer, IN PLARGE_INTEGER NewFileSize OPTIONAL, IN LOGICAL BlockNewViews, OUT PKIRQL PreviousIrql);
-NTSTATUS MiFlushSectionInternal (
-    IN PMMPTE StartingPte,
-    IN PMMPTE FinalPte,
-    IN PSUBSECTION FirstSubsection,
-    IN PSUBSECTION LastSubsection,
-    IN ULONG Flags,
-    OUT PIO_STATUS_BLOCK IoStatus
-    );
+PEVENT_COUNTER MiGetEventCounter(VOID);
+VOID MiFreeEventCounter(IN PEVENT_COUNTER Support);
+ULONG MiCanFileBeTruncatedInternal(IN PSECTION_OBJECT_POINTERS SectionPointer,
+                                   IN PLARGE_INTEGER NewFileSize OPTIONAL,
+                                   IN LOGICAL BlockNewViews,
+                                   OUT PKIRQL PreviousIrql);
+NTSTATUS MiFlushSectionInternal(IN PMMPTE StartingPte,
+                                IN PMMPTE FinalPte,
+                                IN PSUBSECTION FirstSubsection,
+                                IN PSUBSECTION LastSubsection,
+                                IN ULONG Flags,
+                                OUT PIO_STATUS_BLOCK IoStatus
+);
 
 
 // protection stuff...
-NTSTATUS MiProtectVirtualMemory (IN PEPROCESS Process, IN PVOID *CapturedBase, IN PSIZE_T CapturedRegionSize, IN ULONG Protect, IN PULONG LastProtect);
-ULONG MiGetPageProtection (IN PMMPTE PointerPte);
-NTSTATUS MiSetProtectionOnSection (
-    IN PEPROCESS Process,
-    IN PMMVAD Vad,
-    IN PVOID StartingAddress,
-    IN PVOID EndingAddress,
-    IN ULONG NewProtect,
-    OUT PULONG CapturedOldProtect,
-    IN ULONG DontCharge,
-    OUT PULONG Locked
-    );
-NTSTATUS MiCheckSecuredVad (IN PMMVAD Vad, IN PVOID Base, IN ULONG_PTR Size, IN ULONG ProtectionMask);
-HANDLE MiSecureVirtualMemory (IN PVOID Address, IN SIZE_T Size, IN ULONG ProbeMode, IN LOGICAL AddressSpaceMutexHeld);
-VOID MiUnsecureVirtualMemory (IN HANDLE SecureHandle, IN LOGICAL AddressSpaceMutexHeld);
-ULONG MiChangeNoAccessForkPte (IN PMMPTE PointerPte, IN ULONG ProtectionMask);
+NTSTATUS MiProtectVirtualMemory(IN PEPROCESS Process,
+                                IN PVOID* CapturedBase,
+                                IN PSIZE_T CapturedRegionSize,
+                                IN ULONG Protect,
+                                IN PULONG LastProtect);
+ULONG MiGetPageProtection(IN PMMPTE PointerPte);
+NTSTATUS MiSetProtectionOnSection(IN PEPROCESS Process,
+                                  IN PMMVAD Vad,
+                                  IN PVOID StartingAddress,
+                                  IN PVOID EndingAddress,
+                                  IN ULONG NewProtect,
+                                  OUT PULONG CapturedOldProtect,
+                                  IN ULONG DontCharge,
+                                  OUT PULONG Locked
+);
+NTSTATUS MiCheckSecuredVad(IN PMMVAD Vad, IN PVOID Base, IN ULONG_PTR Size, IN ULONG ProtectionMask);
+HANDLE MiSecureVirtualMemory(IN PVOID Address, IN SIZE_T Size, IN ULONG ProbeMode, IN LOGICAL AddressSpaceMutexHeld);
+VOID MiUnsecureVirtualMemory(IN HANDLE SecureHandle, IN LOGICAL AddressSpaceMutexHeld);
+ULONG MiChangeNoAccessForkPte(IN PMMPTE PointerPte, IN ULONG ProtectionMask);
 
 
 // Routines for charging quota and commitment.
-VOID MiTrimSegmentCache (VOID);
-VOID MiInitializeCommitment (VOID);
-LOGICAL FASTCALL MiChargeCommitment (IN SIZE_T QuotaCharge, IN PEPROCESS Process OPTIONAL);
-LOGICAL FASTCALL MiChargeCommitmentCantExpand (IN SIZE_T QuotaCharge, IN ULONG MustSucceed);
-LOGICAL FASTCALL MiChargeTemporaryCommitmentForReduction (IN SIZE_T QuotaCharge);
-VOID MiCauseOverCommitPopup (VOID);
+VOID MiTrimSegmentCache(VOID);
+VOID MiInitializeCommitment(VOID);
+LOGICAL FASTCALL MiChargeCommitment(IN SIZE_T QuotaCharge, IN PEPROCESS Process OPTIONAL);
+LOGICAL FASTCALL MiChargeCommitmentCantExpand(IN SIZE_T QuotaCharge, IN ULONG MustSucceed);
+LOGICAL FASTCALL MiChargeTemporaryCommitmentForReduction(IN SIZE_T QuotaCharge);
+VOID MiCauseOverCommitPopup(VOID);
 
 
 extern SIZE_T MmTotalCommitLimitMaximum;
 
-SIZE_T MiCalculatePageCommitment (IN PVOID StartingAddress, IN PVOID EndingAddress, IN PMMVAD Vad, IN PEPROCESS Process);
-VOID MiReturnPageTablePageCommitment (IN PVOID StartingAddress, IN PVOID EndingAddress, IN PEPROCESS CurrentProcess, IN PMMVAD PreviousVad, IN PMMVAD NextVad);
-VOID MiFlushAllPages (VOID);
-VOID MiModifiedPageWriterTimerDispatch (IN PKDPC Dpc, IN PVOID DeferredContext, IN PVOID SystemArgument1, IN PVOID SystemArgument2);
+SIZE_T MiCalculatePageCommitment(IN PVOID StartingAddress,
+                                 IN PVOID EndingAddress,
+                                 IN PMMVAD Vad,
+                                 IN PEPROCESS Process);
+VOID MiReturnPageTablePageCommitment(IN PVOID StartingAddress,
+                                     IN PVOID EndingAddress,
+                                     IN PEPROCESS CurrentProcess,
+                                     IN PMMVAD PreviousVad,
+                                     IN PMMVAD NextVad);
+VOID MiFlushAllPages(VOID);
+VOID MiModifiedPageWriterTimerDispatch(IN PKDPC Dpc,
+                                       IN PVOID DeferredContext,
+                                       IN PVOID SystemArgument1,
+                                       IN PVOID SystemArgument2);
 
 
-LONGLONG FORCEINLINE MiStartingOffset (IN PSUBSECTION Subsection, IN PMMPTE PteAddress)
+LONGLONG FORCEINLINE MiStartingOffset(IN PSUBSECTION Subsection, IN PMMPTE PteAddress)
 /*
 Routine Description:
     This function calculates the file offset given a subsection and a PTE
@@ -3854,19 +3909,19 @@ Return Value:
     LARGE_INTEGER StartAddress;
 
     if (Subsection->ControlArea->u.Flags.Image == 1) {
-        return MI_STARTING_OFFSET (Subsection, PteAddress);
+        return MI_STARTING_OFFSET(Subsection, PteAddress);
     }
 
-    ASSERT (Subsection->SubsectionBase != NULL);
+    ASSERT(Subsection->SubsectionBase != NULL);
     PteByteOffset = (LONGLONG)((PteAddress - Subsection->SubsectionBase)) << PAGE_SHIFT;
-    Mi4KStartFromSubsection (&StartAddress, Subsection);
+    Mi4KStartFromSubsection(&StartAddress, Subsection);
     StartAddress.QuadPart = StartAddress.QuadPart << MM4K_SHIFT;
     PteByteOffset += StartAddress.QuadPart;
     return PteByteOffset;
 }
 
 
-LARGE_INTEGER FORCEINLINE MiEndingOffset (IN PSUBSECTION Subsection)
+LARGE_INTEGER FORCEINLINE MiEndingOffset(IN PSUBSECTION Subsection)
 /*
 Routine Description:
     This function calculates the last valid file offset in a given subsection.
@@ -3883,7 +3938,7 @@ Return Value:
     if (Subsection->ControlArea->u.Flags.Image == 1) {
         FileByteOffset.QuadPart = ((UINT64)Subsection->StartingSector + (UINT64)Subsection->NumberOfFullSectors) << MMSECTOR_SHIFT;
     } else {
-        Mi4KStartFromSubsection (&FileByteOffset, Subsection);
+        Mi4KStartFromSubsection(&FileByteOffset, Subsection);
         FileByteOffset.QuadPart += Subsection->NumberOfFullSectors;
         FileByteOffset.QuadPart = FileByteOffset.QuadPart << MM4K_SHIFT;
     }
@@ -3897,12 +3952,12 @@ Return Value:
 #define KERNEL_NAME L"ntoskrnl.exe"
 #define HAL_NAME    L"hal.dll"
 
-VOID MiReloadBootLoadedDrivers (IN PLOADER_PARAMETER_BLOCK LoaderBlock);
-VOID MiSetSystemCodeProtection (IN PMMPTE FirstPte, IN PMMPTE LastPte, IN ULONG ProtectionMask);
-VOID MiWriteProtectSystemImage (IN PVOID DllBase);
-VOID MiSetIATProtect (IN PVOID DllBase, IN ULONG Protection);
-VOID MiMakeEntireImageCopyOnWrite (IN PSUBSECTION Subsection);
-LOGICAL MiInitializeLoadedModuleList (IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+VOID MiReloadBootLoadedDrivers(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+VOID MiSetSystemCodeProtection(IN PMMPTE FirstPte, IN PMMPTE LastPte, IN ULONG ProtectionMask);
+VOID MiWriteProtectSystemImage(IN PVOID DllBase);
+VOID MiSetIATProtect(IN PVOID DllBase, IN ULONG Protection);
+VOID MiMakeEntireImageCopyOnWrite(IN PSUBSECTION Subsection);
+LOGICAL MiInitializeLoadedModuleList(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
 
 #define UNICODE_TAB               0x0009
 #define UNICODE_LF                0x000A
@@ -3923,24 +3978,24 @@ extern PVOID MmSpecialPoolEnd;
 extern PVOID MmSessionSpecialPoolStart;
 extern PVOID MmSessionSpecialPoolEnd;
 
-LOGICAL MiInitializeSpecialPool (IN POOL_TYPE PoolType);
+LOGICAL MiInitializeSpecialPool(IN POOL_TYPE PoolType);
 
 #if defined (_WIN64)
-LOGICAL MiInitializeSessionSpecialPool (VOID);
-VOID MiDeleteSessionSpecialPool (VOID);
+LOGICAL MiInitializeSessionSpecialPool(VOID);
+VOID MiDeleteSessionSpecialPool(VOID);
 #endif
 
-POOL_TYPE MmQuerySpecialPoolBlockType (IN PVOID P);
+POOL_TYPE MmQuerySpecialPoolBlockType(IN PVOID P);
 
 #if defined (_X86_)
-LOGICAL MiRecoverSpecialPtes (IN ULONG NumberOfPtes);
-VOID MiAddExtraSystemPteRanges (IN PMMPTE PointerPte, IN PFN_NUMBER NumberOfPtes);
+LOGICAL MiRecoverSpecialPtes(IN ULONG NumberOfPtes);
+VOID MiAddExtraSystemPteRanges(IN PMMPTE PointerPte, IN PFN_NUMBER NumberOfPtes);
 #endif
 
-VOID MiEnableRandomSpecialPool (IN LOGICAL Enable);
-LOGICAL MiTriageSystem (IN PLOADER_PARAMETER_BLOCK LoaderBlock);
-LOGICAL MiTriageAddDrivers (IN PLOADER_PARAMETER_BLOCK LoaderBlock);
-LOGICAL MiTriageVerifyDriver (IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
+VOID MiEnableRandomSpecialPool(IN LOGICAL Enable);
+LOGICAL MiTriageSystem(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+LOGICAL MiTriageAddDrivers(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+LOGICAL MiTriageVerifyDriver(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 
 extern ULONG MmTriageActionTaken;
 
@@ -3969,14 +4024,14 @@ typedef struct _VI_POOL_PAGE_HEADER {
     PSLIST_ENTRY NextPage;
     PVOID VerifierEntry;
     ULONG_PTR Signature;
-} VI_POOL_PAGE_HEADER, *PVI_POOL_PAGE_HEADER;
+} VI_POOL_PAGE_HEADER, * PVI_POOL_PAGE_HEADER;
 
 typedef struct _VI_POOL_ENTRY_INUSE {
     PVOID VirtualAddress;
     PVOID CallingAddress;
     SIZE_T NumberOfBytes;
     ULONG_PTR Tag;
-} VI_POOL_ENTRY_INUSE, *PVI_POOL_ENTRY_INUSE;
+} VI_POOL_ENTRY_INUSE, * PVI_POOL_ENTRY_INUSE;
 
 typedef struct _VI_POOL_ENTRY {
     union {
@@ -3984,7 +4039,7 @@ typedef struct _VI_POOL_ENTRY {
         VI_POOL_ENTRY_INUSE InUse;
         PSLIST_ENTRY NextFree;
     };
-} VI_POOL_ENTRY, *PVI_POOL_ENTRY;
+} VI_POOL_ENTRY, * PVI_POOL_ENTRY;
 
 #define MI_VERIFIER_ENTRY_SIGNATURE            0x98761940
 
@@ -4016,11 +4071,11 @@ typedef struct _MI_VERIFIER_DRIVER_ENTRY {
     SIZE_T NonPagedBytes;
     SIZE_T PeakPagedBytes;
     SIZE_T PeakNonPagedBytes;
-} MI_VERIFIER_DRIVER_ENTRY, *PMI_VERIFIER_DRIVER_ENTRY;
+} MI_VERIFIER_DRIVER_ENTRY, * PMI_VERIFIER_DRIVER_ENTRY;
 
 typedef struct _MI_VERIFIER_POOL_HEADER {
     PVI_POOL_ENTRY VerifierPoolEntry;
-} MI_VERIFIER_POOL_HEADER, *PMI_VERIFIER_POOL_HEADER;
+} MI_VERIFIER_POOL_HEADER, * PMI_VERIFIER_POOL_HEADER;
 
 typedef struct _MM_DRIVER_VERIFIER_DATA {
     ULONG Level;
@@ -4056,20 +4111,20 @@ typedef struct _MM_DRIVER_VERIFIER_DATA {
     ULONG BurstAllocationsFailedDeliberately;
     ULONG SessionTrims;
     ULONG Reserved[2];
-} MM_DRIVER_VERIFIER_DATA, *PMM_DRIVER_VERIFIER_DATA;
+} MM_DRIVER_VERIFIER_DATA, * PMM_DRIVER_VERIFIER_DATA;
 
-VOID MiInitializeDriverVerifierList (VOID);
-LOGICAL MiInitializeVerifyingComponents (IN PLOADER_PARAMETER_BLOCK LoaderBlock);
-LOGICAL MiApplyDriverVerifier (IN PKLDR_DATA_TABLE_ENTRY, IN PMI_VERIFIER_DRIVER_ENTRY Verifier);
+VOID MiInitializeDriverVerifierList(VOID);
+LOGICAL MiInitializeVerifyingComponents(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
+LOGICAL MiApplyDriverVerifier(IN PKLDR_DATA_TABLE_ENTRY, IN PMI_VERIFIER_DRIVER_ENTRY Verifier);
 VOID MiReApplyVerifierToLoadedModules(IN PLIST_ENTRY ModuleListHead);
-VOID MiVerifyingDriverUnloading (IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
-VOID MiVerifierCheckThunks (IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
+VOID MiVerifyingDriverUnloading(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
+VOID MiVerifierCheckThunks(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 
 extern ULONG MiActiveVerifierThunks;
 extern LIST_ENTRY MiSuspectDriverList;
 extern ULONG MiVerifierThunksAdded;
 
-VOID MiEnableKernelVerifier (VOID);
+VOID MiEnableKernelVerifier(VOID);
 
 extern LOGICAL KernelVerifier;
 extern MM_DRIVER_VERIFIER_DATA MmVerifierData;
@@ -4091,7 +4146,7 @@ typedef struct _MI_FREED_SPECIAL_POOL {
     PETHREAD Thread;
 
     UCHAR StackData[MI_STACK_BYTES];
-} MI_FREED_SPECIAL_POOL, *PMI_FREED_SPECIAL_POOL;
+} MI_FREED_SPECIAL_POOL, * PMI_FREED_SPECIAL_POOL;
 
 
 // Types of resident available page charges.
@@ -4262,7 +4317,7 @@ extern PFN_NUMBER MmHighestPossiblePhysicalPage;// Highest possible physical pag
 extern RTL_BITMAP MiPfnBitMap;
 
 
-FORCEINLINE LOGICAL MI_IS_PFN (IN PFN_NUMBER PageFrameIndex)
+FORCEINLINE LOGICAL MI_IS_PFN(IN PFN_NUMBER PageFrameIndex)
 /*
 Routine Description:
     Check if a given address is backed by RAM or IO space.
@@ -4279,7 +4334,7 @@ Environment:
         return FALSE;
     }
 
-    return MI_CHECK_BIT (MiPfnBitMap.Buffer, PageFrameIndex);
+    return MI_CHECK_BIT(MiPfnBitMap.Buffer, PageFrameIndex);
 }
 
 extern MMPFNLIST MmZeroedPageListHead;
@@ -4356,7 +4411,7 @@ extern PVOID MmPagedPoolStart;
 extern PVOID MmPagedPoolEnd;
 
 
-LOGICAL FORCEINLINE MiIsProtoAddressValid (IN PVOID VirtualAddress)
+LOGICAL FORCEINLINE MiIsProtoAddressValid(IN PVOID VirtualAddress)
 /*
 Routine Description:
     For a given paged pool address (containing prototype PTEs) this function returns TRUE if no page fault will occur for a write operation on the address, FALSE otherwise.
@@ -4375,42 +4430,42 @@ Environment:
 {
     PMMPTE PointerPte;
 
-    ASSERT (((VirtualAddress >= MmPagedPoolStart) && (VirtualAddress <= MmPagedPoolEnd)) ||
-            ((VirtualAddress >= MmSpecialPoolStart) && (VirtualAddress <= MmSpecialPoolEnd)));
+    ASSERT(((VirtualAddress >= MmPagedPoolStart) && (VirtualAddress <= MmPagedPoolEnd)) ||
+        ((VirtualAddress >= MmSpecialPoolStart) && (VirtualAddress <= MmSpecialPoolEnd)));
 
 #if defined (_AMD64_)
-    ASSERT (MI_IS_PHYSICAL_ADDRESS (VirtualAddress) == FALSE);
+    ASSERT(MI_IS_PHYSICAL_ADDRESS(VirtualAddress) == FALSE);
 #endif
 
     MM_PFN_LOCK_ASSERT();
 
     // If the address is not canonical then return FALSE as the caller (which may be the kernel debugger) is not expecting to get an unimplemented address bit fault.
-    ASSERT (MI_RESERVED_BITS_CANONICAL(VirtualAddress) == TRUE);
+    ASSERT(MI_RESERVED_BITS_CANONICAL(VirtualAddress) == TRUE);
 
 #if (_MI_PAGING_LEVELS >= 4)
-    ASSERT (MiGetPxeAddress (VirtualAddress)->u.Hard.Valid == 1);
+    ASSERT(MiGetPxeAddress(VirtualAddress)->u.Hard.Valid == 1);
 #endif
 
 #if (_MI_PAGING_LEVELS >= 3)
-    ASSERT (MiGetPpeAddress (VirtualAddress)->u.Hard.Valid == 1);
-    ASSERT (MiGetPdeAddress (VirtualAddress)->u.Hard.Valid == 1);
+    ASSERT(MiGetPpeAddress(VirtualAddress)->u.Hard.Valid == 1);
+    ASSERT(MiGetPdeAddress(VirtualAddress)->u.Hard.Valid == 1);
 #endif
 
 #if DBG
-    PointerPte = MiGetPdeAddress (VirtualAddress);
+    PointerPte = MiGetPdeAddress(VirtualAddress);
     if (PointerPte->u.Hard.Valid == 1) {
-        ASSERT (MI_PDE_MAPS_LARGE_PAGE (PointerPte) == FALSE);
+        ASSERT(MI_PDE_MAPS_LARGE_PAGE(PointerPte) == FALSE);
     }
 #endif
 
-    PointerPte = MiGetPteAddress (VirtualAddress);
+    PointerPte = MiGetPteAddress(VirtualAddress);
 
     // This reference may (safely) fault on x86.
     if (PointerPte->u.Hard.Valid == 0) {
         return FALSE;
     }
 
-    ASSERT (MI_PDE_MAPS_LARGE_PAGE (PointerPte) == FALSE);
+    ASSERT(MI_PDE_MAPS_LARGE_PAGE(PointerPte) == FALSE);
 
     return TRUE;
 }
@@ -4425,7 +4480,7 @@ typedef struct _MM_PAGED_POOL_INFO {
     ULONG PagedPoolHint;
     SIZE_T PagedPoolCommit;
     SIZE_T AllocatedPagedPool;
-} MM_PAGED_POOL_INFO, *PMM_PAGED_POOL_INFO;
+} MM_PAGED_POOL_INFO, * PMM_PAGED_POOL_INFO;
 
 extern MM_PAGED_POOL_INFO MmPagedPoolInfo;
 extern PRTL_BITMAP VerifierLargePagedPoolMap;
@@ -4551,7 +4606,7 @@ extern SIZE_T MiUnusedSubsectionPagedPoolPeak;
         (((ULONG)((MmPagedPoolInfo.AllocatedPagedPool * 100) / (MmSizeOfPagedPoolInBytes >> PAGE_SHIFT)) > MmConsumedPoolPercentage) || \
         ((ULONG)((MmAllocatedNonPagedPool * 100) / MmMaximumNonPagedPoolInPages) > MmConsumedPoolPercentage))
 
-VOID MiConvertStaticSubsections (IN PCONTROL_AREA ControlArea);
+VOID MiConvertStaticSubsections(IN PCONTROL_AREA ControlArea);
 
 
 // VOID MI_INSERT_UNUSED_SEGMENT (IN PCONTROL_AREA _ControlArea);
@@ -4605,7 +4660,7 @@ extern KEVENT MmCollidedLockEvent;
 // Modified page writer.
 
 
-VOID FORCEINLINE MiReleaseConfirmedPageFileSpace (IN MMPTE PteContents)
+VOID FORCEINLINE MiReleaseConfirmedPageFileSpace(IN MMPTE PteContents)
 /*
 Routine Description:
     This routine frees the paging file allocated to the specified PTE.
@@ -4623,28 +4678,28 @@ Environment:
 
     MM_PFN_LOCK_ASSERT();
 
-    ASSERT (PteContents.u.Soft.Prototype == 0);
-    FreeBit = GET_PAGING_FILE_OFFSET (PteContents);
-    ASSERT ((FreeBit != 0) && (FreeBit != MI_PTE_LOOKUP_NEEDED));
-    PageFileNumber = GET_PAGING_FILE_NUMBER (PteContents);
+    ASSERT(PteContents.u.Soft.Prototype == 0);
+    FreeBit = GET_PAGING_FILE_OFFSET(PteContents);
+    ASSERT((FreeBit != 0) && (FreeBit != MI_PTE_LOOKUP_NEEDED));
+    PageFileNumber = GET_PAGING_FILE_NUMBER(PteContents);
     PageFile = MmPagingFile[PageFileNumber];
-    ASSERT (RtlCheckBit( PageFile->Bitmap, FreeBit) == 1);
+    ASSERT(RtlCheckBit(PageFile->Bitmap, FreeBit) == 1);
 
 #if DBG
     if ((FreeBit < 8192) && (PageFileNumber == 0)) {
-        ASSERT ((MmPagingFileDebug[FreeBit] & 1) != 0);
+        ASSERT((MmPagingFileDebug[FreeBit] & 1) != 0);
         MmPagingFileDebug[FreeBit] ^= 1;
     }
 #endif
 
-    MI_CLEAR_BIT (PageFile->Bitmap->Buffer, FreeBit);
+    MI_CLEAR_BIT(PageFile->Bitmap->Buffer, FreeBit);
 
     PageFile->FreeSpace += 1;
     PageFile->CurrentUsage -= 1;
 
     // Check to see if we should move some MDL entries for the modified page writer now that more free space is available.
     if ((MmNumberOfActiveMdlEntries == 0) || (PageFile->FreeSpace == MM_USABLE_PAGES_FREE)) {
-        MiUpdateModifiedWriterMdls (PageFileNumber);
+        MiUpdateModifiedWriterMdls(PageFileNumber);
     }
 }
 
@@ -4677,7 +4732,7 @@ extern ULONG MiOverCommitCallCount;
 extern PPAGE_FAULT_NOTIFY_ROUTINE MmPageFaultNotifyRoutine;
 extern SIZE_T MmSystemViewSize;
 
-VOID FASTCALL MiIdentifyPfn (IN PMMPFN Pfn1, OUT PMMPFN_IDENTITY PfnIdentity);
+VOID FASTCALL MiIdentifyPfn(IN PMMPFN Pfn1, OUT PMMPFN_IDENTITY PfnIdentity);
 
 
 // This is a special value loaded into an EPROCESS pointer to indicate that the action underway is for a Hydra session, not really the current process.
@@ -4879,7 +4934,7 @@ extern SIZE_T MmSessionSize;        // size of the entire session space.
 typedef struct _MM_SESSION_MEMORY_COUNTERS {
     SIZE_T NonPageablePages;
     SIZE_T CommittedPages;
-} MM_SESSION_MEMORY_COUNTERS, *PMM_SESSION_MEMORY_COUNTERS;
+} MM_SESSION_MEMORY_COUNTERS, * PMM_SESSION_MEMORY_COUNTERS;
 
 #define MM_SESS_MEMORY_COUNTER_MAX  8
 
@@ -4945,7 +5000,7 @@ typedef struct _MM_SESSION_SPACE_FLAGS {
 typedef struct _MM_SESSION_SPACE {
     // This is a pointer in global system address space, used to make various fields that can be referenced from any process visible from any process context.
     // This is for things like mutexes, WSL chains, etc.
-    struct _MM_SESSION_SPACE *GlobalVirtualAddress;
+    struct _MM_SESSION_SPACE* GlobalVirtualAddress;
 
     LONG ReferenceCount;
 
@@ -5048,7 +5103,7 @@ typedef struct _MM_SESSION_SPACE {
     ULONG Debug[MM_SESS_COUNTER_MAX];
     MM_SESSION_MEMORY_COUNTERS Debug2[MM_SESS_MEMORY_COUNTER_MAX];
 #endif
-} MM_SESSION_SPACE, *PMM_SESSION_SPACE;
+} MM_SESSION_SPACE, * PMM_SESSION_SPACE;
 
 extern PMM_SESSION_SPACE MmSessionSpace;
 extern ULONG MiSessionCount;
@@ -5061,16 +5116,19 @@ extern ULONG MiSessionCount;
 #define MI_SESSION_SPACE_WORKING_SET_MINIMUM 20
 #define MI_SESSION_SPACE_WORKING_SET_MAXIMUM 384
 
-NTSTATUS MiSessionInsertImage (IN PVOID BaseAddress);
-NTSTATUS MiSessionCommitPageTables (PVOID StartVa, PVOID EndVa);
-NTSTATUS MiInitializeAndChargePfn (OUT PPFN_NUMBER PageFrameIndex, IN PMMPTE PointerPde, IN PFN_NUMBER ContainingPageFrame, IN LOGICAL SessionAllocation);
-VOID MiSessionPageTableRelease (IN PFN_NUMBER PageFrameIndex);
-NTSTATUS MiInitializeSessionPool (VOID);
-VOID MiCheckSessionPoolAllocations (VOID);
-VOID MiFreeSessionPoolBitMaps (VOID);
-VOID MiDetachSession (VOID);
-VOID MiAttachSession (IN PMM_SESSION_SPACE SessionGlobal);
-VOID MiReleaseProcessReferenceToSessionDataPage (PMM_SESSION_SPACE SessionGlobal);
+NTSTATUS MiSessionInsertImage(IN PVOID BaseAddress);
+NTSTATUS MiSessionCommitPageTables(PVOID StartVa, PVOID EndVa);
+NTSTATUS MiInitializeAndChargePfn(OUT PPFN_NUMBER PageFrameIndex,
+                                  IN PMMPTE PointerPde,
+                                  IN PFN_NUMBER ContainingPageFrame,
+                                  IN LOGICAL SessionAllocation);
+VOID MiSessionPageTableRelease(IN PFN_NUMBER PageFrameIndex);
+NTSTATUS MiInitializeSessionPool(VOID);
+VOID MiCheckSessionPoolAllocations(VOID);
+VOID MiFreeSessionPoolBitMaps(VOID);
+VOID MiDetachSession(VOID);
+VOID MiAttachSession(IN PMM_SESSION_SPACE SessionGlobal);
+VOID MiReleaseProcessReferenceToSessionDataPage(PMM_SESSION_SPACE SessionGlobal);
 
 extern PMMPTE MiHighestUserPte;
 extern PMMPTE MiHighestUserPde;
@@ -5079,7 +5137,7 @@ extern PMMPTE MiHighestUserPpe;
 extern PMMPTE MiHighestUserPxe;
 #endif
 
-NTSTATUS MiEmptyWorkingSet (IN PMMSUPPORT WsInfo, IN LOGICAL NeedLock);
+NTSTATUS MiEmptyWorkingSet(IN PMMSUPPORT WsInfo, IN LOGICAL NeedLock);
 
 
 // ULONG MiGetPdeSessionIndex (IN PVOID va);
@@ -5110,7 +5168,7 @@ typedef struct _SESSION_GLOBAL_SUBSECTION_INFO {
     ULONG_PTR PteIndex;
     ULONG PteCount;
     ULONG Protection;
-} SESSION_GLOBAL_SUBSECTION_INFO, *PSESSION_GLOBAL_SUBSECTION_INFO;
+} SESSION_GLOBAL_SUBSECTION_INFO, * PSESSION_GLOBAL_SUBSECTION_INFO;
 
 typedef struct _IMAGE_ENTRY_IN_SESSION {
     LIST_ENTRY Link;
@@ -5121,37 +5179,37 @@ typedef struct _IMAGE_ENTRY_IN_SESSION {
     PMMPTE PrototypePtes;
     PKLDR_DATA_TABLE_ENTRY DataTableEntry;
     PSESSION_GLOBAL_SUBSECTION_INFO GlobalSubs;
-} IMAGE_ENTRY_IN_SESSION, *PIMAGE_ENTRY_IN_SESSION;
+} IMAGE_ENTRY_IN_SESSION, * PIMAGE_ENTRY_IN_SESSION;
 
 extern LIST_ENTRY MiSessionWsList;
 
 NTSTATUS FASTCALL MiCheckPdeForSessionSpace(IN PVOID VirtualAddress);
-NTSTATUS MiShareSessionImage (IN PVOID BaseAddress, IN PSECTION Section);
-VOID MiSessionWideInitializeAddresses (VOID);
-NTSTATUS MiSessionWideReserveImageAddress (IN PSECTION Section, OUT PVOID *AssignedAddress, OUT PSECTION *NewSectionPointer);
-VOID MiInitializeSessionIds (VOID);
+NTSTATUS MiShareSessionImage(IN PVOID BaseAddress, IN PSECTION Section);
+VOID MiSessionWideInitializeAddresses(VOID);
+NTSTATUS MiSessionWideReserveImageAddress(IN PSECTION Section, OUT PVOID* AssignedAddress, OUT PSECTION* NewSectionPointer);
+VOID MiInitializeSessionIds(VOID);
 VOID MiInitializeSessionWsSupport(VOID);
-VOID MiSessionAddProcess (IN PEPROCESS NewProcess);
-VOID MiSessionRemoveProcess (VOID);
-VOID MiRemoveImageSessionWide (IN PKLDR_DATA_TABLE_ENTRY DataTableEntry OPTIONAL, IN PVOID BaseAddress, IN ULONG_PTR NumberOfBytes);
+VOID MiSessionAddProcess(IN PEPROCESS NewProcess);
+VOID MiSessionRemoveProcess(VOID);
+VOID MiRemoveImageSessionWide(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry OPTIONAL, IN PVOID BaseAddress, IN ULONG_PTR NumberOfBytes);
 NTSTATUS MiDeleteSessionVirtualAddresses(IN PVOID VirtualAddress, IN SIZE_T NumberOfBytes);
-NTSTATUS MiUnloadSessionImageByForce (IN SIZE_T NumberOfPtes, IN PVOID ImageBase);
-PIMAGE_ENTRY_IN_SESSION MiSessionLookupImage (IN PVOID BaseAddress);
-VOID MiSessionUnloadAllImages (VOID);
-VOID MiFreeSessionSpaceMap (VOID);
-NTSTATUS MiSessionInitializeWorkingSetList (VOID);
-VOID MiSessionUnlinkWorkingSet (VOID);
-VOID MiSessionOutSwapProcess (IN PEPROCESS Process);
-VOID MiSessionInSwapProcess (IN PEPROCESS Process, IN LOGICAL Forced);
+NTSTATUS MiUnloadSessionImageByForce(IN SIZE_T NumberOfPtes, IN PVOID ImageBase);
+PIMAGE_ENTRY_IN_SESSION MiSessionLookupImage(IN PVOID BaseAddress);
+VOID MiSessionUnloadAllImages(VOID);
+VOID MiFreeSessionSpaceMap(VOID);
+NTSTATUS MiSessionInitializeWorkingSetList(VOID);
+VOID MiSessionUnlinkWorkingSet(VOID);
+VOID MiSessionOutSwapProcess(IN PEPROCESS Process);
+VOID MiSessionInSwapProcess(IN PEPROCESS Process, IN LOGICAL Forced);
 
 
-BOOLEAN FORCEINLINE MiCompareTbFlushTimeStamp (ULONG OldStamp, ULONG Mask)
+BOOLEAN FORCEINLINE MiCompareTbFlushTimeStamp(ULONG OldStamp, ULONG Mask)
 {
     ULONG NewStamp;
     ULONG Diff;
 
     while (1) {
-        NewStamp = KeReadTbFlushTimeStamp ();
+        NewStamp = KeReadTbFlushTimeStamp();
         Diff = ((NewStamp - OldStamp) & Mask);
 
 #if defined(NT_UP)
@@ -5171,7 +5229,7 @@ BOOLEAN FORCEINLINE MiCompareTbFlushTimeStamp (ULONG OldStamp, ULONG Mask)
 
         // If the timestamp is currently locked then just wait until it's unlocked.
         if (NewStamp & 1) {
-            KeLoopTbFlushTimeStampUnlocked ();
+            KeLoopTbFlushTimeStampUnlocked();
             continue;
         }
 #endif
@@ -5199,7 +5257,7 @@ BOOLEAN FORCEINLINE MiCompareTbFlushTimeStamp (ULONG OldStamp, ULONG Mask)
 typedef struct _LOAD_IMPORTS {
     SIZE_T                  Count;
     PKLDR_DATA_TABLE_ENTRY   Entry[1];
-} LOAD_IMPORTS, *PLOAD_IMPORTS;
+} LOAD_IMPORTS, * PLOAD_IMPORTS;
 
 #define LOADED_AT_BOOT  ((PLOAD_IMPORTS)0)
 #define NO_IMPORTS_USED ((PLOAD_IMPORTS)-2)
@@ -5214,7 +5272,7 @@ typedef struct _DRIVER_SPECIFIED_VERIFIER_THUNKS {
     LIST_ENTRY ListEntry;
     PKLDR_DATA_TABLE_ENTRY DataTableEntry;
     ULONG NumberOfThunks;
-} DRIVER_SPECIFIED_VERIFIER_THUNKS, *PDRIVER_SPECIFIED_VERIFIER_THUNKS;
+} DRIVER_SPECIFIED_VERIFIER_THUNKS, * PDRIVER_SPECIFIED_VERIFIER_THUNKS;
 
 #define MI_SNAP_SUB(_Sub, callerid)
 
@@ -5226,7 +5284,7 @@ extern ULONG MiFlushTbForAttributeChange;
 extern ULONG MiFlushCacheForAttributeChange;
 
 
-VOID FORCEINLINE MI_PTE_LOG_ACCESS (PMMPTE PointerPte)
+VOID FORCEINLINE MI_PTE_LOG_ACCESS(PMMPTE PointerPte)
 /*
 Routine Desctiption:
     This function is called to log a virtual address that has been accessed.
@@ -5237,18 +5295,18 @@ Environment:
     Working set pushlock held shared or exclusive, APCs disabled.
 */
 {
-    UNREFERENCED_PARAMETER (PointerPte);
+    UNREFERENCED_PARAMETER(PointerPte);
 }
 
 
-FORCEINLINE ULONG MmGetNodeColor (VOID)
+FORCEINLINE ULONG MmGetNodeColor(VOID)
 {
     ULONG Color;
 
 #if !defined(NT_UP)
     PKPRCB Prcb;
 
-    Prcb = KeGetCurrentPrcb ();
+    Prcb = KeGetCurrentPrcb();
     Prcb->PageColor += 1;
     Color = Prcb->PageColor;
     Color &= Prcb->SecondaryColorMask;

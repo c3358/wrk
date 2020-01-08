@@ -28,7 +28,10 @@ PRTL_ATOM_TABLE_ENTRY RtlpAtomMapAtomToHandleEntry(IN PRTL_ATOM_TABLE AtomTable,
 BOOLEAN RtlpCreateHandleForAtom(PRTL_ATOM_TABLE p, PRTL_ATOM_TABLE_ENTRY a);
 void RtlpFreeHandleForAtom(PRTL_ATOM_TABLE p, PRTL_ATOM_TABLE_ENTRY a);
 BOOLEAN RtlpGetIntegerAtom(PWSTR Name, PRTL_ATOM Atom OPTIONAL);
-PRTL_ATOM_TABLE_ENTRY RtlpHashStringToAtom(IN PRTL_ATOM_TABLE p, IN PWSTR Name, OUT PRTL_ATOM_TABLE_ENTRY **PreviousAtom OPTIONAL, OUT PULONG NameLength);
+PRTL_ATOM_TABLE_ENTRY RtlpHashStringToAtom(IN PRTL_ATOM_TABLE p,
+                                           IN PWSTR Name,
+                                           OUT PRTL_ATOM_TABLE_ENTRY** PreviousAtom OPTIONAL,
+                                           OUT PULONG NameLength);
 
 #pragma alloc_text(PAGE,RtlpAllocateAtom)
 #pragma alloc_text(PAGE,RtlpFreeAtom)
@@ -66,7 +69,7 @@ typedef struct _RTLP_ATOM_QUOTA
 {
     PEPROCESS_QUOTA_BLOCK QuotaBlock;
     SIZE_T PagedAmount;
-} RTLP_ATOM_QUOTA, *PRTLP_ATOM_QUOTA;
+} RTLP_ATOM_QUOTA, * PRTLP_ATOM_QUOTA;
 
 
 PVOID RtlpAllocateAtom(IN ULONG NumberOfBytes, IN ULONG Tag)
@@ -214,7 +217,7 @@ NTSTATUS RtlInitializeAtomPackage(IN ULONG AllocationTag)
 }
 
 
-NTSTATUS RtlCreateAtomTable(IN ULONG NumberOfBuckets, OUT PVOID *AtomTableHandle)
+NTSTATUS RtlCreateAtomTable(IN ULONG NumberOfBuckets, OUT PVOID* AtomTableHandle)
 {
     NTSTATUS Status;
     PRTL_ATOM_TABLE p;
@@ -254,7 +257,7 @@ NTSTATUS RtlDestroyAtomTable(IN PVOID AtomTableHandle)
 {
     NTSTATUS Status;
     PRTL_ATOM_TABLE p = (PRTL_ATOM_TABLE)AtomTableHandle;
-    PRTL_ATOM_TABLE_ENTRY a, aNext, *pa;
+    PRTL_ATOM_TABLE_ENTRY a, aNext, * pa;
     ULONG i;
 
     RTL_PAGED_CODE();
@@ -296,7 +299,7 @@ NTSTATUS RtlEmptyAtomTable(IN PVOID AtomTableHandle, IN BOOLEAN IncludePinnedAto
 {
     NTSTATUS Status;
     PRTL_ATOM_TABLE p = (PRTL_ATOM_TABLE)AtomTableHandle;
-    PRTL_ATOM_TABLE_ENTRY a, aNext, *pa, *pa1;
+    PRTL_ATOM_TABLE_ENTRY a, aNext, * pa, * pa1;
     ULONG i;
 
     RTL_PAGED_CODE();
@@ -390,13 +393,16 @@ BOOLEAN RtlpGetIntegerAtom(PWSTR Name, PRTL_ATOM Atom OPTIONAL)
 }
 
 
-PRTL_ATOM_TABLE_ENTRY RtlpHashStringToAtom(IN PRTL_ATOM_TABLE p, IN PWSTR Name, OUT PRTL_ATOM_TABLE_ENTRY **PreviousAtom OPTIONAL, OUT PULONG NameLength)
+PRTL_ATOM_TABLE_ENTRY RtlpHashStringToAtom(IN PRTL_ATOM_TABLE p,
+                                           IN PWSTR Name,
+                                           OUT PRTL_ATOM_TABLE_ENTRY** PreviousAtom OPTIONAL,
+                                           OUT PULONG NameLength)
 {
     ULONG Length, Hash;
     WCHAR c;
     PWCH s;
     RTL_ATOM Atom;
-    PRTL_ATOM_TABLE_ENTRY *pa, a;
+    PRTL_ATOM_TABLE_ENTRY* pa, a;
 
     if (((ULONG_PTR)Name & -0x10000) == 0) {
         Atom = (RTL_ATOM)(USHORT)PtrToUlong(Name);
@@ -458,7 +464,7 @@ NTSTATUS RtlAddAtomToAtomTable(__in PVOID AtomTableHandle, __in PWSTR AtomName, 
 {
     NTSTATUS Status;
     PRTL_ATOM_TABLE p = (PRTL_ATOM_TABLE)AtomTableHandle;
-    PRTL_ATOM_TABLE_ENTRY a, *pa;
+    PRTL_ATOM_TABLE_ENTRY a, * pa;
     ULONG NameLength;
     RTL_ATOM Temp;
 
@@ -598,7 +604,7 @@ NTSTATUS RtlDeleteAtomFromAtomTable(IN PVOID AtomTableHandle, IN RTL_ATOM Atom)
 {
     NTSTATUS Status;
     PRTL_ATOM_TABLE p = (PRTL_ATOM_TABLE)AtomTableHandle;
-    PRTL_ATOM_TABLE_ENTRY a, *pa;
+    PRTL_ATOM_TABLE_ENTRY a, * pa;
 
     RTL_PAGED_CODE();
 
@@ -645,7 +651,7 @@ NTSTATUS RtlPinAtomInAtomTable(IN PVOID AtomTableHandle, IN RTL_ATOM Atom)
 {
     NTSTATUS Status;
     PRTL_ATOM_TABLE p = (PRTL_ATOM_TABLE)AtomTableHandle;
-    PRTL_ATOM_TABLE_ENTRY a, *pa;
+    PRTL_ATOM_TABLE_ENTRY a, * pa;
 
     RTL_PAGED_CODE();
 
@@ -676,14 +682,12 @@ NTSTATUS RtlPinAtomInAtomTable(IN PVOID AtomTableHandle, IN RTL_ATOM Atom)
 }
 
 
-NTSTATUS
-RtlQueryAtomInAtomTable(
-    __in PVOID AtomTableHandle,
-    __in RTL_ATOM Atom,
-    __out_opt PULONG AtomUsage,
-    __out_opt PULONG AtomFlags,
-    __inout_bcount_part_opt(*AtomNameLength, *AtomNameLength) PWSTR AtomName,
-    __inout_opt PULONG AtomNameLength
+NTSTATUS RtlQueryAtomInAtomTable(__in PVOID AtomTableHandle,
+                                 __in RTL_ATOM Atom,
+                                 __out_opt PULONG AtomUsage,
+                                 __out_opt PULONG AtomFlags,
+                                 __inout_bcount_part_opt(*AtomNameLength, *AtomNameLength) PWSTR AtomName,
+                                 __inout_opt PULONG AtomNameLength
 )
 {
     NTSTATUS Status;
@@ -778,7 +782,10 @@ RtlQueryAtomInAtomTable(
 }
 
 
-NTSTATUS RtlQueryAtomsInAtomTable(IN PVOID AtomTableHandle, IN ULONG MaximumNumberOfAtoms, OUT PULONG NumberOfAtoms, OUT PRTL_ATOM Atoms)
+NTSTATUS RtlQueryAtomsInAtomTable(IN PVOID AtomTableHandle,
+                                  IN ULONG MaximumNumberOfAtoms,
+                                  OUT PULONG NumberOfAtoms,
+                                  OUT PRTL_ATOM Atoms)
 {
     NTSTATUS Status;
     PRTL_ATOM_TABLE p = (PRTL_ATOM_TABLE)AtomTableHandle;

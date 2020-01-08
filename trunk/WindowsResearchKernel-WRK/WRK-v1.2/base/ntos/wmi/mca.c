@@ -25,8 +25,8 @@ Abstract:
 #if defined(_X86_) || defined(_AMD64_)
 #define HalpGetFwMceLogProcessorNumber( /* PMCA_EXCEPTION */ _Log ) \
     ( (_Log)->ProcessorNumber )
-typedef MCA_EXCEPTION ERROR_LOGRECORD, *PERROR_LOGRECORD;
-typedef MCA_EXCEPTION ERROR_RECORD_HEADER, *PERROR_RECORD_HEADER;
+typedef MCA_EXCEPTION ERROR_LOGRECORD, * PERROR_LOGRECORD;
+typedef MCA_EXCEPTION ERROR_RECORD_HEADER, * PERROR_RECORD_HEADER;
 #endif
 
 BOOLEAN WmipMceEventDelivery(IN PVOID Reserved, IN KERNEL_MCE_DELIVERY_OPERATION Operation, IN PVOID Argument2);
@@ -35,10 +35,10 @@ void WmipMceWorkerRoutine(
     IN PVOID Context             // Not Used
 );
 NTSTATUS WmipGetLogFromHal(HAL_QUERY_INFORMATION_CLASS InfoClass,
-                           PVOID Token, 
-                           PWNODE_SINGLE_INSTANCE *Wnode,
-                           PERROR_LOGRECORD *Mca,
-                           PULONG McaSize, 
+                           PVOID Token,
+                           PWNODE_SINGLE_INSTANCE* Wnode,
+                           PERROR_LOGRECORD* Mca,
+                           PULONG McaSize,
                            ULONG MaxSize,
                            LPGUID Guid);
 NTSTATUS WmipRegisterMcaHandler(ULONG Phase);
@@ -49,17 +49,15 @@ NTSTATUS WmipBuildMcaCmcEvent(OUT PWNODE_SINGLE_INSTANCE Wnode,
 NTSTATUS WmipGetRawMCAInfo(OUT PUCHAR Buffer, IN OUT PULONG BufferSize);
 NTSTATUS WmipWriteMCAEventLogEvent(PUCHAR Event);
 NTSTATUS WmipSetupWaitForWbem(void);
-void WmipIsWbemRunningDispatch(
-    IN PKDPC Dpc,
-    IN PVOID DeferredContext,     // Not Used
-    IN PVOID SystemArgument1,     // Not Used
-    IN PVOID SystemArgument2      // Not Used
+void WmipIsWbemRunningDispatch(IN PKDPC Dpc,
+                               IN PVOID DeferredContext,     // Not Used
+                               IN PVOID SystemArgument1,     // Not Used
+                               IN PVOID SystemArgument2      // Not Used
 );
-void WmipPollingDpcRoutine(
-    IN PKDPC Dpc,
-    IN PVOID DeferredContext,     // MCEQUERYINFO
-    IN PVOID SystemArgument1,     // New polling interval
-    IN PVOID SystemArgument2      // Not used
+void WmipPollingDpcRoutine(IN PKDPC Dpc,
+                           IN PVOID DeferredContext,     // MCEQUERYINFO
+                           IN PVOID SystemArgument1,     // New polling interval
+                           IN PVOID SystemArgument2      // Not used
 );
 void WmipIsWbemRunningWorker(PVOID Context);
 BOOLEAN WmipCheckIsWbemRunning(void);
@@ -119,7 +117,7 @@ typedef struct
     KTIMER PollingTimer;                    // KTIMER used for polling
     KDPC PollingDpc;                        // DPC to use for polling
     WORK_QUEUE_ITEM WorkItem;               // Work item used to query for log
-} MCEQUERYINFO, *PMCEQUERYINFO;
+} MCEQUERYINFO, * PMCEQUERYINFO;
 
 MCEQUERYINFO WmipMcaQueryInfo =
 {
@@ -256,7 +254,7 @@ NTSTATUS WmipFireOffWmiEvent(LPGUID Guid, ULONG DataSize, PVOID DataPtr)
 
     RoundedDataSize = (DataSize + 1) & ~1;
 
-    Wnode = ExAllocatePoolWithTag(NonPagedPool, 
+    Wnode = ExAllocatePoolWithTag(NonPagedPool,
                                   sizeof(WNODE_SINGLE_INSTANCE) + RoundedDataSize + sizeof(USHORT) + sizeof(MCA_EVENT_INSTANCE_NAME),
                                   WmipMCAPoolTag);
     if (Wnode != NULL) {
@@ -345,7 +343,13 @@ Arguments:
     PAGED_CODE();
 
     // Call HAL to get the log
-    Status = WmipGetLogFromHal(QueryInfo->InfoClass, QueryInfo->Token, &Wnode, &Log, &Size, QueryInfo->MaxSize, &QueryInfo->WnodeGuid);
+    Status = WmipGetLogFromHal(QueryInfo->InfoClass,
+                               QueryInfo->Token,
+                               &Wnode,
+                               &Log,
+                               &Size,
+                               QueryInfo->MaxSize,
+                               &QueryInfo->WnodeGuid);
     if (NT_SUCCESS(Status)) {
         WmipGenerateMCAEventlog((PUCHAR)Log, Size, FALSE);// Look at the event and fire it off as WMI events that will generate eventlog events
 
@@ -356,7 +360,11 @@ Arguments:
 
         WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: MCE Event fired to WMI -> %x\n", Status));
     } else {
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: MCE Event for %p not available %x\n", QueryInfo, Status));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                          DPFLTR_MCA_LEVEL,
+                          "WMI: MCE Event for %p not available %x\n",
+                          QueryInfo,
+                          Status));
     }
 
     return(Status);
@@ -367,7 +375,7 @@ void WmipMceWorkerRoutine(IN PVOID Context             // MCEQUERYINFO
 )
 /*
 Routine Description:
-    Worker routine that handles polling for corrected MCA, 
+    Worker routine that handles polling for corrected MCA,
     CMC and CPE logs from the HAL and then firing them as WMI events.
 Arguments:
     Context is a pointer to the MCEQUERYINFO for the type of log that needs to be queried.
@@ -430,18 +438,21 @@ void WmipMceDispatchRoutine(PMCEQUERYINFO QueryInfo)
     // Increment the number of items that are outstanding for this info class.
     // If the number of items outstanding transitions from 0 to 1 then this implies that a work item for this info class needs to be queued
     x = InterlockedIncrement(&QueryInfo->ItemsOutstanding);
-    WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: WmipMceDispatchRoutine %p transition to %d\n", QueryInfo, x));
+    WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                      DPFLTR_MCA_LEVEL,
+                      "WMI: WmipMceDispatchRoutine %p transition to %d\n",
+                      QueryInfo,
+                      x));
     if (x == 1) {
         ExQueueWorkItem(&QueryInfo->WorkItem, DelayedWorkQueue);
     }
 }
 
 
-void WmipMceDpcRoutine(
-    IN PKDPC Dpc,
-    IN PVOID DeferredContext,     // Not Used
-    IN PVOID SystemArgument1,     // MCEQUERYINFO
-    IN PVOID SystemArgument2      // Not used
+void WmipMceDpcRoutine(IN PKDPC Dpc,
+                       IN PVOID DeferredContext,     // Not Used
+                       IN PVOID SystemArgument1,     // MCEQUERYINFO
+                       IN PVOID SystemArgument2      // Not used
 )
 {
     UNREFERENCED_PARAMETER(Dpc);
@@ -453,11 +464,10 @@ void WmipMceDpcRoutine(
 }
 
 
-void WmipPollingDpcRoutine(
-    IN PKDPC Dpc,
-    IN PVOID DeferredContext,     // MCEQUERYINFO
-    IN PVOID SystemArgument1,     // New polling Interval
-    IN PVOID SystemArgument2      // Not used
+void WmipPollingDpcRoutine(IN PKDPC Dpc,
+                           IN PVOID DeferredContext,     // MCEQUERYINFO
+                           IN PVOID SystemArgument1,     // New polling Interval
+                           IN PVOID SystemArgument2      // Not used
 )
 {
     PMCEQUERYINFO QueryInfo = (PMCEQUERYINFO)DeferredContext;
@@ -498,7 +508,11 @@ Return Value:
     PMCEQUERYINFO QueryInfo;
     BOOLEAN ret;
 
-    WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: MceDelivery Operation %d(%p)\n", Operation, Argument2));
+    WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                      DPFLTR_MCA_LEVEL,
+                      "WMI: MceDelivery Operation %d(%p)\n",
+                      Operation,
+                      Argument2));
 
     // First figure out which type of MCE we are dealing with
     switch (Operation) {
@@ -566,15 +580,25 @@ Arguments:
     ULONG MceType;
     PMCEQUERYINFO QueryInfo;
 
-    WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: MCEDelivery %p %d %p\n", Reserved, Operation, Argument2));
+    WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                      DPFLTR_MCA_LEVEL,
+                      "WMI: MCEDelivery %p %d %p\n",
+                      Reserved,
+                      Operation,
+                      Argument2));
 
     MceOperation = KERNEL_MCE_OPERATION(Reserved);
     MceType = KERNEL_MCE_EVENTTYPE(Reserved);
     SalStatus = (LONGLONG)Argument2;
 
     // If the hal is notifying us that a GetStateInfo failed with SalStatus == -15 then we need to retry our query later
-    if ((MceOperation == KERNEL_MCE_OPERATION_GET_STATE_INFO) && (Operation == MceNotification) && (SalStatus == (LONGLONG)-15)) {
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: Sal is asking us to retry getstateinfo for type %x\n", MceType));
+    if ((MceOperation == KERNEL_MCE_OPERATION_GET_STATE_INFO) &&
+        (Operation == MceNotification) &&
+        (SalStatus == (LONGLONG)-15)) {
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                          DPFLTR_MCA_LEVEL,
+                          "WMI: Sal is asking us to retry getstateinfo for type %x\n",
+                          MceType));
 
         switch (MceType) {
         case KERNEL_MCE_EVENTTYPE_CMC:
@@ -626,7 +650,7 @@ Routine Description:
     prevLogCount = 0;
     do {
         // Read a MCA log out of the HAL
-        status = WmipGetLogFromHal(HalMcaLogInformation, 
+        status = WmipGetLogFromHal(HalMcaLogInformation,
                                    WmipMcaQueryInfo.Token,
                                    &wnode,
                                    &log,
@@ -640,7 +664,7 @@ Routine Description:
             prevLogCount++;
             // Need space for record length and
             // record padded to DWORD
-            sizeNeeded += sizeof(ULONG) + ((size + 3)&~3);
+            sizeNeeded += sizeof(ULONG) + ((size + 3) & ~3);
 
             InsertTailList(&list, (PLIST_ENTRY)wnode);
             WmipGenerateMCAEventlog((PUCHAR)log, size, TRUE);
@@ -672,7 +696,7 @@ Routine Description:
                 record->Length = size;
 
                 RtlCopyMemory(&record->Data[0], &event->Records[0].Data[0], size);
-                size = FIELD_OFFSET(MSMCAInfo_Entry, Data) + (size + 3)&~3;
+                size = FIELD_OFFSET(MSMCAInfo_Entry, Data) + (size + 3) & ~3;
                 record = (PMSMCAInfo_Entry)((PUCHAR)record + size);
             }
 
@@ -766,7 +790,9 @@ Routine Description:
             KernelMcaHandlerInfo.KernelCmcDelivery = WmipMceDelivery;
             KernelMcaHandlerInfo.KernelCpeDelivery = WmipMceDelivery;
             KernelMcaHandlerInfo.KernelMceDelivery = WmipMceEventDelivery;
-            Status = HalSetSystemInformation(HalKernelErrorHandler, sizeof(KERNEL_ERROR_HANDLER_INFO), &KernelMcaHandlerInfo);
+            Status = HalSetSystemInformation(HalKernelErrorHandler,
+                                             sizeof(KERNEL_ERROR_HANDLER_INFO),
+                                             &KernelMcaHandlerInfo);
             if (NT_SUCCESS(Status)) {
                 WmipMCEState = MCE_STATE_REGISTERED;
             } else {
@@ -793,7 +819,8 @@ Routine Description:
         }
 
         // Establish polling timer for CMC, if needed
-        if ((WmipCmcQueryInfo.PollFrequency != HAL_CMC_DISABLED) && (WmipCmcQueryInfo.PollFrequency != HAL_CMC_INTERRUPTS_BASED)) {
+        if ((WmipCmcQueryInfo.PollFrequency != HAL_CMC_DISABLED) &&
+            (WmipCmcQueryInfo.PollFrequency != HAL_CMC_INTERRUPTS_BASED)) {
             li.QuadPart = -1 * (WmipCmcQueryInfo.PollFrequency * 1000000000);
             KeSetTimerEx(&WmipCmcQueryInfo.PollingTimer, li, WmipCmcQueryInfo.PollFrequency * 1000, &WmipCmcQueryInfo.PollingDpc);
         } else if (WmipCmcQueryInfo.PollFrequency == HAL_CMC_INTERRUPTS_BASED) {
@@ -802,7 +829,8 @@ Routine Description:
         }
 
         // Establish polling timer for Cpe, if needed
-        if ((WmipCpeQueryInfo.PollFrequency != HAL_CPE_DISABLED) && (WmipCpeQueryInfo.PollFrequency != HAL_CPE_INTERRUPTS_BASED)) {
+        if ((WmipCpeQueryInfo.PollFrequency != HAL_CPE_DISABLED) &&
+            (WmipCpeQueryInfo.PollFrequency != HAL_CPE_INTERRUPTS_BASED)) {
             li.QuadPart = -1 * (WmipCpeQueryInfo.PollFrequency * 1000000000);
             KeSetTimerEx(&WmipCpeQueryInfo.PollingTimer, li, WmipCpeQueryInfo.PollFrequency * 1000, &WmipCpeQueryInfo.PollingDpc);
         } else if (WmipCpeQueryInfo.PollFrequency == HAL_CPE_INTERRUPTS_BASED) {
@@ -856,8 +884,8 @@ Routine Description:
 
 NTSTATUS WmipGetLogFromHal(IN HAL_QUERY_INFORMATION_CLASS InfoClass,
                            IN PVOID Token,
-                           IN OUT PWNODE_SINGLE_INSTANCE *Wnode,
-                           OUT PERROR_LOGRECORD *Mca,
+                           IN OUT PWNODE_SINGLE_INSTANCE* Wnode,
+                           OUT PERROR_LOGRECORD* Mca,
                            OUT PULONG McaSize,
                            IN ULONG MaxSize,
                            IN LPGUID Guid
@@ -899,7 +927,7 @@ Return Value:
     if (Ptr != NULL) {
         Log = (PERROR_LOGRECORD)((PUCHAR)Ptr + WnodeSize);
         LogSize = Size - WnodeSize;
-        *(PVOID *)Log = Token;
+        *(PVOID*)Log = Token;
         Status = HalQuerySystemInformation(InfoClass, LogSize, Log, &LogSize);
         if (Status == STATUS_BUFFER_TOO_SMALL) {
             // If our buffer was too small then the Hal lied to us when it told us the maximum buffer size.
@@ -912,7 +940,7 @@ Return Value:
             if (Ptr != NULL) {
                 Log = (PERROR_LOGRECORD)((PUCHAR)Ptr + WnodeSize);
                 LogSize = Size - WnodeSize;
-                *(PVOID *)Log = Token;
+                *(PVOID*)Log = Token;
                 Status = HalQuerySystemInformation(InfoClass, LogSize, Log, &LogSize);
 
                 // The hal gave us a buffer size needed that was too small, so lets stop right here and let him know]
@@ -1059,7 +1087,8 @@ void WmipGenerateMCAEventlog(PUCHAR ErrorLog, ULONG ErrorLogSize, BOOLEAN IsFata
         }
     } else {
         // Not enough memory to do a full MCA event so lets just do a generic one.
-        WmipWriteToEventlog(IsFatal ? MCA_WARNING_UNKNOWN_NO_CPU : MCA_ERROR_UNKNOWN_NO_CPU, STATUS_INSUFFICIENT_RESOURCES);
+        WmipWriteToEventlog(IsFatal ? MCA_WARNING_UNKNOWN_NO_CPU : MCA_ERROR_UNKNOWN_NO_CPU,
+                            STATUS_INSUFFICIENT_RESOURCES);
     }
 }
 
@@ -1128,11 +1157,10 @@ NTSTATUS WmipSetupWaitForWbem(void)
 }
 
 
-void WmipIsWbemRunningDispatch(
-    IN PKDPC Dpc,
-    IN PVOID DeferredContext,     // Not Used
-    IN PVOID SystemArgument1,     // Not Used
-    IN PVOID SystemArgument2      // Not Used
+void WmipIsWbemRunningDispatch(IN PKDPC Dpc,
+                               IN PVOID DeferredContext,     // Not Used
+                               IN PVOID SystemArgument1,     // Not Used
+                               IN PVOID SystemArgument2      // Not Used
 )
 {
     UNREFERENCED_PARAMETER(Dpc);
@@ -1154,13 +1182,17 @@ void WmipIsWbemRunningWorker(PVOID Context)
 
     if (!WmipCheckIsWbemRunning()) {
         // WBEM is not yet started, so timeout in another minute to check again
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: IsWbemRunningWorker starting -> WBEM not started\n"));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                          DPFLTR_MCA_LEVEL,
+                          "WMI: IsWbemRunningWorker starting -> WBEM not started\n"));
 
         TimeOut.HighPart = -1;
         TimeOut.LowPart = (ULONG)(-1 * (1 * 60 * 1000 * 10000));   // 1 minutes
         KeSetTimer(&WmipIsWbemRunningTimer, TimeOut, &WmipIsWbemRunningDpc);
     } else {
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: WbemRunningWorker found wbem started\n"));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                          DPFLTR_MCA_LEVEL,
+                          "WMI: WbemRunningWorker found wbem started\n"));
     }
 }
 
@@ -1203,7 +1235,9 @@ BOOLEAN WmipCheckIsWbemRunning(void)
                     WmipEnterSMCritSection();
                 }
 
-                WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_MCA_LEVEL, "WMI: WBEM is Running and queus flushed\n"));
+                WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                                  DPFLTR_MCA_LEVEL,
+                                  "WMI: WBEM is Running and queus flushed\n"));
                 WmipIsWbemRunningFlag = WBEM_IS_RUNNING;
             }
 

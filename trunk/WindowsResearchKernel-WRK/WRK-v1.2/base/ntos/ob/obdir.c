@@ -87,7 +87,10 @@ BOOLEAN ObpIsUnsecureName(IN PUNICODE_STRING ObjectName, IN BOOLEAN CaseInsensit
 }
 
 
-NTSTATUS NtCreateDirectoryObject(__out PHANDLE DirectoryHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes)
+NTSTATUS NtCreateDirectoryObject(__out PHANDLE DirectoryHandle,
+                                 __in ACCESS_MASK DesiredAccess,
+                                 __in POBJECT_ATTRIBUTES ObjectAttributes
+)
 /*
 Routine Description:
     This routine creates a new directory object according to user specified object attributes
@@ -123,7 +126,15 @@ Return Value:
     //  We don't need to specify a parse context or charge any quota.
     //  The size of the object body is simply a directory object.
     //  This call gets us a new referenced object.
-    Status = ObCreateObject(PreviousMode, ObpDirectoryObjectType, ObjectAttributes, PreviousMode, NULL, sizeof(*Directory), 0, 0, (PVOID *)&Directory);
+    Status = ObCreateObject(PreviousMode,
+                            ObpDirectoryObjectType,
+                            ObjectAttributes,
+                            PreviousMode,
+                            NULL,
+                            sizeof(*Directory),
+                            0,
+                            0,
+                            (PVOID*)&Directory);
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
@@ -133,7 +144,7 @@ Return Value:
 
     //  Insert directory object in the current processes handle table, set directory handle value and return status.
 
-    Status = ObInsertObject(Directory, NULL, DesiredAccess, 0, (PVOID *)NULL, &Handle);//  ObInsertObject will delete the object in the case of failure
+    Status = ObInsertObject(Directory, NULL, DesiredAccess, 0, (PVOID*)NULL, &Handle);//  ObInsertObject will delete the object in the case of failure
 
     try {
         *DirectoryHandle = Handle;
@@ -146,7 +157,10 @@ Return Value:
 }
 
 
-NTSTATUS NtOpenDirectoryObject(__out PHANDLE DirectoryHandle, __in ACCESS_MASK DesiredAccess, __in POBJECT_ATTRIBUTES ObjectAttributes)
+NTSTATUS NtOpenDirectoryObject(__out PHANDLE DirectoryHandle,
+                               __in ACCESS_MASK DesiredAccess,
+                               __in POBJECT_ATTRIBUTES ObjectAttributes
+)
 /*
 Routine Description:
     This routine opens an existing directory object.
@@ -178,7 +192,13 @@ Return Value:
     }
 
     //  Open handle to the directory object with the specified desired access, set directory handle value, and return service completion status.
-    Status = ObOpenObjectByName(ObjectAttributes, ObpDirectoryObjectType, PreviousMode, NULL, DesiredAccess, NULL, &Handle);
+    Status = ObOpenObjectByName(ObjectAttributes,
+                                ObpDirectoryObjectType,
+                                PreviousMode,
+                                NULL,
+                                DesiredAccess,
+                                NULL,
+                                &Handle);
     try {
         *DirectoryHandle = Handle;
     } except(EXCEPTION_EXECUTE_HANDLER)
@@ -196,7 +216,8 @@ NTSTATUS NtQueryDirectoryObject(__in HANDLE DirectoryHandle,
                                 __in BOOLEAN ReturnSingleEntry,
                                 __in BOOLEAN RestartScan,
                                 __inout PULONG Context,
-                                __out_opt PULONG ReturnLength)
+                                __out_opt PULONG ReturnLength
+)
 /*
 Routine Description:
     This function returns information regarding a specified object directory.
@@ -278,7 +299,7 @@ Return Value:
     RtlZeroMemory(TempBuffer, Length);
 
     //  Reference the directory object
-    Status = ObReferenceObjectByHandle(DirectoryHandle, DIRECTORY_QUERY, ObpDirectoryObjectType, PreviousMode, (PVOID *)&Directory, NULL);
+    Status = ObReferenceObjectByHandle(DirectoryHandle, DIRECTORY_QUERY, ObpDirectoryObjectType, PreviousMode, (PVOID*)&Directory, NULL);
     if (!NT_SUCCESS(Status)) {
         ExFreePool(TempBuffer);
         return(Status);
@@ -449,24 +470,25 @@ PVOID ObpLookupDirectoryEntry(IN POBJECT_DIRECTORY Directory,
                               IN PUNICODE_STRING Name,
                               IN ULONG Attributes,
                               IN BOOLEAN SearchShadow,
-                              OUT POBP_LOOKUP_CONTEXT LookupContext)
-    /*
-    Routine Description:
-        This routine will lookup a single directory entry in a given directory.
-        If it founds an object into that directory with the give name, that object will be referenced and the name will be referenced too, in order
-        to prevent them going away when the directory is unlocked.
-        The referenced object is saved in the LookupContext, and the references will be released at the next lookup, or when ObpReleaseLookupContext is called.
-    Arguments:
-        Directory - Supplies the directory being searched
-        Name - Supplies the name of entry we're looking for
-        Attributes - Indicates if the lookup should be case insensitive or not
-        SearchShadow - If TRUE, and the object name is not found in the current directory, it will search the object into the shadow directory.
-        LookupContext - The lookup context for this call. This structure must be initialized before calling first time ObpLookupDirectoryEntry.
-    Return Value:
-        Returns a pointer to the corresponding object body if found and NULL otherwise.
-    */
+                              OUT POBP_LOOKUP_CONTEXT LookupContext
+)
+/*
+Routine Description:
+    This routine will lookup a single directory entry in a given directory.
+    If it founds an object into that directory with the give name, that object will be referenced and the name will be referenced too, in order
+    to prevent them going away when the directory is unlocked.
+    The referenced object is saved in the LookupContext, and the references will be released at the next lookup, or when ObpReleaseLookupContext is called.
+Arguments:
+    Directory - Supplies the directory being searched
+    Name - Supplies the name of entry we're looking for
+    Attributes - Indicates if the lookup should be case insensitive or not
+    SearchShadow - If TRUE, and the object name is not found in the current directory, it will search the object into the shadow directory.
+    LookupContext - The lookup context for this call. This structure must be initialized before calling first time ObpLookupDirectoryEntry.
+Return Value:
+    Returns a pointer to the corresponding object body if found and NULL otherwise.
+*/
 {
-    POBJECT_DIRECTORY_ENTRY *HeadDirectoryEntry;
+    POBJECT_DIRECTORY_ENTRY* HeadDirectoryEntry;
     POBJECT_DIRECTORY_ENTRY DirectoryEntry;
     POBJECT_HEADER ObjectHeader;
     POBJECT_HEADER_NAME_INFO NameInfo;
@@ -476,7 +498,7 @@ PVOID ObpLookupDirectoryEntry(IN POBJECT_DIRECTORY Directory,
     ULONG HashValue;
     ULONG WcharLength;
     BOOLEAN CaseInSensitive;
-    POBJECT_DIRECTORY_ENTRY *LookupBucket;
+    POBJECT_DIRECTORY_ENTRY* LookupBucket;
     PVOID Object = NULL;
 
     PAGED_CODE();
@@ -572,7 +594,7 @@ PVOID ObpLookupDirectoryEntry(IN POBJECT_DIRECTORY Directory,
     LookupContext->HashValue = HashValue;
 
     while (1) {
-        HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY *)&Directory->HashBuckets[HashIndex];
+        HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY*)&Directory->HashBuckets[HashIndex];
         LookupBucket = HeadDirectoryEntry;
 
         //  Lock the directory for read access, if the context was not previously locked exclusively
@@ -580,7 +602,8 @@ PVOID ObpLookupDirectoryEntry(IN POBJECT_DIRECTORY Directory,
             ObpLockDirectoryShared(Directory, LookupContext);
         }
 
-        //  Walk the chain of directory entries for this hash bucket, looking for either a match, or the insertion point if no match in the chain.
+        //  Walk the chain of directory entries for this hash bucket, 
+        //  looking for either a match, or the insertion point if no match in the chain.
         while ((DirectoryEntry = *HeadDirectoryEntry) != NULL) {
             if (DirectoryEntry->HashValue == HashValue) {
                 //  Get the object header and name from the object body
@@ -665,7 +688,10 @@ UPDATECONTEXT:
 }
 
 
-BOOLEAN ObpInsertDirectoryEntry(IN POBJECT_DIRECTORY Directory, IN POBP_LOOKUP_CONTEXT LookupContext, IN POBJECT_HEADER ObjectHeader)
+BOOLEAN ObpInsertDirectoryEntry(IN POBJECT_DIRECTORY Directory,
+                                IN POBP_LOOKUP_CONTEXT LookupContext,
+                                IN POBJECT_HEADER ObjectHeader
+)
 /*
 Routine Description:
     This routine will insert a new directory entry into a directory object.
@@ -681,7 +707,7 @@ Return Value:
     TRUE if the object is inserted successfully and FALSE otherwise
 */
 {
-    POBJECT_DIRECTORY_ENTRY *HeadDirectoryEntry;
+    POBJECT_DIRECTORY_ENTRY* HeadDirectoryEntry;
     POBJECT_DIRECTORY_ENTRY NewDirectoryEntry;
     POBJECT_HEADER_NAME_INFO NameInfo = OBJECT_HEADER_TO_NAME_INFO_EXISTS(ObjectHeader);
 
@@ -700,7 +726,7 @@ Return Value:
         return(FALSE);
     }
 
-    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY *)&Directory->HashBuckets[LookupContext->HashIndex];//  Get the right lookup bucket based on the HashIndex
+    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY*)&Directory->HashBuckets[LookupContext->HashIndex];//  Get the right lookup bucket based on the HashIndex
 
     //  Link the new entry into the chain at the insertion point.
     //  This puts the new object right at the head of the current hash bucket chain
@@ -725,7 +751,7 @@ Return Value:
     TRUE if the deletion succeeded and FALSE otherwise
 */
 {
-    POBJECT_DIRECTORY_ENTRY *HeadDirectoryEntry;
+    POBJECT_DIRECTORY_ENTRY* HeadDirectoryEntry;
     POBJECT_DIRECTORY_ENTRY DirectoryEntry;
     IN POBJECT_DIRECTORY Directory = LookupContext->Directory;
 
@@ -734,7 +760,7 @@ Return Value:
     }
 
     //  The lookup path places the object in the front of the list, so basically we find the object immediately
-    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY *)&Directory->HashBuckets[LookupContext->HashIndex];
+    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY*)&Directory->HashBuckets[LookupContext->HashIndex];
     DirectoryEntry = *HeadDirectoryEntry;
 
     //  Unlink the entry from the head of the bucket chain and free the memory for the entry.
@@ -872,7 +898,8 @@ Return Values:
             SECURITY_IMPERSONATION_LEVEL ImpersonationLevel;
             LUID userLuid;
 
-            pToken = PsReferenceImpersonationToken(Thread, &fCopyOnOpen, &fEffectiveOnly, &ImpersonationLevel);// Get the caller's access token from the thread
+            // Get the caller's access token from the thread
+            pToken = PsReferenceImpersonationToken(Thread, &fCopyOnOpen, &fEffectiveOnly, &ImpersonationLevel);
             if (pToken != NULL) {
                 Status = SeQueryAuthenticationIdToken(pToken, &userLuid);// query the token for the LUID
             } else {
@@ -908,7 +935,9 @@ Return Values:
 
     if (DeviceMap == NULL) {
         // if (going to reference the process' device map and the process' device map is not set), then set the process' device map
-        if ((LUIDDeviceMapsEnabled == TRUE) && (LocalSystemRequest == FALSE) && ((PsGetCurrentProcess()->DeviceMap) == NULL)) {
+        if ((LUIDDeviceMapsEnabled == TRUE) &&
+            (LocalSystemRequest == FALSE) &&
+            ((PsGetCurrentProcess()->DeviceMap) == NULL)) {
             Status = ObpSetCurrentProcessDeviceMap();
             if (!NT_SUCCESS(Status)) {
                 goto Error_Exit;
@@ -966,7 +995,8 @@ NTSTATUS ObpLookupObjectName(IN HANDLE RootDirectoryHandle OPTIONAL,
                              IN PVOID InsertObject OPTIONAL,
                              IN OUT PACCESS_STATE AccessState,
                              OUT POBP_LOOKUP_CONTEXT LookupContext,
-                             OUT PVOID *FoundObject)
+                             OUT PVOID* FoundObject
+)
 /*
 Routine Description:
     This function will search a given directoroy for a specified object name.
@@ -1034,7 +1064,7 @@ Return Value:
     //  Check if the caller has given us a directory to search.  Otherwise we'll search the root object directory
     if (ARGUMENT_PRESENT(RootDirectoryHandle)) {
         //  Otherwise reference the directory object and make sure that we successfully got the object
-        Status = ObReferenceObjectByHandle(RootDirectoryHandle, 0, NULL, AccessMode, (PVOID *)&RootDirectory, NULL);
+        Status = ObReferenceObjectByHandle(RootDirectoryHandle, 0, NULL, AccessMode, (PVOID*)&RootDirectory, NULL);
         if (!NT_SUCCESS(Status)) {
             return(Status);
         }
@@ -1042,7 +1072,9 @@ Return Value:
         ObjectHeader = OBJECT_TO_OBJECT_HEADER(RootDirectory);//  Translate the directory object to its object header
 
         //  Now if the name we're looking up starts with a "\" and it does not have a parse procedure then the syntax is bad
-        if ((ObjectName->Buffer != NULL) && (*(ObjectName->Buffer) == OBJ_NAME_PATH_SEPARATOR) && (ObjectHeader->Type != IoFileObjectType)) {
+        if ((ObjectName->Buffer != NULL) &&
+            (*(ObjectName->Buffer) == OBJ_NAME_PATH_SEPARATOR) &&
+            (ObjectHeader->Type != IoFileObjectType)) {
             ObDereferenceObject(RootDirectory);
             return(STATUS_OBJECT_PATH_SYNTAX_BAD);
         }
@@ -1094,7 +1126,9 @@ Return Value:
 
                         //  We got a status reparse, which means the object name has been modified to have use start all over again.
                         //  If the reparse target is now empty or it is a path separator then we start the parse at the root directory
-                    } else if ((ObjectName->Length == 0) || (ObjectName->Buffer == NULL) || (*(ObjectName->Buffer) == OBJ_NAME_PATH_SEPARATOR)) {
+                    } else if ((ObjectName->Length == 0) ||
+                        (ObjectName->Buffer == NULL) ||
+                               (*(ObjectName->Buffer) == OBJ_NAME_PATH_SEPARATOR)) {
                         //  Restart the parse relative to the root directory.
                         ObDereferenceObject(RootDirectory);
                         RootDirectory = ObpRootDirectoryObject;
@@ -1135,7 +1169,9 @@ Return Value:
 
         //  If the name we're looking for is empty then it is malformed.
         //  Also it has to start with a "\" or it is malformed.
-        if ((ObjectName->Length == 0) || (ObjectName->Buffer == NULL) || (*(ObjectName->Buffer) != OBJ_NAME_PATH_SEPARATOR)) {
+        if ((ObjectName->Length == 0) ||
+            (ObjectName->Buffer == NULL) ||
+            (*(ObjectName->Buffer) != OBJ_NAME_PATH_SEPARATOR)) {
             return(STATUS_OBJECT_PATH_SYNTAX_BAD);
         }
 
@@ -1278,7 +1314,12 @@ Return Value:
                 ObReferenceObject(Directory);
                 ReferencedDirectory = Directory;
                 if (ParentDirectory != NULL) {
-                    if (!ObpCheckTraverseAccess(ParentDirectory, DIRECTORY_TRAVERSE, AccessState, FALSE, AccessCheckMode, &Status)) {
+                    if (!ObpCheckTraverseAccess(ParentDirectory,
+                                                DIRECTORY_TRAVERSE,
+                                                AccessState,
+                                                FALSE,
+                                                AccessCheckMode,
+                                                &Status)) {
                         break;
                     }
                 }
@@ -1406,7 +1447,16 @@ Return Value:
                 ObpBeginTypeSpecificCallOut(SaveIrql);
 
                 //  Call the objects parse routine
-                Status = (*ParseProcedure)(Object, (PVOID)ObjectType, AccessState, AccessCheckMode, Attributes, ObjectName, &RemainingName, ParseContext, SecurityQos, &Object);
+                Status = (*ParseProcedure)(Object,
+                    (PVOID)ObjectType,
+                                           AccessState,
+                                           AccessCheckMode,
+                                           Attributes,
+                                           ObjectName,
+                                           &RemainingName,
+                                           ParseContext,
+                                           SecurityQos,
+                                           &Object);
                 ObpEndTypeSpecificCallOut(SaveIrql, "Parse", ObjectHeader->Type, Object);
                 ObDereferenceObject(&ObjectHeader->Body);//  We can now decrement the object reference count
                 if ((Status == STATUS_REPARSE) || (Status == STATUS_REPARSE_OBJECT)) {//  Check if we have some reparsing to do
@@ -1660,11 +1710,11 @@ POBJECT_DIRECTORY_ENTRY ObpUnlinkDirectoryEntry(IN POBJECT_DIRECTORY Directory, 
         Returns the directory entry removed from parent
 */
 {
-    POBJECT_DIRECTORY_ENTRY *HeadDirectoryEntry;
+    POBJECT_DIRECTORY_ENTRY* HeadDirectoryEntry;
     POBJECT_DIRECTORY_ENTRY DirectoryEntry;
 
     //  The lookup path places the object in the front of the list, so basically we find the object immediately
-    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY *)&Directory->HashBuckets[HashIndex];
+    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY*)&Directory->HashBuckets[HashIndex];
     DirectoryEntry = *HeadDirectoryEntry;
 
     //  Unlink the entry from the head of the bucket chain and free the memory for the entry.
@@ -1674,7 +1724,10 @@ POBJECT_DIRECTORY_ENTRY ObpUnlinkDirectoryEntry(IN POBJECT_DIRECTORY Directory, 
 }
 
 
-VOID ObpLinkDirectoryEntry(IN POBJECT_DIRECTORY Directory, IN ULONG HashIndex, IN POBJECT_DIRECTORY_ENTRY NewDirectoryEntry)
+VOID ObpLinkDirectoryEntry(IN POBJECT_DIRECTORY Directory,
+                           IN ULONG HashIndex,
+                           IN POBJECT_DIRECTORY_ENTRY NewDirectoryEntry
+)
 /*
     Routine Description:
         The function inserts a new directory entry into a directory object
@@ -1685,9 +1738,9 @@ VOID ObpLinkDirectoryEntry(IN POBJECT_DIRECTORY Directory, IN ULONG HashIndex, I
         NewDirectoryEntry - Supplies the directory entry to be inserted
 */
 {
-    POBJECT_DIRECTORY_ENTRY *HeadDirectoryEntry;
+    POBJECT_DIRECTORY_ENTRY* HeadDirectoryEntry;
 
-    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY *)&Directory->HashBuckets[HashIndex];//  Get the right lookup bucket based on the HashIndex
+    HeadDirectoryEntry = (POBJECT_DIRECTORY_ENTRY*)&Directory->HashBuckets[HashIndex];//  Get the right lookup bucket based on the HashIndex
 
     //  Link the new entry into the chain at the insertion point.
     //  This puts the new object right at the head of the current hash bucket chain
@@ -1759,7 +1812,7 @@ NTSTATUS ObSwapObjectNames(IN HANDLE DirectoryHandle, IN HANDLE Handle1, IN HAND
                                        DIRECTORY_CREATE_OBJECT | DIRECTORY_CREATE_SUBDIRECTORY,
                                        ObpDirectoryObjectType,
                                        PreviousMode,
-                                       (PVOID *)&Directory,
+                                       (PVOID*)&Directory,
                                        NULL);
     if (!NT_SUCCESS(Status)) {
         goto exit;

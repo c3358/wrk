@@ -24,12 +24,12 @@ typedef struct _CALL_HASH_ENTRY {
     PVOID CallersAddress;
     PVOID CallersCaller;
     ULONG CallCount;
-} CALL_HASH_ENTRY, *PCALL_HASH_ENTRY;
+} CALL_HASH_ENTRY, * PCALL_HASH_ENTRY;
 
 typedef struct _CALL_PERFORMANCE_DATA {
     KSPIN_LOCK SpinLock;
     LIST_ENTRY HashTable[CALL_HASH_TABLE_SIZE];
-} CALL_PERFORMANCE_DATA, *PCALL_PERFORMANCE_DATA;
+} CALL_PERFORMANCE_DATA, * PCALL_PERFORMANCE_DATA;
 
 VOID ExInitializeCallData(IN PCALL_PERFORMANCE_DATA CallData);
 VOID ExRecordCallerInHashTable(IN PCALL_PERFORMANCE_DATA CallData, IN PVOID CallersAddress, IN PVOID CallersCaller);
@@ -45,16 +45,16 @@ VOID ExRecordCallerInHashTable(IN PCALL_PERFORMANCE_DATA CallData, IN PVOID Call
 // Define executive event pair object structure.
 typedef struct _EEVENT_PAIR {
     KEVENT_PAIR KernelEventPair;
-} EEVENT_PAIR, *PEEVENT_PAIR;
+} EEVENT_PAIR, * PEEVENT_PAIR;
 
 // empty struct def so we can forward reference ETHREAD
 struct _ETHREAD;
 
 // System Initialization procedure for EX subcomponent of NTOS (in exinit.c)
 NTKERNELAPI BOOLEAN ExInitSystem(VOID);
-VOID ExInitSystemPhase2 (VOID);
-VOID ExInitPoolLookasidePointers (VOID);
-ULONG ExComputeTickCountMultiplier (IN ULONG TimeIncrement);
+VOID ExInitSystemPhase2(VOID);
+VOID ExInitPoolLookasidePointers(VOID);
+ULONG ExComputeTickCountMultiplier(IN ULONG TimeIncrement);
 
 // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntndis begin_ntosp
 
@@ -98,7 +98,7 @@ VOID InitializePool(IN POOL_TYPE PoolType, IN ULONG Threshold);
 
 
 // These routines are private to the pool manager and the memory manager.
-VOID ExInsertPoolTag (ULONG Tag, PVOID Va, SIZE_T NumberOfBytes, POOL_TYPE PoolType);
+VOID ExInsertPoolTag(ULONG Tag, PVOID Va, SIZE_T NumberOfBytes, POOL_TYPE PoolType);
 VOID ExAllocatePoolSanityChecks(IN POOL_TYPE PoolType, IN SIZE_T NumberOfBytes);
 VOID ExFreePoolSanityChecks(IN PVOID P);
 
@@ -139,16 +139,17 @@ typedef enum _EX_POOL_PRIORITY {
     HighPoolPrioritySpecialPoolUnderrun = 41
 } EX_POOL_PRIORITY;
 
-NTKERNELAPI __bcount(NumberOfBytes)  PVOID NTAPI ExAllocatePoolWithTagPriority(
-__in POOL_TYPE PoolType,
-__in SIZE_T NumberOfBytes,
-__in ULONG Tag, __in EX_POOL_PRIORITY Priority);
+NTKERNELAPI __bcount(NumberOfBytes)  PVOID NTAPI ExAllocatePoolWithTagPriority(__in POOL_TYPE PoolType,
+                                                                               __in SIZE_T NumberOfBytes,
+                                                                               __in ULONG Tag, __in EX_POOL_PRIORITY Priority);
 
 #ifndef POOL_TAGGING
 #define ExAllocatePoolWithTag(a,b,c) ExAllocatePool(a,b)
 #endif //POOL_TAGGING
 
-NTKERNELAPI __bcount(NumberOfBytes)  PVOID ExAllocatePoolWithQuotaTag(__in POOL_TYPE PoolType, __in SIZE_T NumberOfBytes, __in ULONG Tag);
+NTKERNELAPI __bcount(NumberOfBytes)  PVOID ExAllocatePoolWithQuotaTag(__in POOL_TYPE PoolType,
+                                                                      __in SIZE_T NumberOfBytes,
+                                                                      __in ULONG Tag);
 
 #ifndef POOL_TAGGING
 #define ExAllocatePoolWithQuotaTag(a,b,c) ExAllocatePoolWithQuota(a,b)
@@ -184,24 +185,22 @@ NTKERNELAPI VOID ExUnlockPool(__in POOL_TYPE PoolType, __in KIRQL LockHandle);
 // begin_ntosp
 NTKERNELAPI                                     // ntifs
 SIZE_T                                          // ntifs
-ExQueryPoolBlockSize (                          // ntifs
-    __in PVOID PoolBlock,                       // ntifs
-    __out PBOOLEAN QuotaCharged                 // ntifs
-    );                                          // ntifs
+ExQueryPoolBlockSize(                          // ntifs
+                     __in PVOID PoolBlock,                       // ntifs
+                     __out PBOOLEAN QuotaCharged                 // ntifs
+);                                          // ntifs
 // end_ntosp
 
-NTKERNELAPI VOID ExQueryPoolUsage(
-    __out PULONG PagedPoolPages,
-    __out PULONG NonPagedPoolPages,
-    __out PULONG PagedPoolAllocs,
-    __out PULONG PagedPoolFrees,
-    __out PULONG PagedPoolLookasideHits,
-    __out PULONG NonPagedPoolAllocs,
-    __out PULONG NonPagedPoolFrees,
-    __out PULONG NonPagedPoolLookasideHits
-    );
+NTKERNELAPI VOID ExQueryPoolUsage(__out PULONG PagedPoolPages,
+                                  __out PULONG NonPagedPoolPages,
+                                  __out PULONG PagedPoolAllocs,
+                                  __out PULONG PagedPoolFrees,
+                                  __out PULONG PagedPoolLookasideHits,
+                                  __out PULONG NonPagedPoolAllocs,
+                                  __out PULONG NonPagedPoolFrees,
+                                  __out PULONG NonPagedPoolLookasideHits);
 
-VOID ExReturnPoolQuota (IN PVOID P);
+VOID ExReturnPoolQuota(IN PVOID P);
 
 // begin_ntifs begin_ntddk begin_wdm begin_nthal begin_ntosp
 
@@ -217,7 +216,7 @@ typedef struct _FAST_MUTEX {
     ULONG Contention;
     KEVENT Gate;
     ULONG OldIrql;
-} FAST_MUTEX, *PFAST_MUTEX;
+} FAST_MUTEX, * PFAST_MUTEX;
 
 #define ExInitializeFastMutex(_FastMutex)                                    \
     (_FastMutex)->Count = FM_LOCK_BIT;                                       \
@@ -231,9 +230,9 @@ C_ASSERT(sizeof(FAST_MUTEX) == sizeof(KGUARDED_MUTEX));
 
 #if !(defined(_NTDRIVER_) || defined(_NTDDK_) || defined(_NTIFS_) || defined(_NTHAL_) || defined(_NTOSP_)) && !defined(_BLDR_)
 
-VOID FASTCALL KiAcquireFastMutex (IN PFAST_MUTEX Mutex);
+VOID FASTCALL KiAcquireFastMutex(IN PFAST_MUTEX Mutex);
 
-FORCEINLINE VOID xxAcquireFastMutex (IN PFAST_MUTEX FastMutex)
+FORCEINLINE VOID xxAcquireFastMutex(IN PFAST_MUTEX FastMutex)
 /*
 Routine Description:
     This function acquires ownership of a fast mutex and raises IRQL to APC Level.
@@ -261,7 +260,7 @@ Arguments:
     FastMutex->OldIrql = OldIrql;
 }
 
-FORCEINLINE VOID xxReleaseFastMutex (IN PFAST_MUTEX FastMutex)
+FORCEINLINE VOID xxReleaseFastMutex(IN PFAST_MUTEX FastMutex)
 /*
 Routine Description:
     This function releases ownership to a fast mutex and lowers IRQL to its previous level.
@@ -315,7 +314,7 @@ Arguments:
     KeLowerIrql(OldIrql);// Lower IRQL to its previous value.
 }
 
-FORCEINLINE BOOLEAN xxTryToAcquireFastMutex (IN PFAST_MUTEX FastMutex)
+FORCEINLINE BOOLEAN xxTryToAcquireFastMutex(IN PFAST_MUTEX FastMutex)
 /*
 Routine Description:
     This function attempts to acquire ownership of a fast mutex, and if successful, raises IRQL to APC level.
@@ -349,7 +348,7 @@ Return Value:
     }
 }
 
-FORCEINLINE VOID xxAcquireFastMutexUnsafe (IN PFAST_MUTEX FastMutex)
+FORCEINLINE VOID xxAcquireFastMutexUnsafe(IN PFAST_MUTEX FastMutex)
 /*
 Routine Description:
     This function acquires ownership of a fast mutex, but does not raise IRQL to APC Level.
@@ -361,7 +360,10 @@ Arguments:
 
     Thread = KeGetCurrentThread();// Attempt to acquire ownership of the fast mutex.
 
-    ASSERT((KeGetCurrentIrql() == APC_LEVEL) || (Thread->CombinedApcDisable != 0) || (Thread->Teb == NULL) || (Thread->Teb >= MM_SYSTEM_RANGE_START));
+    ASSERT((KeGetCurrentIrql() == APC_LEVEL) ||
+        (Thread->CombinedApcDisable != 0) ||
+           (Thread->Teb == NULL) ||
+           (Thread->Teb >= MM_SYSTEM_RANGE_START));
     ASSERT(FastMutex->Owner != Thread);
 
 #if defined (_X86_)
@@ -376,7 +378,7 @@ Arguments:
     FastMutex->Owner = Thread;// Grant ownership of the fast mutex to the current thread.
 }
 
-FORCEINLINE VOID xxReleaseFastMutexUnsafe (IN PFAST_MUTEX FastMutex)
+FORCEINLINE VOID xxReleaseFastMutexUnsafe(IN PFAST_MUTEX FastMutex)
 /*
 Routine Description:
     This function releases ownership of a fast mutex, and does not restore IRQL to its previous level.
@@ -392,9 +394,9 @@ Arguments:
     KIRQL OldIrql;
 
     ASSERT((KeGetCurrentIrql() == APC_LEVEL) ||
-    (KeGetCurrentThread()->CombinedApcDisable != 0) ||
-    (KeGetCurrentThread()->Teb == NULL) ||
-    (KeGetCurrentThread()->Teb >= MM_SYSTEM_RANGE_START));
+        (KeGetCurrentThread()->CombinedApcDisable != 0) ||
+           (KeGetCurrentThread()->Teb == NULL) ||
+           (KeGetCurrentThread()->Teb >= MM_SYSTEM_RANGE_START));
     ASSERT(FastMutex->Owner == KeGetCurrentThread());
 
     // Clear the owner thread.
@@ -431,27 +433,27 @@ Arguments:
 
 // At some point we may also want to do cache aware versions of these APIs.
 
-typedef LONG EX_SPIN_LOCK, *PEX_SPIN_LOCK;
+typedef LONG EX_SPIN_LOCK, * PEX_SPIN_LOCK;
 
 #if !defined (NT_UP)
 
 #define EXP_SPIN_LOCK_EXCLUSIVE 0x80000000
 
-FORCEINLINE KIRQL ExAcquireSpinLockShared (IN PEX_SPIN_LOCK SpinLock)
+FORCEINLINE KIRQL ExAcquireSpinLockShared(IN PEX_SPIN_LOCK SpinLock)
 {
     KIRQL OldIrql;
     EX_SPIN_LOCK LockContents;
     EX_SPIN_LOCK NewLockContents;
 
-    KeRaiseIrql (DISPATCH_LEVEL, &OldIrql);
+    KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
 
     do {
-        LockContents = *(volatile EX_SPIN_LOCK *)SpinLock;
+        LockContents = *(volatile EX_SPIN_LOCK*)SpinLock;
 
         // If the lock is not being sought exclusive by anyone then try for it shared now.
         if ((LockContents & EXP_SPIN_LOCK_EXCLUSIVE) == 0) {
             NewLockContents = LockContents + 1;
-            if (InterlockedCompareExchangeAcquire (SpinLock, NewLockContents, LockContents) == LockContents) {
+            if (InterlockedCompareExchangeAcquire(SpinLock, NewLockContents, LockContents) == LockContents) {
                 return OldIrql;
             }
         }
@@ -460,26 +462,26 @@ FORCEINLINE KIRQL ExAcquireSpinLockShared (IN PEX_SPIN_LOCK SpinLock)
     } while (TRUE);
 }
 
-FORCEINLINE VOID ExReleaseSpinLockShared (IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
+FORCEINLINE VOID ExReleaseSpinLockShared(IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
 {
-    ASSERT (KeGetCurrentIrql () == DISPATCH_LEVEL);
-    ASSERT (OldIrql <= DISPATCH_LEVEL);
-    ASSERT (*SpinLock != 0);
+    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
+    ASSERT(OldIrql <= DISPATCH_LEVEL);
+    ASSERT(*SpinLock != 0);
 
-    InterlockedDecrementRelease (SpinLock);
-    KeLowerIrql (OldIrql);
+    InterlockedDecrementRelease(SpinLock);
+    KeLowerIrql(OldIrql);
 }
 
-FORCEINLINE LOGICAL ExTryAcquireSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock)
+FORCEINLINE LOGICAL ExTryAcquireSpinLockExclusive(IN PEX_SPIN_LOCK SpinLock)
 {
     EX_SPIN_LOCK LockContents;
     EX_SPIN_LOCK NewLockContents;
 
-    ASSERT (KeGetCurrentIrql () == DISPATCH_LEVEL);
+    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
 
     do {
-        LockContents = *(volatile EX_SPIN_LOCK *)SpinLock;
-        ASSERT (LockContents != 0);
+        LockContents = *(volatile EX_SPIN_LOCK*)SpinLock;
+        ASSERT(LockContents != 0);
 
         // If the big pool tag table is already held exclusive, then it cannot possibly be by the current thread - it must be another thread.
         // Release our thread's shared reference and inform our caller so we don't cause the exclusive thread to spin.
@@ -489,10 +491,10 @@ FORCEINLINE LOGICAL ExTryAcquireSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock)
         }
 
         NewLockContents = (LockContents | EXP_SPIN_LOCK_EXCLUSIVE);
-        if (InterlockedCompareExchangeAcquire (SpinLock, NewLockContents, LockContents) == LockContents) {
+        if (InterlockedCompareExchangeAcquire(SpinLock, NewLockContents, LockContents) == LockContents) {
             // We are the winner of exclusive now.
             // However, we must first wait for any straggling threads on other processors to release their references.
-            while (*(volatile EX_SPIN_LOCK *)SpinLock != (EXP_SPIN_LOCK_EXCLUSIVE | 0x1)) {
+            while (*(volatile EX_SPIN_LOCK*)SpinLock != (EXP_SPIN_LOCK_EXCLUSIVE | 0x1)) {
                 KeYieldProcessor();
                 NOTHING;
             }
@@ -502,80 +504,80 @@ FORCEINLINE LOGICAL ExTryAcquireSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock)
     } while (TRUE);
 }
 
-FORCEINLINE KIRQL ExAcquireSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock)
+FORCEINLINE KIRQL ExAcquireSpinLockExclusive(IN PEX_SPIN_LOCK SpinLock)
 {
     KIRQL OldIrql;
 
     do {
-        OldIrql = ExAcquireSpinLockShared (SpinLock);// First acquire it shared (so we get a reference).
+        OldIrql = ExAcquireSpinLockShared(SpinLock);// First acquire it shared (so we get a reference).
 
         // Now try to acquire the lock exclusive.  If another thread wins, then we must release and retry.
-        if (ExTryAcquireSpinLockExclusive (SpinLock) == TRUE) {
+        if (ExTryAcquireSpinLockExclusive(SpinLock) == TRUE) {
             return OldIrql;
         }
 
-        ExReleaseSpinLockShared (SpinLock, OldIrql);
+        ExReleaseSpinLockShared(SpinLock, OldIrql);
         KeYieldProcessor();
     } while (TRUE);
 }
 
-FORCEINLINE VOID ExReleaseSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
+FORCEINLINE VOID ExReleaseSpinLockExclusive(IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
 {
-    ASSERT (KeGetCurrentIrql () == DISPATCH_LEVEL);
-    ASSERT (OldIrql <= DISPATCH_LEVEL);
-    ASSERT (*SpinLock == (EXP_SPIN_LOCK_EXCLUSIVE | 0x1));
+    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
+    ASSERT(OldIrql <= DISPATCH_LEVEL);
+    ASSERT(*SpinLock == (EXP_SPIN_LOCK_EXCLUSIVE | 0x1));
 
     KeMemoryBarrierWithoutFence();
-    *((EX_SPIN_LOCK volatile *)SpinLock) = 0;
-    KeLowerIrql (OldIrql);
+    *((EX_SPIN_LOCK volatile*)SpinLock) = 0;
+    KeLowerIrql(OldIrql);
 }
 
 #else // (NT_UP)
 
-FORCEINLINE KIRQL ExAcquireSpinLockShared (IN PEX_SPIN_LOCK SpinLock)
+FORCEINLINE KIRQL ExAcquireSpinLockShared(IN PEX_SPIN_LOCK SpinLock)
 {
     KIRQL OldIrql;
 
-    UNREFERENCED_PARAMETER (SpinLock);
+    UNREFERENCED_PARAMETER(SpinLock);
 
-    KeRaiseIrql (DISPATCH_LEVEL, &OldIrql);
+    KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
     return OldIrql;
 }
 
-FORCEINLINE KIRQL ExAcquireSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock)
+FORCEINLINE KIRQL ExAcquireSpinLockExclusive(IN PEX_SPIN_LOCK SpinLock)
 {
     KIRQL OldIrql;
 
-    UNREFERENCED_PARAMETER (SpinLock);
+    UNREFERENCED_PARAMETER(SpinLock);
 
-    KeRaiseIrql (DISPATCH_LEVEL, &OldIrql);
+    KeRaiseIrql(DISPATCH_LEVEL, &OldIrql);
     return OldIrql;
 }
 
-FORCEINLINE LOGICAL ExTryAcquireSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock)
+FORCEINLINE LOGICAL ExTryAcquireSpinLockExclusive(IN PEX_SPIN_LOCK SpinLock)
 {
-    UNREFERENCED_PARAMETER (SpinLock);
+    UNREFERENCED_PARAMETER(SpinLock);
     return TRUE;
 }
 
-FORCEINLINE VOID ExReleaseSpinLockShared (IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
+FORCEINLINE VOID ExReleaseSpinLockShared(IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
 {
-    UNREFERENCED_PARAMETER (SpinLock);
+    UNREFERENCED_PARAMETER(SpinLock);
 
-    ASSERT (KeGetCurrentIrql () == DISPATCH_LEVEL);
-    ASSERT (OldIrql <= DISPATCH_LEVEL);
+    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
+    ASSERT(OldIrql <= DISPATCH_LEVEL);
 
-    KeLowerIrql (OldIrql);
+    KeLowerIrql(OldIrql);
 }
 
-FORCEINLINE VOID ExReleaseSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
+FORCEINLINE VOID ExReleaseSpinLockExclusive(IN PEX_SPIN_LOCK SpinLock, IN KIRQL OldIrql)
 {
-    UNREFERENCED_PARAMETER (SpinLock);
+    UNREFERENCED_PARAMETER(SpinLock);
 
-    ASSERT (KeGetCurrentIrql () == DISPATCH_LEVEL);
-    ASSERT (OldIrql <= DISPATCH_LEVEL);
+    ASSERT(KeGetCurrentIrql() == DISPATCH_LEVEL);
+    ASSERT(OldIrql <= DISPATCH_LEVEL);
 
-    KeLowerIrql (OldIrql);
+    KeLowerIrql(OldIrql);
 }
 
 #endif
@@ -585,13 +587,13 @@ FORCEINLINE VOID ExReleaseSpinLockExclusive (IN PEX_SPIN_LOCK SpinLock, IN KIRQL
 
 // begin_ntifs begin_ntddk begin_wdm begin_nthal begin_ntosp
 
-NTKERNELAPI VOID FASTCALL ExAcquireFastMutexUnsafe (__inout PFAST_MUTEX FastMutex);
-NTKERNELAPI VOID FASTCALL ExReleaseFastMutexUnsafe (__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExAcquireFastMutexUnsafe(__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExReleaseFastMutexUnsafe(__inout PFAST_MUTEX FastMutex);
 
 // end_ntifs end_ntddk end_wdm end_nthal
 
-NTKERNELAPI VOID FASTCALL ExEnterCriticalRegionAndAcquireFastMutexUnsafe (__inout PFAST_MUTEX FastMutex);
-NTKERNELAPI VOID FASTCALL ExReleaseFastMutexUnsafeAndLeaveCriticalRegion (__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExEnterCriticalRegionAndAcquireFastMutexUnsafe(__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExReleaseFastMutexUnsafeAndLeaveCriticalRegion(__inout PFAST_MUTEX FastMutex);
 
 // end_ntosp
 
@@ -605,17 +607,17 @@ NTKERNELAPI VOID FASTCALL ExReleaseFastMutexUnsafeAndLeaveCriticalRegion (__inou
 // begin_ntifs begin_ntddk begin_wdm begin_nthal begin_ntosp
 
 #if defined(_NTHAL_) && defined(_X86_)
-NTKERNELAPI VOID FASTCALL ExiAcquireFastMutex (__inout PFAST_MUTEX FastMutex);
-NTKERNELAPI VOID FASTCALL ExiReleaseFastMutex (__inout PFAST_MUTEX FastMutex);
-NTKERNELAPI BOOLEAN FASTCALL ExiTryToAcquireFastMutex (__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExiAcquireFastMutex(__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExiReleaseFastMutex(__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI BOOLEAN FASTCALL ExiTryToAcquireFastMutex(__inout PFAST_MUTEX FastMutex);
 
 #define ExAcquireFastMutex(FastMutex) ExiAcquireFastMutex(FastMutex)
 #define ExReleaseFastMutex(FastMutex) ExiReleaseFastMutex(FastMutex)
 #define ExTryToAcquireFastMutex(FastMutex) ExiTryToAcquireFastMutex(FastMutex)
 #else
-NTKERNELAPI VOID FASTCALL ExAcquireFastMutex (__inout PFAST_MUTEX FastMutex);
-NTKERNELAPI VOID FASTCALL ExReleaseFastMutex (__inout PFAST_MUTEX FastMutex);
-NTKERNELAPI BOOLEAN FASTCALL ExTryToAcquireFastMutex (__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExAcquireFastMutex(__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI VOID FASTCALL ExReleaseFastMutex(__inout PFAST_MUTEX FastMutex);
+NTKERNELAPI BOOLEAN FASTCALL ExTryToAcquireFastMutex(__inout PFAST_MUTEX FastMutex);
 #endif
 
 // end_ntifs end_ntddk end_wdm end_nthal end_ntosp
@@ -645,7 +647,7 @@ NTKERNELAPI BOOLEAN FASTCALL ExTryToAcquireFastMutex (__inout PFAST_MUTEX FastMu
 extern "C" {
 #endif
 
-LONG _InterlockedAddLargeStatistic (IN PLONGLONG Addend, IN ULONG Increment);
+    LONG _InterlockedAddLargeStatistic(IN PLONGLONG Addend, IN ULONG Increment);
 
 #ifdef __cplusplus
 }
@@ -658,7 +660,7 @@ LONG _InterlockedAddLargeStatistic (IN PLONGLONG Addend, IN ULONG Increment);
 
 // end_ntndis
 
-NTKERNELAPI LARGE_INTEGER ExInterlockedAddLargeInteger (__inout PLARGE_INTEGER Addend, __in LARGE_INTEGER Increment, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI LARGE_INTEGER ExInterlockedAddLargeInteger(__inout PLARGE_INTEGER Addend, __in LARGE_INTEGER Increment, __inout PKSPIN_LOCK Lock);
 
 // end_ntddk end_wdm end_nthal end_ntifs end_ntosp
 
@@ -669,7 +671,7 @@ NTKERNELAPI LARGE_INTEGER ExInterlockedAddLargeInteger (__inout PLARGE_INTEGER A
 
 // begin_wdm begin_ntddk begin_nthal begin_ntifs begin_ntosp
 
-NTKERNELAPI ULONG FASTCALL ExInterlockedAddUlong (__inout PULONG Addend, __in ULONG Increment, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI ULONG FASTCALL ExInterlockedAddUlong(__inout PULONG Addend, __in ULONG Increment, __inout PKSPIN_LOCK Lock);
 
 // end_wdm end_ntddk end_nthal end_ntifs end_ntosp
 
@@ -683,11 +685,11 @@ NTKERNELAPI ULONG FASTCALL ExInterlockedAddUlong (__inout PULONG Addend, __in UL
 #define ExInterlockedCompareExchange64(Destination, Exchange, Comperand, Lock)     ExfInterlockedCompareExchange64(Destination, Exchange, Comperand)
 #endif
 
-NTKERNELAPI PLIST_ENTRY FASTCALL ExInterlockedInsertHeadList (__inout PLIST_ENTRY ListHead, __inout PLIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
-NTKERNELAPI PLIST_ENTRY FASTCALL ExInterlockedInsertTailList (__inout PLIST_ENTRY ListHead, __inout PLIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
-NTKERNELAPI PLIST_ENTRY FASTCALL ExInterlockedRemoveHeadList (__inout PLIST_ENTRY ListHead, __inout PKSPIN_LOCK Lock);
-NTKERNELAPI PSINGLE_LIST_ENTRY FASTCALL ExInterlockedPopEntryList (__inout PSINGLE_LIST_ENTRY ListHead, __inout PKSPIN_LOCK Lock);
-NTKERNELAPI PSINGLE_LIST_ENTRY FASTCALL ExInterlockedPushEntryList (__inout PSINGLE_LIST_ENTRY ListHead, __inout PSINGLE_LIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI PLIST_ENTRY FASTCALL ExInterlockedInsertHeadList(__inout PLIST_ENTRY ListHead, __inout PLIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI PLIST_ENTRY FASTCALL ExInterlockedInsertTailList(__inout PLIST_ENTRY ListHead, __inout PLIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI PLIST_ENTRY FASTCALL ExInterlockedRemoveHeadList(__inout PLIST_ENTRY ListHead, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI PSINGLE_LIST_ENTRY FASTCALL ExInterlockedPopEntryList(__inout PSINGLE_LIST_ENTRY ListHead, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI PSINGLE_LIST_ENTRY FASTCALL ExInterlockedPushEntryList(__inout PSINGLE_LIST_ENTRY ListHead, __inout PSINGLE_LIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
 
 // end_wdm end_ntddk end_nthal end_ntifs end_ntosp
 
@@ -705,11 +707,11 @@ NTKERNELAPI PSINGLE_LIST_ENTRY FASTCALL ExInterlockedPushEntryList (__inout PSIN
 typedef struct _NBQUEUE_BLOCK {
     ULONG64 Next;
     ULONG64 Data;
-} NBQUEUE_BLOCK, *PNBQUEUE_BLOCK;
+} NBQUEUE_BLOCK, * PNBQUEUE_BLOCK;
 
-PVOID ExInitializeNBQueueHead (IN PSLIST_HEADER SlistHead);
-BOOLEAN ExInsertTailNBQueue (IN PVOID Header, IN ULONG64 Value);
-BOOLEAN ExRemoveHeadNBQueue (IN PVOID Header, OUT PULONG64 Value);
+PVOID ExInitializeNBQueueHead(IN PSLIST_HEADER SlistHead);
+BOOLEAN ExInsertTailNBQueue(IN PVOID Header, IN ULONG64 Value);
+BOOLEAN ExRemoveHeadNBQueue(IN PVOID Header, OUT PULONG64 Value);
 
 // begin_wdm begin_ntddk begin_nthal begin_ntifs begin_ntosp begin_ntndis
 
@@ -728,14 +730,14 @@ Arguments:
     SListHead - Supplies a pointer to a sequenced singly linked listhead.
 */
 #if defined(_WIN64) && (defined(_NTDRIVER_) || defined(_NTDDK_) || defined(_NTIFS_) || defined(_NTHAL_) || defined(_NTOSP_))
-NTKERNELAPI VOID InitializeSListHead (__out PSLIST_HEADER SListHead);
+NTKERNELAPI VOID InitializeSListHead(__out PSLIST_HEADER SListHead);
 #else
-__inline VOID InitializeSListHead (__out PSLIST_HEADER SListHead)
+__inline VOID InitializeSListHead(__out PSLIST_HEADER SListHead)
 {
 #ifdef _WIN64
     // Slist headers must be 16 byte aligned.
-    if ((ULONG_PTR) SListHead & 0x0f) {
-        DbgPrint( "InitializeSListHead unaligned Slist header.  Address = %p, Caller = %p\n", SListHead, _ReturnAddress());
+    if ((ULONG_PTR)SListHead & 0x0f) {
+        DbgPrint("InitializeSListHead unaligned Slist header.  Address = %p, Caller = %p\n", SListHead, _ReturnAddress());
         RtlRaiseStatus(STATUS_DATATYPE_MISALIGNMENT);
     }
 #endif
@@ -748,7 +750,7 @@ __inline VOID InitializeSListHead (__out PSLIST_HEADER SListHead)
 
 #define ExInitializeSListHead InitializeSListHead
 
-PSLIST_ENTRY FirstEntrySList (IN const SLIST_HEADER *SListHead);
+PSLIST_ENTRY FirstEntrySList(IN const SLIST_HEADER * SListHead);
 /*
 Routine Description:
     This function queries the current number of entries contained in a sequenced single linked list.
@@ -761,9 +763,9 @@ Return Value:
 #if defined(_WIN64)
 
 #if (defined(_NTDRIVER_) || defined(_NTDDK_) || defined(_NTIFS_) || defined(_NTHAL_) || defined(_NTOSP_))
-NTKERNELAPI USHORT ExQueryDepthSList (__in PSLIST_HEADER SListHead);
+NTKERNELAPI USHORT ExQueryDepthSList(__in PSLIST_HEADER SListHead);
 #else
-__inline USHORT ExQueryDepthSList (__in PSLIST_HEADER SListHead)
+__inline USHORT ExQueryDepthSList(__in PSLIST_HEADER SListHead)
 {
     return (USHORT)(SListHead->Alignment & 0xffff);
 }
@@ -785,25 +787,25 @@ __inline USHORT ExQueryDepthSList (__in PSLIST_HEADER SListHead)
 #define QueryDepthSList(Head)     ExQueryDepthSList(Head)
 #endif // !defined(_WINBASE_)
 
-NTKERNELAPI PSLIST_ENTRY ExpInterlockedPopEntrySList (__inout PSLIST_HEADER ListHead);
-NTKERNELAPI PSLIST_ENTRY ExpInterlockedPushEntrySList (__inout PSLIST_HEADER ListHead, __inout PSLIST_ENTRY ListEntry);
-NTKERNELAPI PSLIST_ENTRY ExpInterlockedFlushSList (__inout PSLIST_HEADER ListHead);
+NTKERNELAPI PSLIST_ENTRY ExpInterlockedPopEntrySList(__inout PSLIST_HEADER ListHead);
+NTKERNELAPI PSLIST_ENTRY ExpInterlockedPushEntrySList(__inout PSLIST_HEADER ListHead, __inout PSLIST_ENTRY ListEntry);
+NTKERNELAPI PSLIST_ENTRY ExpInterlockedFlushSList(__inout PSLIST_HEADER ListHead);
 
 #else
 
 #if defined(_WIN2K_COMPAT_SLIST_USAGE) && defined(_X86_)
-NTKERNELAPI PSLIST_ENTRY FASTCALL ExInterlockedPopEntrySList (__inout PSLIST_HEADER ListHead, __inout PKSPIN_LOCK Lock);
-NTKERNELAPI PSLIST_ENTRY FASTCALL ExInterlockedPushEntrySList (__inout PSLIST_HEADER ListHead, __inout PSLIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI PSLIST_ENTRY FASTCALL ExInterlockedPopEntrySList(__inout PSLIST_HEADER ListHead, __inout PKSPIN_LOCK Lock);
+NTKERNELAPI PSLIST_ENTRY FASTCALL ExInterlockedPushEntrySList(__inout PSLIST_HEADER ListHead, __inout PSLIST_ENTRY ListEntry, __inout PKSPIN_LOCK Lock);
 #else
 #define ExInterlockedPopEntrySList(ListHead, Lock)     InterlockedPopEntrySList(ListHead)
 #define ExInterlockedPushEntrySList(ListHead, ListEntry, Lock)     InterlockedPushEntrySList(ListHead, ListEntry)
 #endif
 
-NTKERNELAPI PSLIST_ENTRY FASTCALL ExInterlockedFlushSList (__inout PSLIST_HEADER ListHead);
+NTKERNELAPI PSLIST_ENTRY FASTCALL ExInterlockedFlushSList(__inout PSLIST_HEADER ListHead);
 
 #if !defined(_WINBASE_)
-NTKERNELAPI PSLIST_ENTRY FASTCALL InterlockedPopEntrySList (__inout PSLIST_HEADER ListHead);
-NTKERNELAPI PSLIST_ENTRY FASTCALL InterlockedPushEntrySList (__inout PSLIST_HEADER ListHead, __inout PSLIST_ENTRY ListEntry);
+NTKERNELAPI PSLIST_ENTRY FASTCALL InterlockedPopEntrySList(__inout PSLIST_HEADER ListHead);
+NTKERNELAPI PSLIST_ENTRY FASTCALL InterlockedPushEntrySList(__inout PSLIST_HEADER ListHead, __inout PSLIST_ENTRY ListEntry);
 #define InterlockedFlushSList(Head)     ExInterlockedFlushSList(Head)
 #define QueryDepthSList(Head)     ExQueryDepthSList(Head)
 #endif // !defined(_WINBASE_)
@@ -812,15 +814,18 @@ NTKERNELAPI PSLIST_ENTRY FASTCALL InterlockedPushEntrySList (__inout PSLIST_HEAD
 
 // end_ntddk end_wdm end_ntosp
 
-PSLIST_ENTRY FASTCALL InterlockedPushListSList (IN PSLIST_HEADER ListHead, IN PSLIST_ENTRY List, IN PSLIST_ENTRY ListEnd, IN ULONG Count);
+PSLIST_ENTRY FASTCALL InterlockedPushListSList(IN PSLIST_HEADER ListHead,
+                                               IN PSLIST_ENTRY List,
+                                               IN PSLIST_ENTRY ListEnd,
+                                               IN ULONG Count);
 
 // Define interlocked lookaside list structure and allocation functions.
-VOID ExAdjustLookasideDepth (VOID);
+VOID ExAdjustLookasideDepth(VOID);
 
 // begin_ntddk begin_wdm begin_ntosp
 
-typedef PVOID (*PALLOCATE_FUNCTION) (IN POOL_TYPE PoolType, IN SIZE_T NumberOfBytes, IN ULONG Tag);
-typedef VOID (*PFREE_FUNCTION) (IN PVOID Buffer);
+typedef PVOID(*PALLOCATE_FUNCTION) (IN POOL_TYPE PoolType, IN SIZE_T NumberOfBytes, IN ULONG Tag);
+typedef VOID(*PFREE_FUNCTION) (IN PVOID Buffer);
 
 #if !defined(_WIN64) && (defined(_NTDDK_) || defined(_NTIFS_) || defined(_NDIS_))
 typedef struct _GENERAL_LOOKASIDE {
@@ -856,7 +861,7 @@ typedef struct DECLSPEC_CACHEALIGN _GENERAL_LOOKASIDE {
     };
 
     ULONG Future[2];
-} GENERAL_LOOKASIDE, *PGENERAL_LOOKASIDE;
+} GENERAL_LOOKASIDE, * PGENERAL_LOOKASIDE;
 
 #if !defined(_WIN64) && (defined(_NTDDK_) || defined(_NTIFS_) || defined(_NDIS_))
 typedef struct _NPAGED_LOOKASIDE_LIST {
@@ -869,18 +874,16 @@ typedef struct DECLSPEC_CACHEALIGN _NPAGED_LOOKASIDE_LIST {
 #if !defined(_AMD64_)
     KSPIN_LOCK Lock__ObsoleteButDoNotDelete;
 #endif
-} NPAGED_LOOKASIDE_LIST, *PNPAGED_LOOKASIDE_LIST;
+} NPAGED_LOOKASIDE_LIST, * PNPAGED_LOOKASIDE_LIST;
 
-NTKERNELAPI VOID ExInitializeNPagedLookasideList (
-    __out PNPAGED_LOOKASIDE_LIST Lookaside,
-    __in_opt PALLOCATE_FUNCTION Allocate,
-    __in_opt PFREE_FUNCTION Free,
-    __in ULONG Flags,
-    __in SIZE_T Size,
-    __in ULONG Tag,
-    __in USHORT Depth
-    );
-NTKERNELAPI VOID ExDeleteNPagedLookasideList (__inout PNPAGED_LOOKASIDE_LIST Lookaside);
+NTKERNELAPI VOID ExInitializeNPagedLookasideList(__out PNPAGED_LOOKASIDE_LIST Lookaside,
+                                                 __in_opt PALLOCATE_FUNCTION Allocate,
+                                                 __in_opt PFREE_FUNCTION Free,
+                                                 __in ULONG Flags,
+                                                 __in SIZE_T Size,
+                                                 __in ULONG Tag,
+                                                 __in USHORT Depth);
+NTKERNELAPI VOID ExDeleteNPagedLookasideList(__inout PNPAGED_LOOKASIDE_LIST Lookaside);
 
 
 __inline PVOID ExAllocateFromNPagedLookasideList(IN PNPAGED_LOOKASIDE_LIST Lookaside)
@@ -948,7 +951,7 @@ typedef struct DECLSPEC_CACHEALIGN _PAGED_LOOKASIDE_LIST {
 #if !defined(_AMD64_)
     FAST_MUTEX Lock__ObsoleteButDoNotDelete;
 #endif
-} PAGED_LOOKASIDE_LIST, *PPAGED_LOOKASIDE_LIST;
+} PAGED_LOOKASIDE_LIST, * PPAGED_LOOKASIDE_LIST;
 
 
 // end_ntddk end_wdm end_nthal end_ntifs end_ntosp
@@ -961,16 +964,14 @@ C_ASSERT(sizeof(NPAGED_LOOKASIDE_LIST) == sizeof(PAGED_LOOKASIDE_LIST));
 
 // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntosp
 
-NTKERNELAPI VOID ExInitializePagedLookasideList (
-    __out PPAGED_LOOKASIDE_LIST Lookaside,
-    __in_opt PALLOCATE_FUNCTION Allocate,
-    __in_opt PFREE_FUNCTION Free,
-    __in ULONG Flags,
-    __in SIZE_T Size,
-    __in ULONG Tag,
-    __in USHORT Depth
-    );
-NTKERNELAPI VOID ExDeletePagedLookasideList (__inout PPAGED_LOOKASIDE_LIST Lookaside);
+NTKERNELAPI VOID ExInitializePagedLookasideList(__out PPAGED_LOOKASIDE_LIST Lookaside,
+                                                __in_opt PALLOCATE_FUNCTION Allocate,
+                                                __in_opt PFREE_FUNCTION Free,
+                                                __in ULONG Flags,
+                                                __in SIZE_T Size,
+                                                __in ULONG Tag,
+                                                __in USHORT Depth);
+NTKERNELAPI VOID ExDeletePagedLookasideList(__inout PPAGED_LOOKASIDE_LIST Lookaside);
 
 #if defined(_WIN2K_COMPAT_SLIST_USAGE) && defined(_X86_)
 NTKERNELAPI PVOID ExAllocateFromPagedLookasideList(__inout PPAGED_LOOKASIDE_LIST Lookaside);
@@ -982,7 +983,8 @@ Routine Description:
 Arguments:
     Lookaside - Supplies a pointer to a paged lookaside list structure.
 Return Value:
-    If an entry is removed from the specified lookaside list, then the address of the entry is returned as the function value.
+    If an entry is removed from the specified lookaside list,
+    then the address of the entry is returned as the function value.
     Otherwise, NULL is returned.
 */
 {
@@ -1025,7 +1027,12 @@ Arguments:
 
 // end_ntddk end_nthal end_ntifs end_wdm end_ntosp
 
-VOID ExInitializeSystemLookasideList (IN PGENERAL_LOOKASIDE Lookaside, IN POOL_TYPE Type, IN ULONG Size, IN ULONG Tag, IN USHORT Depth, IN PLIST_ENTRY ListHead);
+VOID ExInitializeSystemLookasideList(IN PGENERAL_LOOKASIDE Lookaside,
+                                     IN POOL_TYPE Type,
+                                     IN ULONG Size,
+                                     IN ULONG Tag,
+                                     IN USHORT Depth,
+                                     IN PLIST_ENTRY ListHead);
 
 // Define per processor nonpage lookaside list structures.
 typedef enum _PP_NPAGED_LOOKASIDE_NUMBER {
@@ -1037,11 +1044,11 @@ typedef enum _PP_NPAGED_LOOKASIDE_NUMBER {
     LookasideTwilightList,
     LookasideCompletionList,
     LookasideMaximumList
-} PP_NPAGED_LOOKASIDE_NUMBER, *PPP_NPAGED_LOOKASIDE_NUMBER;
+} PP_NPAGED_LOOKASIDE_NUMBER, * PPP_NPAGED_LOOKASIDE_NUMBER;
 
 
 #if !defined(_CROSS_PLATFORM_)
-FORCEINLINE PVOID ExAllocateFromPPLookasideList (IN PP_NPAGED_LOOKASIDE_NUMBER Number)
+FORCEINLINE PVOID ExAllocateFromPPLookasideList(IN PP_NPAGED_LOOKASIDE_NUMBER Number)
 /*
 Routine Description:
     This function removes (pops) the first entry from the specified per processor lookaside list.
@@ -1081,7 +1088,7 @@ Return Value:
     return Entry;
 }
 
-FORCEINLINE VOID ExFreeToPPLookasideList (IN PP_NPAGED_LOOKASIDE_NUMBER Number, IN PVOID Entry)
+FORCEINLINE VOID ExFreeToPPLookasideList(IN PP_NPAGED_LOOKASIDE_NUMBER Number, IN PVOID Entry)
 /*
 Routine Description:
     This function inserts (pushes) the specified entry into the specified per processor lookaside list.
@@ -1118,33 +1125,35 @@ Arguments:
 #endif
 
 #if i386 && !FPO
-NTSTATUS ExQuerySystemBackTraceInformation(OUT PRTL_PROCESS_BACKTRACES BackTraceInformation, IN ULONG BackTraceInformationLength, OUT PULONG ReturnLength OPTIONAL);
+NTSTATUS ExQuerySystemBackTraceInformation(OUT PRTL_PROCESS_BACKTRACES BackTraceInformation,
+                                           IN ULONG BackTraceInformationLength,
+                                           OUT PULONG ReturnLength OPTIONAL);
 NTKERNELAPI USHORT ExGetPoolBackTraceIndex(__in PVOID P);
 #endif // i386 && !FPO
 
 NTKERNELAPI NTSTATUS ExLockUserBuffer(
-__inout_bcount(Length) PVOID Buffer,
-__in ULONG Length,
-__in KPROCESSOR_MODE ProbeMode,
-__in LOCK_OPERATION LockMode,
-__deref_out PVOID *LockedBuffer,
-__deref_out PVOID *LockVariable);
+    __inout_bcount(Length) PVOID Buffer,
+    __in ULONG Length,
+    __in KPROCESSOR_MODE ProbeMode,
+    __in LOCK_OPERATION LockMode,
+    __deref_out PVOID* LockedBuffer,
+    __deref_out PVOID* LockVariable);
 NTKERNELAPI VOID ExUnlockUserBuffer(__inout PVOID LockVariable);
 
 // begin_ntddk begin_wdm begin_ntifs
 
 #if defined(_NTDDK_) || defined(_NTIFS_)
-NTKERNELAPI VOID NTAPI ProbeForRead (__in_bcount(Length) VOID *Address, __in SIZE_T Length, __in ULONG Alignment);
+NTKERNELAPI VOID NTAPI ProbeForRead(__in_bcount(Length) VOID* Address, __in SIZE_T Length, __in ULONG Alignment);
 #endif
 
 // begin_ntosp
 
-NTKERNELAPI DECLSPEC_NORETURN VOID NTAPI ExRaiseStatus (__in NTSTATUS Status);// Raise status from kernel mode.
+NTKERNELAPI DECLSPEC_NORETURN VOID NTAPI ExRaiseStatus(__in NTSTATUS Status);// Raise status from kernel mode.
 
 // end_wdm
 
-NTKERNELAPI DECLSPEC_NORETURN VOID ExRaiseDatatypeMisalignment (VOID);
-NTKERNELAPI DECLSPEC_NORETURN VOID ExRaiseAccessViolation (VOID);
+NTKERNELAPI DECLSPEC_NORETURN VOID ExRaiseDatatypeMisalignment(VOID);
+NTKERNELAPI DECLSPEC_NORETURN VOID ExRaiseAccessViolation(VOID);
 
 // end_ntddk end_ntifs
 
@@ -1168,7 +1177,7 @@ NTKERNELAPI DECLSPEC_NORETURN VOID ExRaiseAccessViolation (VOID);
 
 
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForReadSmallStructure (IN PVOID Address, IN SIZE_T Size, IN ULONG Alignment)
+FORCEINLINE VOID ProbeForReadSmallStructure(IN PVOID Address, IN SIZE_T Size, IN ULONG Alignment)
 /*
 Routine Description:
     Probes a structure for read access whose size is known at compile time.
@@ -1188,12 +1197,12 @@ Arguments:
             ExRaiseDatatypeMisalignment();
         }
 
-        if ((PUCHAR)Address >= (UCHAR * const)MM_USER_PROBE_ADDRESS) {
-            Address = (UCHAR * const)MM_USER_PROBE_ADDRESS;
+        if ((PUCHAR)Address >= (UCHAR* const)MM_USER_PROBE_ADDRESS) {
+            Address = (UCHAR* const)MM_USER_PROBE_ADDRESS;
         }
 
         _ReadWriteBarrier();
-        *(volatile UCHAR *)Address;
+        *(volatile UCHAR*)Address;
     }
 }
 #else
@@ -1216,14 +1225,14 @@ Arguments:
 
 // BOOLEAN ProbeAndReadBoolean (IN PBOOLEAN Address)
 #if defined(_AMD64_)
-FORCEINLINE BOOLEAN ProbeAndReadBoolean (PBOOLEAN Address)
+FORCEINLINE BOOLEAN ProbeAndReadBoolean(PBOOLEAN Address)
 {
-    if (Address >= (BOOLEAN * const)MM_USER_PROBE_ADDRESS) {
-        Address = (BOOLEAN * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (BOOLEAN* const)MM_USER_PROBE_ADDRESS) {
+        Address = (BOOLEAN* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile BOOLEAN *)Address);
+    return *((volatile BOOLEAN*)Address);
 }
 #else
 #define ProbeAndReadBoolean(Address) \
@@ -1233,14 +1242,14 @@ FORCEINLINE BOOLEAN ProbeAndReadBoolean (PBOOLEAN Address)
 
 // CHAR ProbeAndReadChar (IN PCHAR Address)
 #if defined(_AMD64_)
-FORCEINLINE CHAR ProbeAndReadChar (PCHAR Address)
+FORCEINLINE CHAR ProbeAndReadChar(PCHAR Address)
 {
-    if (Address >= (CHAR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (CHAR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (CHAR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (CHAR* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile CHAR *)Address);
+    return *((volatile CHAR*)Address);
 }
 #else
 #define ProbeAndReadChar(Address) \
@@ -1251,14 +1260,14 @@ FORCEINLINE CHAR ProbeAndReadChar (PCHAR Address)
 
 // UCHAR ProbeAndReadUchar (IN PUCHAR Address)
 #if defined(_AMD64_)
-FORCEINLINE UCHAR ProbeAndReadUchar (PUCHAR Address)
+FORCEINLINE UCHAR ProbeAndReadUchar(PUCHAR Address)
 {
-    if (Address >= (UCHAR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (UCHAR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (UCHAR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (UCHAR* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile UCHAR *)Address);
+    return *((volatile UCHAR*)Address);
 }
 #else
 #define ProbeAndReadUchar(Address) \
@@ -1269,14 +1278,14 @@ FORCEINLINE UCHAR ProbeAndReadUchar (PUCHAR Address)
 
 // SHORT ProbeAndReadShort(IN PSHORT Address)
 #if defined(_AMD64_)
-FORCEINLINE SHORT ProbeAndReadShort (PSHORT Address)
+FORCEINLINE SHORT ProbeAndReadShort(PSHORT Address)
 {
-    if (Address >= (SHORT * const)MM_USER_PROBE_ADDRESS) {
-        Address = (SHORT * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (SHORT* const)MM_USER_PROBE_ADDRESS) {
+        Address = (SHORT* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile SHORT *)Address);
+    return *((volatile SHORT*)Address);
 }
 #else
 #define ProbeAndReadShort(Address) \
@@ -1287,14 +1296,14 @@ FORCEINLINE SHORT ProbeAndReadShort (PSHORT Address)
 
 // USHORT ProbeAndReadUshort (IN PUSHORT Address)
 #if defined(_AMD64_)
-FORCEINLINE USHORT ProbeAndReadUshort (PUSHORT Address)
+FORCEINLINE USHORT ProbeAndReadUshort(PUSHORT Address)
 {
-    if (Address >= (USHORT * const)MM_USER_PROBE_ADDRESS) {
-        Address = (USHORT * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (USHORT* const)MM_USER_PROBE_ADDRESS) {
+        Address = (USHORT* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile USHORT *)Address);
+    return *((volatile USHORT*)Address);
 }
 #else
 #define ProbeAndReadUshort(Address) \
@@ -1305,14 +1314,14 @@ FORCEINLINE USHORT ProbeAndReadUshort (PUSHORT Address)
 
 // HANDLE ProbeAndReadHandle (IN PHANDLE Address)
 #if defined(_AMD64_)
-FORCEINLINE HANDLE ProbeAndReadHandle (PHANDLE Address)
+FORCEINLINE HANDLE ProbeAndReadHandle(PHANDLE Address)
 {
-    if (Address >= (HANDLE * const)MM_USER_PROBE_ADDRESS) {
-        Address = (HANDLE * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (HANDLE* const)MM_USER_PROBE_ADDRESS) {
+        Address = (HANDLE* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile HANDLE *)Address);
+    return *((volatile HANDLE*)Address);
 }
 #else
 #define ProbeAndReadHandle(Address) \
@@ -1323,14 +1332,14 @@ FORCEINLINE HANDLE ProbeAndReadHandle (PHANDLE Address)
 
 // PVOID ProbeAndReadPointer (IN PVOID *Address)
 #if defined(_AMD64_)
-FORCEINLINE PVOID ProbeAndReadPointer (PVOID *Address)
+FORCEINLINE PVOID ProbeAndReadPointer(PVOID* Address)
 {
-    if (Address >= (PVOID * const)MM_USER_PROBE_ADDRESS) {
-        Address = (PVOID * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (PVOID* const)MM_USER_PROBE_ADDRESS) {
+        Address = (PVOID* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile PVOID *)Address);
+    return *((volatile PVOID*)Address);
 }
 #else
 #define ProbeAndReadPointer(Address) \
@@ -1341,14 +1350,14 @@ FORCEINLINE PVOID ProbeAndReadPointer (PVOID *Address)
 
 // LONG ProbeAndReadLong (IN PLONG Address)
 #if defined(_AMD64_)
-FORCEINLINE LONG ProbeAndReadLong (PLONG Address)
+FORCEINLINE LONG ProbeAndReadLong(PLONG Address)
 {
-    if (Address >= (LONG * const)MM_USER_PROBE_ADDRESS) {
-        Address = (LONG * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (LONG* const)MM_USER_PROBE_ADDRESS) {
+        Address = (LONG* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile LONG *)Address);
+    return *((volatile LONG*)Address);
 }
 #else
 #define ProbeAndReadLong(Address) \
@@ -1359,14 +1368,14 @@ FORCEINLINE LONG ProbeAndReadLong (PLONG Address)
 
 // ULONG ProbeAndReadUlong (IN PULONG Address)
 #if defined(_AMD64_)
-FORCEINLINE ULONG ProbeAndReadUlong (PULONG Address)
+FORCEINLINE ULONG ProbeAndReadUlong(PULONG Address)
 {
-    if (Address >= (ULONG * const)MM_USER_PROBE_ADDRESS) {
-        Address = (ULONG * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (ULONG* const)MM_USER_PROBE_ADDRESS) {
+        Address = (ULONG* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile ULONG *)Address);
+    return *((volatile ULONG*)Address);
 }
 #else
 #define ProbeAndReadUlong(Address) \
@@ -1377,14 +1386,14 @@ FORCEINLINE ULONG ProbeAndReadUlong (PULONG Address)
 
 // ULONG_PTR ProbeAndReadUlong_ptr (IN PULONG_PTR Address)
 #if defined(_AMD64_)
-FORCEINLINE ULONG_PTR ProbeAndReadUlong_ptr (PULONG_PTR Address)
+FORCEINLINE ULONG_PTR ProbeAndReadUlong_ptr(PULONG_PTR Address)
 {
-    if (Address >= (ULONG_PTR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (ULONG_PTR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (ULONG_PTR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (ULONG_PTR* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile ULONG_PTR *)Address);
+    return *((volatile ULONG_PTR*)Address);
 }
 #else
 #define ProbeAndReadUlong_ptr(Address) \
@@ -1394,14 +1403,14 @@ FORCEINLINE ULONG_PTR ProbeAndReadUlong_ptr (PULONG_PTR Address)
 
 // QUAD ProbeAndReadQuad (IN PQUAD Address)
 #if defined(_AMD64_) && !defined(__cplusplus)
-FORCEINLINE QUAD ProbeAndReadQuad (PQUAD Address)
+FORCEINLINE QUAD ProbeAndReadQuad(PQUAD Address)
 {
-    if (Address >= (QUAD * const)MM_USER_PROBE_ADDRESS) {
-        Address = (QUAD * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (QUAD* const)MM_USER_PROBE_ADDRESS) {
+        Address = (QUAD* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile QUAD *)Address);
+    return *((volatile QUAD*)Address);
 }
 #else
 #define ProbeAndReadQuad(Address) \
@@ -1411,14 +1420,14 @@ FORCEINLINE QUAD ProbeAndReadQuad (PQUAD Address)
 
 // UQUAD ProbeAndReadUquad (IN PUQUAD Address)
 #if defined(_AMD64_) && !defined(__cplusplus)
-FORCEINLINE UQUAD ProbeAndReadUquad (PUQUAD Address)
+FORCEINLINE UQUAD ProbeAndReadUquad(PUQUAD Address)
 {
-    if (Address >= (UQUAD * const)MM_USER_PROBE_ADDRESS) {
-        Address = (UQUAD * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (UQUAD* const)MM_USER_PROBE_ADDRESS) {
+        Address = (UQUAD* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile UQUAD *)Address);
+    return *((volatile UQUAD*)Address);
 }
 #else
 #define ProbeAndReadUquad(Address) \
@@ -1428,14 +1437,14 @@ FORCEINLINE UQUAD ProbeAndReadUquad (PUQUAD Address)
 
 // LARGE_INTEGER ProbeAndReadLargeInteger(IN PLARGE_INTEGER Source)
 #if defined(_AMD64_) && !defined(__cplusplus)
-FORCEINLINE LARGE_INTEGER ProbeAndReadLargeInteger (PLARGE_INTEGER Address)
+FORCEINLINE LARGE_INTEGER ProbeAndReadLargeInteger(PLARGE_INTEGER Address)
 {
-    if (Address >= (LARGE_INTEGER * const)MM_USER_PROBE_ADDRESS) {
-        Address = (LARGE_INTEGER * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (LARGE_INTEGER* const)MM_USER_PROBE_ADDRESS) {
+        Address = (LARGE_INTEGER* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile LARGE_INTEGER *)Address);
+    return *((volatile LARGE_INTEGER*)Address);
 }
 #else
 #define ProbeAndReadLargeInteger(Source)  \
@@ -1445,14 +1454,14 @@ FORCEINLINE LARGE_INTEGER ProbeAndReadLargeInteger (PLARGE_INTEGER Address)
 
 // ULARGE_INTEGER ProbeAndReadUlargeInteger (IN PULARGE_INTEGER Source)
 #if defined(_AMD64_) && !defined(__cplusplus)
-FORCEINLINE ULARGE_INTEGER ProbeAndReadUlargeInteger (PULARGE_INTEGER Address)
+FORCEINLINE ULARGE_INTEGER ProbeAndReadUlargeInteger(PULARGE_INTEGER Address)
 {
-    if (Address >= (ULARGE_INTEGER * const)MM_USER_PROBE_ADDRESS) {
-        Address = (ULARGE_INTEGER * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (ULARGE_INTEGER* const)MM_USER_PROBE_ADDRESS) {
+        Address = (ULARGE_INTEGER* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    return *((volatile ULARGE_INTEGER *)Address);
+    return *((volatile ULARGE_INTEGER*)Address);
 }
 #else
 #define ProbeAndReadUlargeInteger(Source)  \
@@ -1463,14 +1472,14 @@ FORCEINLINE ULARGE_INTEGER ProbeAndReadUlargeInteger (PULARGE_INTEGER Address)
 #if !defined(__cplusplus)
 
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndReadUnicodeStringEx (OUT PUNICODE_STRING Destination, IN PUNICODE_STRING Source)
+FORCEINLINE VOID ProbeAndReadUnicodeStringEx(OUT PUNICODE_STRING Destination, IN PUNICODE_STRING Source)
 {
-    if (Source >= (UNICODE_STRING * const)MM_USER_PROBE_ADDRESS) {
-        Source = (UNICODE_STRING * const)MM_USER_PROBE_ADDRESS;
+    if (Source >= (UNICODE_STRING* const)MM_USER_PROBE_ADDRESS) {
+        Source = (UNICODE_STRING* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
-    *Destination = *((volatile UNICODE_STRING *)Source);
+    *Destination = *((volatile UNICODE_STRING*)Source);
 }
 #else
 #define ProbeAndReadUnicodeStringEx(Dst, Src) *(Dst) = ProbeAndReadUnicodeString(Src)
@@ -1488,10 +1497,10 @@ FORCEINLINE VOID ProbeAndReadUnicodeStringEx (OUT PUNICODE_STRING Destination, I
 // VOID ProbeAndReadStructureEx (IN P<STRUCTURE> Destination, IN P<STRUCTURE> Source, <STRUCTURE>)
 #if defined(_AMD64_)
 #define ProbeAndReadStructureEx(Dst, Src, STRUCTURE)                             ProbeAndReadStructureWorker(&(Dst), Src, sizeof(STRUCTURE))
-FORCEINLINE VOID ProbeAndReadStructureWorker (IN PVOID Destination, IN PVOID Source, IN SIZE_T Size)
+FORCEINLINE VOID ProbeAndReadStructureWorker(IN PVOID Destination, IN PVOID Source, IN SIZE_T Size)
 {
-    if (Source >= (VOID * const)MM_USER_PROBE_ADDRESS) {
-        Source = (VOID * const)MM_USER_PROBE_ADDRESS;
+    if (Source >= (VOID* const)MM_USER_PROBE_ADDRESS) {
+        Source = (VOID* const)MM_USER_PROBE_ADDRESS;
     }
 
     _ReadWriteBarrier();
@@ -1511,13 +1520,13 @@ FORCEINLINE VOID ProbeAndReadStructureWorker (IN PVOID Destination, IN PVOID Sou
 // Probe for write functions definitions.
 // VOID ProbeForWriteBoolean (IN PBOOLEAN Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteBoolean (IN PBOOLEAN Address)
+FORCEINLINE VOID ProbeForWriteBoolean(IN PBOOLEAN Address)
 {
-    if (Address >= (BOOLEAN * const)MM_USER_PROBE_ADDRESS) {
-        Address = (BOOLEAN * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (BOOLEAN* const)MM_USER_PROBE_ADDRESS) {
+        Address = (BOOLEAN* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile BOOLEAN *)Address) = *Address;
+    *((volatile BOOLEAN*)Address) = *Address;
 }
 #else
 #define ProbeForWriteBoolean(Address) {                                      \
@@ -1531,13 +1540,13 @@ FORCEINLINE VOID ProbeForWriteBoolean (IN PBOOLEAN Address)
 
 // VOID ProbeForWriteChar (IN PCHAR Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteChar (IN PCHAR Address)
+FORCEINLINE VOID ProbeForWriteChar(IN PCHAR Address)
 {
-    if (Address >= (CHAR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (CHAR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (CHAR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (CHAR* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile CHAR *)Address) = *Address;
+    *((volatile CHAR*)Address) = *Address;
 }
 #else
 #define ProbeForWriteChar(Address) {                                         \
@@ -1551,13 +1560,13 @@ FORCEINLINE VOID ProbeForWriteChar (IN PCHAR Address)
 
 // VOID ProbeForWriteUchar (IN PUCHAR Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteUchar (IN PUCHAR Address)
+FORCEINLINE VOID ProbeForWriteUchar(IN PUCHAR Address)
 {
-    if (Address >= (UCHAR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (UCHAR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (UCHAR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (UCHAR* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile UCHAR *)Address) = *Address;
+    *((volatile UCHAR*)Address) = *Address;
 }
 #else
 #define ProbeForWriteUchar(Address) {                                        \
@@ -1571,14 +1580,14 @@ FORCEINLINE VOID ProbeForWriteUchar (IN PUCHAR Address)
 
 // VOID ProbeForWriteIoStatus (IN PIO_STATUS_BLOCK Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteIoStatus (IN PIO_STATUS_BLOCK Address)
+FORCEINLINE VOID ProbeForWriteIoStatus(IN PIO_STATUS_BLOCK Address)
 {
-    if (Address >= (IO_STATUS_BLOCK * const)MM_USER_PROBE_ADDRESS) {
-        Address = (IO_STATUS_BLOCK * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (IO_STATUS_BLOCK* const)MM_USER_PROBE_ADDRESS) {
+        Address = (IO_STATUS_BLOCK* const)MM_USER_PROBE_ADDRESS;
     }
 
-    ((volatile IO_STATUS_BLOCK *)Address)->Status = Address->Status;
-    ((volatile IO_STATUS_BLOCK *)Address)->Information = Address->Information;
+    ((volatile IO_STATUS_BLOCK*)Address)->Status = Address->Status;
+    ((volatile IO_STATUS_BLOCK*)Address)->Information = Address->Information;
 }
 #else
 #define ProbeForWriteIoStatus(Address) {                                     \
@@ -1593,18 +1602,18 @@ FORCEINLINE VOID ProbeForWriteIoStatus (IN PIO_STATUS_BLOCK Address)
 #if defined(_WIN64)
 
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteIoStatusEx (IN PIO_STATUS_BLOCK Address, IN ULONG64 Cookie)
+FORCEINLINE VOID ProbeForWriteIoStatusEx(IN PIO_STATUS_BLOCK Address, IN ULONG64 Cookie)
 {
-    if (Address >= (IO_STATUS_BLOCK * const)MM_USER_PROBE_ADDRESS) {
-        Address = (IO_STATUS_BLOCK * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (IO_STATUS_BLOCK* const)MM_USER_PROBE_ADDRESS) {
+        Address = (IO_STATUS_BLOCK* const)MM_USER_PROBE_ADDRESS;
     }
 
     if ((Cookie & 1) != 0) {
-        ((volatile IO_STATUS_BLOCK32 *)Address)->Status = ((IO_STATUS_BLOCK32 *)Address)->Status;
-        ((volatile IO_STATUS_BLOCK32 *)Address)->Information = ((IO_STATUS_BLOCK32 *)Address)->Information;
+        ((volatile IO_STATUS_BLOCK32*)Address)->Status = ((IO_STATUS_BLOCK32*)Address)->Status;
+        ((volatile IO_STATUS_BLOCK32*)Address)->Information = ((IO_STATUS_BLOCK32*)Address)->Information;
     } else {
-        ((volatile IO_STATUS_BLOCK *)Address)->Status = Address->Status;
-        ((volatile IO_STATUS_BLOCK *)Address)->Information = Address->Information;
+        ((volatile IO_STATUS_BLOCK*)Address)->Status = Address->Status;
+        ((volatile IO_STATUS_BLOCK*)Address)->Information = Address->Information;
     }
 }
 #else
@@ -1626,13 +1635,13 @@ FORCEINLINE VOID ProbeForWriteIoStatusEx (IN PIO_STATUS_BLOCK Address, IN ULONG6
 
 // VOID ProbeForWriteShort (IN PSHORT Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteShort (IN PSHORT Address)
+FORCEINLINE VOID ProbeForWriteShort(IN PSHORT Address)
 {
-    if (Address >= (SHORT * const)MM_USER_PROBE_ADDRESS) {
-        Address = (SHORT * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (SHORT* const)MM_USER_PROBE_ADDRESS) {
+        Address = (SHORT* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile SHORT *)Address) = *Address;
+    *((volatile SHORT*)Address) = *Address;
 }
 #else
 #define ProbeForWriteShort(Address) {                                        \
@@ -1646,13 +1655,13 @@ FORCEINLINE VOID ProbeForWriteShort (IN PSHORT Address)
 
 // VOID ProbeForWriteUshort (IN PUSHORT Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteUshort (IN PUSHORT Address)
+FORCEINLINE VOID ProbeForWriteUshort(IN PUSHORT Address)
 {
-    if (Address >= (USHORT * const)MM_USER_PROBE_ADDRESS) {
-        Address = (USHORT * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (USHORT* const)MM_USER_PROBE_ADDRESS) {
+        Address = (USHORT* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile USHORT *)Address) = *Address;
+    *((volatile USHORT*)Address) = *Address;
 }
 #else
 #define ProbeForWriteUshort(Address) {                                       \
@@ -1666,13 +1675,13 @@ FORCEINLINE VOID ProbeForWriteUshort (IN PUSHORT Address)
 
 // VOID ProbeForWriteHandle (IN PHANDLE Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteHandle (IN PHANDLE Address)
+FORCEINLINE VOID ProbeForWriteHandle(IN PHANDLE Address)
 {
-    if (Address >= (HANDLE * const)MM_USER_PROBE_ADDRESS) {
-        Address = (HANDLE * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (HANDLE* const)MM_USER_PROBE_ADDRESS) {
+        Address = (HANDLE* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile HANDLE *)Address) = *Address;
+    *((volatile HANDLE*)Address) = *Address;
 }
 #else
 #define ProbeForWriteHandle(Address) {                                       \
@@ -1686,13 +1695,13 @@ FORCEINLINE VOID ProbeForWriteHandle (IN PHANDLE Address)
 
 // VOID ProbeAndZeroHandle (IN PHANDLE Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndZeroHandle (IN PHANDLE Address)
+FORCEINLINE VOID ProbeAndZeroHandle(IN PHANDLE Address)
 {
-    if (Address >= (HANDLE * const)MM_USER_PROBE_ADDRESS) {
-        Address = (HANDLE * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (HANDLE* const)MM_USER_PROBE_ADDRESS) {
+        Address = (HANDLE* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile HANDLE *)Address) = 0;
+    *((volatile HANDLE*)Address) = 0;
 }
 #else
 #define ProbeAndZeroHandle(Address) {                                        \
@@ -1706,13 +1715,13 @@ FORCEINLINE VOID ProbeAndZeroHandle (IN PHANDLE Address)
 
 // VOID ProbeForWritePointer (IN PVOID *Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWritePointer (IN PVOID *Address)
+FORCEINLINE VOID ProbeForWritePointer(IN PVOID* Address)
 {
-    if (Address >= (PVOID * const)MM_USER_PROBE_ADDRESS) {
-        Address = (PVOID * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (PVOID* const)MM_USER_PROBE_ADDRESS) {
+        Address = (PVOID* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile PVOID *)Address) = *Address;
+    *((volatile PVOID*)Address) = *Address;
 }
 #else
 #define ProbeForWritePointer(Address) {                                      \
@@ -1726,13 +1735,13 @@ FORCEINLINE VOID ProbeForWritePointer (IN PVOID *Address)
 
 // VOID ProbeAndNullPointer (IN PVOID *Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndNullPointer (IN PVOID *Address)
+FORCEINLINE VOID ProbeAndNullPointer(IN PVOID* Address)
 {
-    if (Address >= (PVOID * const)MM_USER_PROBE_ADDRESS) {
-        Address = (PVOID * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (PVOID* const)MM_USER_PROBE_ADDRESS) {
+        Address = (PVOID* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile PVOID *)Address) = NULL;
+    *((volatile PVOID*)Address) = NULL;
 }
 #else
 #define ProbeAndNullPointer(Address) {                                       \
@@ -1746,13 +1755,13 @@ FORCEINLINE VOID ProbeAndNullPointer (IN PVOID *Address)
 
 // VOID ProbeForWriteLong (IN PLONG Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteLong (IN PLONG Address)
+FORCEINLINE VOID ProbeForWriteLong(IN PLONG Address)
 {
-    if (Address >= (LONG * const)MM_USER_PROBE_ADDRESS) {
-        Address = (LONG * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (LONG* const)MM_USER_PROBE_ADDRESS) {
+        Address = (LONG* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile LONG *)Address) = *Address;
+    *((volatile LONG*)Address) = *Address;
 }
 #else
 #define ProbeForWriteLong(Address) {                                        \
@@ -1766,13 +1775,13 @@ FORCEINLINE VOID ProbeForWriteLong (IN PLONG Address)
 
 // VOID ProbeForWriteUlong (IN PULONG Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteUlong (IN PULONG Address)
+FORCEINLINE VOID ProbeForWriteUlong(IN PULONG Address)
 {
-    if (Address >= (ULONG * const)MM_USER_PROBE_ADDRESS) {
-        Address = (ULONG * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (ULONG* const)MM_USER_PROBE_ADDRESS) {
+        Address = (ULONG* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile ULONG *)Address) = *Address;
+    *((volatile ULONG*)Address) = *Address;
 }
 #else
 #define ProbeForWriteUlong(Address) {                                        \
@@ -1785,7 +1794,7 @@ FORCEINLINE VOID ProbeForWriteUlong (IN PULONG Address)
 #endif
 
 // VOID ProbeForWriteUlongAligned32 (IN PULONG Address)
-FORCEINLINE VOID ProbeForWriteUlongAligned32 (IN PULONG Address)
+FORCEINLINE VOID ProbeForWriteUlongAligned32(IN PULONG Address)
 {
     if (((ULONG_PTR)Address & (sizeof(ULONG) - 1)) != 0) {
         ExRaiseDatatypeMisalignment();
@@ -1796,13 +1805,13 @@ FORCEINLINE VOID ProbeForWriteUlongAligned32 (IN PULONG Address)
 
 // VOID ProbeForWriteUlong_ptr (IN PULONG_PTR Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteUlong_ptr (IN PULONG_PTR Address)
+FORCEINLINE VOID ProbeForWriteUlong_ptr(IN PULONG_PTR Address)
 {
-    if (Address >= (ULONG_PTR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (ULONG_PTR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (ULONG_PTR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (ULONG_PTR* const)MM_USER_PROBE_ADDRESS;
     }
 
-    *((volatile ULONG_PTR *)Address) = *Address;
+    *((volatile ULONG_PTR*)Address) = *Address;
 }
 #else
 #define ProbeForWriteUlong_ptr(Address) {                                    \
@@ -1816,13 +1825,13 @@ FORCEINLINE VOID ProbeForWriteUlong_ptr (IN PULONG_PTR Address)
 
 // VOID ProbeForWriteQuad (IN PQUAD Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteQuad (IN PQUAD Address)
+FORCEINLINE VOID ProbeForWriteQuad(IN PQUAD Address)
 {
-    if (Address >= (QUAD * const)MM_USER_PROBE_ADDRESS) {
-        Address = (QUAD * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (QUAD* const)MM_USER_PROBE_ADDRESS) {
+        Address = (QUAD* const)MM_USER_PROBE_ADDRESS;
     }
 
-    ((volatile QUAD *)Address)->UseThisFieldToCopy = Address->UseThisFieldToCopy;
+    ((volatile QUAD*)Address)->UseThisFieldToCopy = Address->UseThisFieldToCopy;
 }
 #else
 #define ProbeForWriteQuad(Address) {                                         \
@@ -1836,13 +1845,13 @@ FORCEINLINE VOID ProbeForWriteQuad (IN PQUAD Address)
 
 // VOID ProbeForWriteUquad (IN PUQUAD Address)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeForWriteUquad (IN PUQUAD Address)
+FORCEINLINE VOID ProbeForWriteUquad(IN PUQUAD Address)
 {
-    if (Address >= (UQUAD * const)MM_USER_PROBE_ADDRESS) {
-        Address = (UQUAD * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (UQUAD* const)MM_USER_PROBE_ADDRESS) {
+        Address = (UQUAD* const)MM_USER_PROBE_ADDRESS;
     }
 
-    ((volatile UQUAD *)Address)->UseThisFieldToCopy = Address->UseThisFieldToCopy;
+    ((volatile UQUAD*)Address)->UseThisFieldToCopy = Address->UseThisFieldToCopy;
 }
 #else
 #define ProbeForWriteUquad(Address) {                                        \
@@ -1857,10 +1866,10 @@ FORCEINLINE VOID ProbeForWriteUquad (IN PUQUAD Address)
 // Probe and write functions definitions.
 // VOID ProbeAndWriteBoolean (IN PBOOLEAN Address, IN BOOLEAN Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteBoolean (IN PBOOLEAN Address, IN BOOLEAN Value)
+FORCEINLINE VOID ProbeAndWriteBoolean(IN PBOOLEAN Address, IN BOOLEAN Value)
 {
-    if (Address >= (BOOLEAN * const)MM_USER_PROBE_ADDRESS) {
-        Address = (BOOLEAN * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (BOOLEAN* const)MM_USER_PROBE_ADDRESS) {
+        Address = (BOOLEAN* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -1877,10 +1886,10 @@ FORCEINLINE VOID ProbeAndWriteBoolean (IN PBOOLEAN Address, IN BOOLEAN Value)
 
 // VOID ProbeAndWriteChar (IN PCHAR Address, IN CHAR Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteChar (IN PCHAR Address, IN CHAR Value)
+FORCEINLINE VOID ProbeAndWriteChar(IN PCHAR Address, IN CHAR Value)
 {
-    if (Address >= (CHAR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (CHAR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (CHAR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (CHAR* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -1897,10 +1906,10 @@ FORCEINLINE VOID ProbeAndWriteChar (IN PCHAR Address, IN CHAR Value)
 
 // VOID ProbeAndWriteUchar (IN PUCHAR Address, IN UCHAR Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteUchar (IN PUCHAR Address, IN UCHAR Value)
+FORCEINLINE VOID ProbeAndWriteUchar(IN PUCHAR Address, IN UCHAR Value)
 {
-    if (Address >= (UCHAR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (UCHAR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (UCHAR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (UCHAR* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -1917,10 +1926,10 @@ FORCEINLINE VOID ProbeAndWriteUchar (IN PUCHAR Address, IN UCHAR Value)
 
 // VOID ProbeAndWriteShort (IN PSHORT Address, IN SHORT Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteShort (IN PSHORT Address, IN SHORT Value)
+FORCEINLINE VOID ProbeAndWriteShort(IN PSHORT Address, IN SHORT Value)
 {
-    if (Address >= (SHORT * const)MM_USER_PROBE_ADDRESS) {
-        Address = (SHORT * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (SHORT* const)MM_USER_PROBE_ADDRESS) {
+        Address = (SHORT* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -1937,10 +1946,10 @@ FORCEINLINE VOID ProbeAndWriteShort (IN PSHORT Address, IN SHORT Value)
 
 // VOID ProbeAndWriteUshort (IN PUSHORT Address, IN USHORT Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteUshort (IN PUSHORT Address, IN USHORT Value)
+FORCEINLINE VOID ProbeAndWriteUshort(IN PUSHORT Address, IN USHORT Value)
 {
-    if (Address >= (USHORT * const)MM_USER_PROBE_ADDRESS) {
-        Address = (USHORT * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (USHORT* const)MM_USER_PROBE_ADDRESS) {
+        Address = (USHORT* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -1957,10 +1966,10 @@ FORCEINLINE VOID ProbeAndWriteUshort (IN PUSHORT Address, IN USHORT Value)
 
 // VOID ProbeAndWriteHandle (IN PHANDLE Address, IN HANDLE Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteHandle (IN PHANDLE Address, IN HANDLE Value)
+FORCEINLINE VOID ProbeAndWriteHandle(IN PHANDLE Address, IN HANDLE Value)
 {
-    if (Address >= (HANDLE * const)MM_USER_PROBE_ADDRESS) {
-        Address = (HANDLE * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (HANDLE* const)MM_USER_PROBE_ADDRESS) {
+        Address = (HANDLE* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -1977,10 +1986,10 @@ FORCEINLINE VOID ProbeAndWriteHandle (IN PHANDLE Address, IN HANDLE Value)
 
 // VOID ProbeAndWriteLong (IN PLONG Address, IN LONG Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteLong (IN PLONG Address, IN LONG Value)
+FORCEINLINE VOID ProbeAndWriteLong(IN PLONG Address, IN LONG Value)
 {
-    if (Address >= (LONG * const)MM_USER_PROBE_ADDRESS) {
-        Address = (LONG * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (LONG* const)MM_USER_PROBE_ADDRESS) {
+        Address = (LONG* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -1997,10 +2006,10 @@ FORCEINLINE VOID ProbeAndWriteLong (IN PLONG Address, IN LONG Value)
 
 // VOID ProbeAndWriteUlong (IN PULONG Address, IN ULONG Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteUlong (IN PULONG Address, IN ULONG Value)
+FORCEINLINE VOID ProbeAndWriteUlong(IN PULONG Address, IN ULONG Value)
 {
-    if (Address >= (ULONG * const)MM_USER_PROBE_ADDRESS) {
-        Address = (ULONG * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (ULONG* const)MM_USER_PROBE_ADDRESS) {
+        Address = (ULONG* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -2017,10 +2026,10 @@ FORCEINLINE VOID ProbeAndWriteUlong (IN PULONG Address, IN ULONG Value)
 
 // VOID ProbeAndWriteUlong_ptr (IN PULONG_PTR Address, IN ULONG_PTR Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteUlong_ptr (IN PULONG_PTR Address, IN ULONG_PTR Value)
+FORCEINLINE VOID ProbeAndWriteUlong_ptr(IN PULONG_PTR Address, IN ULONG_PTR Value)
 {
-    if (Address >= (ULONG_PTR * const)MM_USER_PROBE_ADDRESS) {
-        Address = (ULONG_PTR * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (ULONG_PTR* const)MM_USER_PROBE_ADDRESS) {
+        Address = (ULONG_PTR* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -2037,10 +2046,10 @@ FORCEINLINE VOID ProbeAndWriteUlong_ptr (IN PULONG_PTR Address, IN ULONG_PTR Val
 
 // VOID ProbeAndWritePointer (IN PVOID *Address, IN PVOID Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWritePointer (IN PVOID *Address, IN PVOID Value)
+FORCEINLINE VOID ProbeAndWritePointer(IN PVOID* Address, IN PVOID Value)
 {
-    if (Address >= (PVOID * const)MM_USER_PROBE_ADDRESS) {
-        Address = (PVOID * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (PVOID* const)MM_USER_PROBE_ADDRESS) {
+        Address = (PVOID* const)MM_USER_PROBE_ADDRESS;
     }
 
     *Address = Value;
@@ -2057,10 +2066,10 @@ FORCEINLINE VOID ProbeAndWritePointer (IN PVOID *Address, IN PVOID Value)
 
 // VOID ProbeAndWriteQuad (IN PQUAD Address, IN QUAD Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteQuad (IN PQUAD Address, IN QUAD Value)
+FORCEINLINE VOID ProbeAndWriteQuad(IN PQUAD Address, IN QUAD Value)
 {
-    if (Address >= (QUAD * const)MM_USER_PROBE_ADDRESS) {
-        Address = (QUAD * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (QUAD* const)MM_USER_PROBE_ADDRESS) {
+        Address = (QUAD* const)MM_USER_PROBE_ADDRESS;
     }
 
     Address->UseThisFieldToCopy = Value.UseThisFieldToCopy;
@@ -2077,10 +2086,10 @@ FORCEINLINE VOID ProbeAndWriteQuad (IN PQUAD Address, IN QUAD Value)
 
 // VOID ProbeAndWriteUquad (IN PUQUAD Address, IN UQUAD Value)
 #if defined(_AMD64_)
-FORCEINLINE VOID ProbeAndWriteUquad (IN PUQUAD Address, IN UQUAD Value)
+FORCEINLINE VOID ProbeAndWriteUquad(IN PUQUAD Address, IN UQUAD Value)
 {
-    if (Address >= (UQUAD * const)MM_USER_PROBE_ADDRESS) {
-        Address = (UQUAD * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (UQUAD* const)MM_USER_PROBE_ADDRESS) {
+        Address = (UQUAD* const)MM_USER_PROBE_ADDRESS;
     }
 
     Address->UseThisFieldToCopy = Value.UseThisFieldToCopy;
@@ -2098,10 +2107,10 @@ FORCEINLINE VOID ProbeAndWriteUquad (IN PUQUAD Address, IN UQUAD Value)
 // VOID ProbeAndWriteStructure (IN P<STRUCTURE> Address, IN <STRUCTURE> Value, <STRUCTURE>)
 #if defined(_AMD64_)
 #define ProbeAndWriteStructure(Address, Value, STRUCTURE)                        ProbeAndWriteStructureWorker(Address, &(Value), sizeof(STRUCTURE))
-FORCEINLINE VOID ProbeAndWriteStructureWorker (IN PVOID Address, IN PVOID Value, IN SIZE_T Size)
+FORCEINLINE VOID ProbeAndWriteStructureWorker(IN PVOID Address, IN PVOID Value, IN SIZE_T Size)
 {
-    if (Address >= (VOID * const)MM_USER_PROBE_ADDRESS) {
-        Address = (VOID * const)MM_USER_PROBE_ADDRESS;
+    if (Address >= (VOID* const)MM_USER_PROBE_ADDRESS) {
+        Address = (VOID* const)MM_USER_PROBE_ADDRESS;
     }
 
     memcpy(Address, Value, Size);
@@ -2120,11 +2129,11 @@ FORCEINLINE VOID ProbeAndWriteStructureWorker (IN PVOID Address, IN PVOID Value,
 
 // Common probe for write functions.
 
-NTKERNELAPI VOID NTAPI ProbeForWrite (__inout_bcount(Length) PVOID Address, __in SIZE_T Length, __in ULONG Alignment);
+NTKERNELAPI VOID NTAPI ProbeForWrite(__inout_bcount(Length) PVOID Address, __in SIZE_T Length, __in ULONG Alignment);
 
 // end_ntifs end_ntddk end_wdm end_ntosp
 
-NTKERNELAPI VOID ExTimerRundown (VOID);// Timer Rundown
+NTKERNELAPI VOID ExTimerRundown(VOID);// Timer Rundown
 
 // begin_ntddk begin_wdm begin_nthal begin_ntifs begin_ntosp
 
@@ -2137,13 +2146,13 @@ typedef enum _WORK_QUEUE_TYPE {
     MaximumWorkQueue
 } WORK_QUEUE_TYPE;
 
-typedef VOID (*PWORKER_THREAD_ROUTINE)(IN PVOID Parameter);
+typedef VOID(*PWORKER_THREAD_ROUTINE)(IN PVOID Parameter);
 
 typedef struct _WORK_QUEUE_ITEM {
     LIST_ENTRY List;
     PWORKER_THREAD_ROUTINE WorkerRoutine;
     PVOID Parameter;
-} WORK_QUEUE_ITEM, *PWORK_QUEUE_ITEM;
+} WORK_QUEUE_ITEM, * PWORK_QUEUE_ITEM;
 
 #if PRAGMA_DEPRECATED_DDK
 #pragma deprecated(ExInitializeWorkItem)    // Use IoAllocateWorkItem
@@ -2173,13 +2182,13 @@ typedef union {
     struct {
 #define EX_WORKER_QUEUE_DISABLED    0x80000000
 
-        ULONG QueueDisabled :  1;
+        ULONG QueueDisabled : 1;
 
         // MakeThreadsAsNecessary indicates whether this work queue is eligible
         // for dynamic creation of threads not just for deadlock detection, but to ensure that the CPUs are all kept busy clearing any work item backlog.
         ULONG MakeThreadsAsNecessary : 1;
         ULONG WaitMode : 1;
-        ULONG WorkerCount   : 29;
+        ULONG WorkerCount : 29;
     };
     LONG QueueWorkerInfo;
 } EX_QUEUE_WORKER_INFO;
@@ -2191,7 +2200,7 @@ typedef struct _EX_WORK_QUEUE {
     ULONG WorkItemsProcessedLastPass;// Used for deadlock detection, WorkItemsProcessedLastPass equals the value of WorkItemsProcessed the last time ExpDetectWorkerThreadDeadlock() ran.
     ULONG QueueDepthLastPass;// QueueDepthLastPass is also part of the worker queue state snapshot taken by ExpDetectWorkerThreadDeadlock().
     EX_QUEUE_WORKER_INFO Info;
-} EX_WORK_QUEUE, *PEX_WORK_QUEUE;
+} EX_WORK_QUEUE, * PEX_WORK_QUEUE;
 
 extern EX_WORK_QUEUE ExWorkerQueue[];
 
@@ -2202,18 +2211,26 @@ extern EX_WORK_QUEUE ExWorkerQueue[];
 typedef struct _ZONE_SEGMENT_HEADER {
     SINGLE_LIST_ENTRY SegmentList;
     PVOID Reserved;
-} ZONE_SEGMENT_HEADER, *PZONE_SEGMENT_HEADER;
+} ZONE_SEGMENT_HEADER, * PZONE_SEGMENT_HEADER;
 
 typedef struct _ZONE_HEADER {
     SINGLE_LIST_ENTRY FreeList;
     SINGLE_LIST_ENTRY SegmentList;
     ULONG BlockSize;
     ULONG TotalSegmentSize;
-} ZONE_HEADER, *PZONE_HEADER;
+} ZONE_HEADER, * PZONE_HEADER;
 
-DECLSPEC_DEPRECATED_DDK NTKERNELAPI NTSTATUS ExInitializeZone(__out PZONE_HEADER Zone, __in ULONG BlockSize, __inout PVOID InitialSegment, __in ULONG InitialSegmentSize);
-DECLSPEC_DEPRECATED_DDK NTKERNELAPI NTSTATUS ExExtendZone(__inout PZONE_HEADER Zone, __inout PVOID Segment, __in ULONG SegmentSize);
-DECLSPEC_DEPRECATED_DDK NTKERNELAPI NTSTATUS ExInterlockedExtendZone(__inout PZONE_HEADER Zone, __inout PVOID Segment, __in ULONG SegmentSize, __inout PKSPIN_LOCK Lock);
+DECLSPEC_DEPRECATED_DDK NTKERNELAPI NTSTATUS ExInitializeZone(__out PZONE_HEADER Zone,
+                                                              __in ULONG BlockSize,
+                                                              __inout PVOID InitialSegment,
+                                                              __in ULONG InitialSegmentSize);
+DECLSPEC_DEPRECATED_DDK NTKERNELAPI NTSTATUS ExExtendZone(__inout PZONE_HEADER Zone,
+                                                          __inout PVOID Segment,
+                                                          __in ULONG SegmentSize);
+DECLSPEC_DEPRECATED_DDK NTKERNELAPI NTSTATUS ExInterlockedExtendZone(__inout PZONE_HEADER Zone,
+                                                                     __inout PVOID Segment,
+                                                                     __in ULONG SegmentSize,
+                                                                     __inout PKSPIN_LOCK Lock);
 
 // PVOID ExAllocateFromZone(IN PZONE_HEADER Zone)
 // Routine Description:
@@ -2314,7 +2331,7 @@ DECLSPEC_DEPRECATED_DDK NTKERNELAPI NTSTATUS ExInterlockedExtendZone(__inout PZO
 //  Define executive resource data structures.
 
 typedef ULONG_PTR ERESOURCE_THREAD;
-typedef ERESOURCE_THREAD *PERESOURCE_THREAD;
+typedef ERESOURCE_THREAD* PERESOURCE_THREAD;
 
 typedef struct _OWNER_ENTRY {
     ERESOURCE_THREAD OwnerThread;
@@ -2322,7 +2339,7 @@ typedef struct _OWNER_ENTRY {
         LONG OwnerCount;
         ULONG TableSize;
     };
-} OWNER_ENTRY, *POWNER_ENTRY;
+} OWNER_ENTRY, * POWNER_ENTRY;
 
 typedef struct _ERESOURCE {
     LIST_ENTRY SystemResourcesList;
@@ -2341,7 +2358,7 @@ typedef struct _ERESOURCE {
     };
 
     KSPIN_LOCK SpinLock;
-} ERESOURCE, *PERESOURCE;
+} ERESOURCE, * PERESOURCE;
 
 //  Values for ERESOURCE.Flag
 #define ResourceNeverExclusive       0x10
@@ -2355,7 +2372,7 @@ typedef struct _RESOURCE_HASH_ENTRY {
     PVOID Address;
     ULONG ContentionCount;
     ULONG Number;
-} RESOURCE_HASH_ENTRY, *PRESOURCE_HASH_ENTRY;
+} RESOURCE_HASH_ENTRY, * PRESOURCE_HASH_ENTRY;
 
 typedef struct _RESOURCE_PERFORMANCE_DATA {
     ULONG ActiveResourceCount;
@@ -2369,18 +2386,18 @@ typedef struct _RESOURCE_PERFORMANCE_DATA {
     ULONG OwnerTableExpands;
     ULONG MaximumTableExpand;
     LIST_ENTRY HashTable[RESOURCE_HASH_TABLE_SIZE];
-} RESOURCE_PERFORMANCE_DATA, *PRESOURCE_PERFORMANCE_DATA;
+} RESOURCE_PERFORMANCE_DATA, * PRESOURCE_PERFORMANCE_DATA;
 
 // Define executive resource function prototypes.
-NTKERNELAPI NTSTATUS ExInitializeResourceLite (__out PERESOURCE Resource);
-NTKERNELAPI NTSTATUS ExReinitializeResourceLite (__inout PERESOURCE Resource);
-NTKERNELAPI BOOLEAN ExAcquireResourceSharedLite (__inout PERESOURCE Resource, __in BOOLEAN Wait);
-NTKERNELAPI PVOID ExEnterCriticalRegionAndAcquireResourceShared (__inout PERESOURCE Resource);
-NTKERNELAPI BOOLEAN ExAcquireResourceExclusiveLite (__inout PERESOURCE Resource, __in BOOLEAN Wait);
-NTKERNELAPI PVOID ExEnterCriticalRegionAndAcquireResourceExclusive (__inout PERESOURCE Resource);
+NTKERNELAPI NTSTATUS ExInitializeResourceLite(__out PERESOURCE Resource);
+NTKERNELAPI NTSTATUS ExReinitializeResourceLite(__inout PERESOURCE Resource);
+NTKERNELAPI BOOLEAN ExAcquireResourceSharedLite(__inout PERESOURCE Resource, __in BOOLEAN Wait);
+NTKERNELAPI PVOID ExEnterCriticalRegionAndAcquireResourceShared(__inout PERESOURCE Resource);
+NTKERNELAPI BOOLEAN ExAcquireResourceExclusiveLite(__inout PERESOURCE Resource, __in BOOLEAN Wait);
+NTKERNELAPI PVOID ExEnterCriticalRegionAndAcquireResourceExclusive(__inout PERESOURCE Resource);
 NTKERNELAPI BOOLEAN ExAcquireSharedStarveExclusive(__inout PERESOURCE Resource, __in BOOLEAN Wait);
 NTKERNELAPI BOOLEAN ExAcquireSharedWaitForExclusive(__inout PERESOURCE Resource, __in BOOLEAN Wait);
-NTKERNELAPI PVOID ExEnterCriticalRegionAndAcquireSharedWaitForExclusive (__inout PERESOURCE Resource);
+NTKERNELAPI PVOID ExEnterCriticalRegionAndAcquireSharedWaitForExclusive(__inout PERESOURCE Resource);
 NTKERNELAPI BOOLEAN ExTryToAcquireResourceExclusiveLite(__inout PERESOURCE Resource);
 
 //  VOID ExReleaseResource(IN PERESOURCE Resource);
@@ -2391,19 +2408,19 @@ NTKERNELAPI BOOLEAN ExTryToAcquireResourceExclusiveLite(__inout PERESOURCE Resou
 
 NTKERNELAPI VOID FASTCALL ExReleaseResourceLite(__inout PERESOURCE Resource);
 NTKERNELAPI VOID FASTCALL ExReleaseResourceAndLeaveCriticalRegion(__inout PERESOURCE Resource);
-NTKERNELAPI VOID ExReleaseResourceForThreadLite( __inout PERESOURCE Resource, __in ERESOURCE_THREAD ResourceThreadId);
+NTKERNELAPI VOID ExReleaseResourceForThreadLite(__inout PERESOURCE Resource, __in ERESOURCE_THREAD ResourceThreadId);
 NTKERNELAPI VOID ExSetResourceOwnerPointer(__inout PERESOURCE Resource, __in PVOID OwnerPointer);
 NTKERNELAPI VOID ExConvertExclusiveToSharedLite(__inout PERESOURCE Resource);
-NTKERNELAPI NTSTATUS ExDeleteResourceLite (__inout PERESOURCE Resource);
-NTKERNELAPI ULONG ExGetExclusiveWaiterCount (__in PERESOURCE Resource);
-NTKERNELAPI ULONG ExGetSharedWaiterCount (__in PERESOURCE Resource);
+NTKERNELAPI NTSTATUS ExDeleteResourceLite(__inout PERESOURCE Resource);
+NTKERNELAPI ULONG ExGetExclusiveWaiterCount(__in PERESOURCE Resource);
+NTKERNELAPI ULONG ExGetSharedWaiterCount(__in PERESOURCE Resource);
 
 // end_ntddk end_wdm end_ntosp
 
-NTKERNELAPI VOID ExDisableResourceBoostLite (__in PERESOURCE Resource);
+NTKERNELAPI VOID ExDisableResourceBoostLite(__in PERESOURCE Resource);
 
 #if DBG
-VOID ExCheckIfResourceOwned (VOID);
+VOID ExCheckIfResourceOwned(VOID);
 #endif
 
 // begin_ntddk begin_wdm begin_ntosp
@@ -2411,8 +2428,8 @@ VOID ExCheckIfResourceOwned (VOID);
 //  ERESOURCE_THREAD ExGetCurrentResourceThread();
 #define ExGetCurrentResourceThread() ((ULONG_PTR)PsGetCurrentThread())
 
-NTKERNELAPI BOOLEAN ExIsResourceAcquiredExclusiveLite (__in PERESOURCE Resource);
-NTKERNELAPI ULONG ExIsResourceAcquiredSharedLite (__in PERESOURCE Resource);
+NTKERNELAPI BOOLEAN ExIsResourceAcquiredExclusiveLite(__in PERESOURCE Resource);
+NTKERNELAPI ULONG ExIsResourceAcquiredSharedLite(__in PERESOURCE Resource);
 
 // An acquired resource is always owned shared, as shared ownership is a subset of exclusive ownership.
 #define ExIsResourceAcquiredLite ExIsResourceAcquiredSharedLite
@@ -2447,17 +2464,15 @@ NTKERNELAPI ULONG ExIsResourceAcquiredSharedLite (__in PERESOURCE Resource);
 #define ExDisableResourceBoost ExDisableResourceBoostLite
 // end_ntifs
 
-NTKERNELAPI NTSTATUS ExQuerySystemLockInformation(
-    __out_bcount(LockInformationLength) struct _RTL_PROCESS_LOCKS *LockInformation,
-    __in ULONG LockInformationLength,
-    __out_opt PULONG ReturnLength
-    );
+NTKERNELAPI NTSTATUS ExQuerySystemLockInformation(__out_bcount(LockInformationLength) struct _RTL_PROCESS_LOCKS* LockInformation,
+                                                  __in ULONG LockInformationLength,
+                                                  __out_opt PULONG ReturnLength);
 
 // begin_ntosp
 
 // Push lock definitions
 typedef struct _EX_PUSH_LOCK {
-// LOCK bit is set for both exclusive and shared acquires
+    // LOCK bit is set for both exclusive and shared acquires
 #define EX_PUSH_LOCK_LOCK_V          ((ULONG_PTR)0x0)
 #define EX_PUSH_LOCK_LOCK            ((ULONG_PTR)0x1)
 
@@ -2476,16 +2491,16 @@ typedef struct _EX_PUSH_LOCK {
 
     union {
         struct {
-            ULONG_PTR Locked         : 1;
-            ULONG_PTR Waiting        : 1;
-            ULONG_PTR Waking         : 1;
+            ULONG_PTR Locked : 1;
+            ULONG_PTR Waiting : 1;
+            ULONG_PTR Waking : 1;
             ULONG_PTR MultipleShared : 1;
-            ULONG_PTR Shared         : sizeof (ULONG_PTR) * 8 - 4;
+            ULONG_PTR Shared : sizeof(ULONG_PTR) * 8 - 4;
         };
         ULONG_PTR Value;
         PVOID Ptr;
     };
-} EX_PUSH_LOCK, *PEX_PUSH_LOCK;
+} EX_PUSH_LOCK, * PEX_PUSH_LOCK;
 
 #if defined (NT_UP)
 #define EX_CACHE_LINE_SIZE 16
@@ -2498,16 +2513,16 @@ typedef struct _EX_PUSH_LOCK {
 // Define a fan out structure for n push locks each in its own cache line
 typedef struct _EX_PUSH_LOCK_CACHE_AWARE {
     PEX_PUSH_LOCK Locks[EX_PUSH_LOCK_FANNED_COUNT];
-} EX_PUSH_LOCK_CACHE_AWARE, *PEX_PUSH_LOCK_CACHE_AWARE;
+} EX_PUSH_LOCK_CACHE_AWARE, * PEX_PUSH_LOCK_CACHE_AWARE;
 
 // Define structure thats a push lock padded to the size of a cache line
 typedef struct _EX_PUSH_LOCK_CACHE_AWARE_PADDED {
-        EX_PUSH_LOCK Lock;
-        union {
-            UCHAR Pad[EX_CACHE_LINE_SIZE - sizeof (EX_PUSH_LOCK)];
-            BOOLEAN Single;
-        };
-} EX_PUSH_LOCK_CACHE_AWARE_PADDED, *PEX_PUSH_LOCK_CACHE_AWARE_PADDED;
+    EX_PUSH_LOCK Lock;
+    union {
+        UCHAR Pad[EX_CACHE_LINE_SIZE - sizeof(EX_PUSH_LOCK)];
+        BOOLEAN Single;
+    };
+} EX_PUSH_LOCK_CACHE_AWARE_PADDED, * PEX_PUSH_LOCK_CACHE_AWARE_PADDED;
 
 // begin_wdm begin_ntddk begin_ntifs
 
@@ -2519,11 +2534,11 @@ typedef struct _EX_RUNDOWN_REF {// Rundown protection structure
         ULONG_PTR Count;
         PVOID Ptr;
     };
-} EX_RUNDOWN_REF, *PEX_RUNDOWN_REF;
+} EX_RUNDOWN_REF, * PEX_RUNDOWN_REF;
 
 //  Opaque cache-aware rundown ref structure
 
-typedef struct _EX_RUNDOWN_REF_CACHE_AWARE  *PEX_RUNDOWN_REF_CACHE_AWARE;
+typedef struct _EX_RUNDOWN_REF_CACHE_AWARE* PEX_RUNDOWN_REF_CACHE_AWARE;
 
 // end_wdm end_ntddk end_ntifs
 
@@ -2532,7 +2547,7 @@ typedef struct _EX_RUNDOWN_REF_CACHE_AWARE {
     PVOID PoolToFree;//  Points to pool of per-proc rundown refs that needs to be freed
     ULONG RunRefSize;//  Size of each padded rundown ref structure
     ULONG Number;//  Indicates # of entries in the array of rundown ref structures
-} EX_RUNDOWN_REF_CACHE_AWARE, *PEX_RUNDOWN_REF_CACHE_AWARE;
+} EX_RUNDOWN_REF_CACHE_AWARE, * PEX_RUNDOWN_REF_CACHE_AWARE;
 
 //  The Ex/Ob handle table interface package (in handle.c)
 
@@ -2559,7 +2574,7 @@ typedef struct _EXHANDLE {
 
         ULONG_PTR Value;
     };
-} EXHANDLE, *PEXHANDLE;
+} EXHANDLE, * PEXHANDLE;
 // end_ntosp
 
 typedef struct _HANDLE_TABLE_ENTRY_INFO {
@@ -2569,7 +2584,7 @@ typedef struct _HANDLE_TABLE_ENTRY_INFO {
     //  Each set bit corresponds to an access that would be audited.
     //  As each operation takes place, its corresponding access bit is removed from this mask.
     ACCESS_MASK AuditMask;
-} HANDLE_TABLE_ENTRY_INFO, *PHANDLE_TABLE_ENTRY_INFO;
+} HANDLE_TABLE_ENTRY_INFO, * PHANDLE_TABLE_ENTRY_INFO;
 
 //  A handle table stores multiple handle table entries, each entry is looked up by its exhandle.  A handle table entry has really two fields.
 
@@ -2611,7 +2626,7 @@ typedef struct _HANDLE_TABLE_ENTRY {
 
         LONG NextFreeTableEntry;
     };
-} HANDLE_TABLE_ENTRY, *PHANDLE_TABLE_ENTRY;
+} HANDLE_TABLE_ENTRY, * PHANDLE_TABLE_ENTRY;
 
 // Define a structure to track handle usage
 #define HANDLE_TRACE_DB_MAX_STACKS 65536
@@ -2627,7 +2642,7 @@ typedef struct _HANDLE_TRACE_DB_ENTRY {
 #define HANDLE_TRACE_DB_BADREF  3
     ULONG Type;
     PVOID StackTrace[HANDLE_TRACE_DB_STACK_SIZE];
-} HANDLE_TRACE_DB_ENTRY, *PHANDLE_TRACE_DB_ENTRY;
+} HANDLE_TRACE_DB_ENTRY, * PHANDLE_TRACE_DB_ENTRY;
 
 typedef struct _HANDLE_TRACE_DEBUG_INFO {
     LONG RefCount;// Reference count for this structure
@@ -2650,11 +2665,11 @@ typedef struct _HANDLE_TRACE_DEBUG_INFO {
 #define HANDLE_TRACE_DEBUG_INFO_WAS_WRAPPED_AROUND      0x40000000
 #define HANDLE_TRACE_DEBUG_INFO_WAS_SOMETIME_CLEANED    0x80000000
 
-        ULONG BitMaskFlags;
-        FAST_MUTEX CloseCompactionLock;
-        ULONG CurrentStackIndex;// Current index for the stack trace DB
-        HANDLE_TRACE_DB_ENTRY TraceDb[1];// Save traces of those who open and close handles
-} HANDLE_TRACE_DEBUG_INFO, *PHANDLE_TRACE_DEBUG_INFO;
+    ULONG BitMaskFlags;
+    FAST_MUTEX CloseCompactionLock;
+    ULONG CurrentStackIndex;// Current index for the stack trace DB
+    HANDLE_TRACE_DB_ENTRY TraceDb[1];// Save traces of those who open and close handles
+} HANDLE_TRACE_DEBUG_INFO, * PHANDLE_TRACE_DEBUG_INFO;
 
 //  One handle table exists per process.
 //  Unless otherwise specified, via a call to RemoveHandleTable, all handle tables are linked together in a global list.
@@ -2663,7 +2678,7 @@ typedef struct _HANDLE_TABLE {
     ULONG_PTR TableCode;//  A pointer to the top level handle table tree node.
 
     //  The process who is being charged quota for this handle table and a unique process id to use in our callbacks
-    struct _EPROCESS *QuotaProcess;
+    struct _EPROCESS* QuotaProcess;
     HANDLE UniqueProcessId;
 
     // These locks are used for table expansion and preventing the A-B-A problem on handle allocate.
@@ -2699,93 +2714,101 @@ typedef struct _HANDLE_TABLE {
         // If this bit is set then we always use FIFO handle allocation.
         BOOLEAN StrictFIFO : 1;
     };
-} HANDLE_TABLE, *PHANDLE_TABLE;
+} HANDLE_TABLE, * PHANDLE_TABLE;
 
 //  Routines for handle manipulation.
 
 //  Function for unlocking handle table entries
-NTKERNELAPI VOID ExUnlockHandleTableEntry (__inout PHANDLE_TABLE HandleTable, __inout PHANDLE_TABLE_ENTRY HandleTableEntry);
+NTKERNELAPI VOID ExUnlockHandleTableEntry(__inout PHANDLE_TABLE HandleTable, __inout PHANDLE_TABLE_ENTRY HandleTableEntry);
 
 //  A global initialization function called on at system start up
-NTKERNELAPI VOID ExInitializeHandleTablePackage (VOID);
+NTKERNELAPI VOID ExInitializeHandleTablePackage(VOID);
 
 //  Functions to create, remove, and destroy handle tables per process.  The destroy function uses a callback.
-NTKERNELAPI PHANDLE_TABLE ExCreateHandleTable (__in_opt struct _EPROCESS *Process);
-VOID ExSetHandleTableStrictFIFO (IN PHANDLE_TABLE HandleTable);
-NTKERNELAPI VOID ExRemoveHandleTable (__inout PHANDLE_TABLE HandleTable);
-NTKERNELAPI NTSTATUS ExEnableHandleTracing (__inout PHANDLE_TABLE HandleTable, __in ULONG Slots);
-NTKERNELAPI NTSTATUS ExDisableHandleTracing (__inout PHANDLE_TABLE HandleTable);
-VOID ExDereferenceHandleDebugInfo (IN PHANDLE_TABLE HandleTable, IN PHANDLE_TRACE_DEBUG_INFO DebugInfo);
-PHANDLE_TRACE_DEBUG_INFO ExReferenceHandleDebugInfo (IN PHANDLE_TABLE HandleTable);
-typedef VOID (*EX_DESTROY_HANDLE_ROUTINE)(IN HANDLE Handle);
-NTKERNELAPI VOID ExDestroyHandleTable (__inout PHANDLE_TABLE HandleTable, __in EX_DESTROY_HANDLE_ROUTINE DestroyHandleProcedure);
+NTKERNELAPI PHANDLE_TABLE ExCreateHandleTable(__in_opt struct _EPROCESS* Process);
+VOID ExSetHandleTableStrictFIFO(IN PHANDLE_TABLE HandleTable);
+NTKERNELAPI VOID ExRemoveHandleTable(__inout PHANDLE_TABLE HandleTable);
+NTKERNELAPI NTSTATUS ExEnableHandleTracing(__inout PHANDLE_TABLE HandleTable, __in ULONG Slots);
+NTKERNELAPI NTSTATUS ExDisableHandleTracing(__inout PHANDLE_TABLE HandleTable);
+VOID ExDereferenceHandleDebugInfo(IN PHANDLE_TABLE HandleTable, IN PHANDLE_TRACE_DEBUG_INFO DebugInfo);
+PHANDLE_TRACE_DEBUG_INFO ExReferenceHandleDebugInfo(IN PHANDLE_TABLE HandleTable);
+typedef VOID(*EX_DESTROY_HANDLE_ROUTINE)(IN HANDLE Handle);
+NTKERNELAPI VOID ExDestroyHandleTable(__inout PHANDLE_TABLE HandleTable, __in EX_DESTROY_HANDLE_ROUTINE DestroyHandleProcedure);
 
 //  A function to enumerate through the handle table of a process using a callback.
-typedef BOOLEAN (*EX_ENUMERATE_HANDLE_ROUTINE)(IN PHANDLE_TABLE_ENTRY HandleTableEntry, IN HANDLE Handle, IN PVOID EnumParameter);
-NTKERNELAPI BOOLEAN ExEnumHandleTable (
-__in PHANDLE_TABLE HandleTable,
-__in EX_ENUMERATE_HANDLE_ROUTINE EnumHandleProcedure,
-__in PVOID EnumParameter,
-__out_opt PHANDLE Handle);
-NTKERNELAPI VOID ExSweepHandleTable (__in PHANDLE_TABLE HandleTable, __in EX_ENUMERATE_HANDLE_ROUTINE EnumHandleProcedure, __in PVOID EnumParameter);
+typedef BOOLEAN(*EX_ENUMERATE_HANDLE_ROUTINE)(IN PHANDLE_TABLE_ENTRY HandleTableEntry, IN HANDLE Handle, IN PVOID EnumParameter);
+NTKERNELAPI BOOLEAN ExEnumHandleTable(
+    __in PHANDLE_TABLE HandleTable,
+    __in EX_ENUMERATE_HANDLE_ROUTINE EnumHandleProcedure,
+    __in PVOID EnumParameter,
+    __out_opt PHANDLE Handle);
+NTKERNELAPI VOID ExSweepHandleTable(__in PHANDLE_TABLE HandleTable,
+                                    __in EX_ENUMERATE_HANDLE_ROUTINE EnumHandleProcedure,
+                                    __in PVOID EnumParameter);
 
 //  A function to duplicate the handle table of a process using a callback
 
-typedef BOOLEAN (*EX_DUPLICATE_HANDLE_ROUTINE)(
-IN struct _EPROCESS *Process OPTIONAL,
-IN PHANDLE_TABLE OldHandleTable,
-IN PHANDLE_TABLE_ENTRY OldHandleTableEntry,
-IN PHANDLE_TABLE_ENTRY HandleTableEntry);
-NTKERNELAPI PHANDLE_TABLE ExDupHandleTable (
-__inout_opt struct _EPROCESS *Process,
-__in PHANDLE_TABLE OldHandleTable,
-__in EX_DUPLICATE_HANDLE_ROUTINE DupHandleProcedure OPTIONAL,
-__in ULONG_PTR Mask);
+typedef BOOLEAN(*EX_DUPLICATE_HANDLE_ROUTINE)(IN struct _EPROCESS* Process OPTIONAL,
+                                              IN PHANDLE_TABLE OldHandleTable,
+                                              IN PHANDLE_TABLE_ENTRY OldHandleTableEntry,
+                                              IN PHANDLE_TABLE_ENTRY HandleTableEntry);
+NTKERNELAPI PHANDLE_TABLE ExDupHandleTable(__inout_opt struct _EPROCESS* Process,
+                                           __in PHANDLE_TABLE OldHandleTable,
+                                           __in EX_DUPLICATE_HANDLE_ROUTINE DupHandleProcedure OPTIONAL,
+                                           __in ULONG_PTR Mask);
 
 //  A function that enumerates all the handles in all the handle tables throughout the system using a callback.
 
-typedef NTSTATUS (*PEX_SNAPSHOT_HANDLE_ENTRY)(
-    IN OUT PSYSTEM_HANDLE_TABLE_ENTRY_INFO *HandleEntryInfo,
-    IN HANDLE UniqueProcessId,
-    IN PHANDLE_TABLE_ENTRY HandleEntry,
-    IN HANDLE Handle,
-    IN ULONG Length,
-    IN OUT PULONG RequiredLength
-    );
+typedef NTSTATUS(*PEX_SNAPSHOT_HANDLE_ENTRY)(IN OUT PSYSTEM_HANDLE_TABLE_ENTRY_INFO* HandleEntryInfo,
+                                             IN HANDLE UniqueProcessId,
+                                             IN PHANDLE_TABLE_ENTRY HandleEntry,
+                                             IN HANDLE Handle,
+                                             IN ULONG Length,
+                                             IN OUT PULONG RequiredLength
+                                             );
 
-typedef NTSTATUS (*PEX_SNAPSHOT_HANDLE_ENTRY_EX)(
-    IN OUT PSYSTEM_HANDLE_TABLE_ENTRY_INFO_EX *HandleEntryInfo,
-    IN HANDLE UniqueProcessId,
-    IN PHANDLE_TABLE_ENTRY HandleEntry,
-    IN HANDLE Handle,
-    IN ULONG Length,
-    IN OUT PULONG RequiredLength
-    );
+typedef NTSTATUS(*PEX_SNAPSHOT_HANDLE_ENTRY_EX)(IN OUT PSYSTEM_HANDLE_TABLE_ENTRY_INFO_EX* HandleEntryInfo,
+                                                IN HANDLE UniqueProcessId,
+                                                IN PHANDLE_TABLE_ENTRY HandleEntry,
+                                                IN HANDLE Handle,
+                                                IN ULONG Length,
+                                                IN OUT PULONG RequiredLength
+                                                );
 
-NTKERNELAPI NTSTATUS ExSnapShotHandleTables (
-__in PEX_SNAPSHOT_HANDLE_ENTRY SnapShotHandleEntry,
-__inout PSYSTEM_HANDLE_INFORMATION HandleInformation,
-__in ULONG Length,
-__inout PULONG RequiredLength);
-NTKERNELAPI NTSTATUS ExSnapShotHandleTablesEx (
-__in PEX_SNAPSHOT_HANDLE_ENTRY_EX SnapShotHandleEntry,
-__inout PSYSTEM_HANDLE_INFORMATION_EX HandleInformation,
-__in ULONG Length,
-__inout PULONG RequiredLength);
+NTKERNELAPI NTSTATUS ExSnapShotHandleTables(__in PEX_SNAPSHOT_HANDLE_ENTRY SnapShotHandleEntry,
+                                            __inout PSYSTEM_HANDLE_INFORMATION HandleInformation,
+                                            __in ULONG Length,
+                                            __inout PULONG RequiredLength);
+NTKERNELAPI NTSTATUS ExSnapShotHandleTablesEx(__in PEX_SNAPSHOT_HANDLE_ENTRY_EX SnapShotHandleEntry,
+                                              __inout PSYSTEM_HANDLE_INFORMATION_EX HandleInformation,
+                                              __in ULONG Length,
+                                              __inout PULONG RequiredLength);
 
 //  Functions to create, destroy, and modify handle table entries the modify function using a callback
-NTKERNELAPI HANDLE ExCreateHandle (__inout PHANDLE_TABLE HandleTable, __in PHANDLE_TABLE_ENTRY HandleTableEntry);
-NTKERNELAPI BOOLEAN ExDestroyHandle (__inout PHANDLE_TABLE HandleTable, __in HANDLE Handle, __inout_opt PHANDLE_TABLE_ENTRY HandleTableEntry);
+NTKERNELAPI HANDLE ExCreateHandle(__inout PHANDLE_TABLE HandleTable, __in PHANDLE_TABLE_ENTRY HandleTableEntry);
+NTKERNELAPI BOOLEAN ExDestroyHandle(__inout PHANDLE_TABLE HandleTable,
+                                    __in HANDLE Handle,
+                                    __inout_opt PHANDLE_TABLE_ENTRY HandleTableEntry);
 
-typedef BOOLEAN (*PEX_CHANGE_HANDLE_ROUTINE) (IN OUT PHANDLE_TABLE_ENTRY HandleTableEntry, IN ULONG_PTR Parameter);
+typedef BOOLEAN(*PEX_CHANGE_HANDLE_ROUTINE) (IN OUT PHANDLE_TABLE_ENTRY HandleTableEntry, IN ULONG_PTR Parameter);
 
-NTKERNELAPI BOOLEAN ExChangeHandle (__in PHANDLE_TABLE HandleTable, __in HANDLE Handle, __in PEX_CHANGE_HANDLE_ROUTINE ChangeRoutine, __in ULONG_PTR Parameter);
+NTKERNELAPI BOOLEAN ExChangeHandle(__in PHANDLE_TABLE HandleTable,
+                                   __in HANDLE Handle,
+                                   __in PEX_CHANGE_HANDLE_ROUTINE ChangeRoutine,
+                                   __in ULONG_PTR Parameter);
 
 //  A function that takes a handle value and returns a pointer to the associated handle table entry.
-NTKERNELAPI PHANDLE_TABLE_ENTRY ExMapHandleToPointer (__in PHANDLE_TABLE HandleTable, __in HANDLE Handle);
-NTKERNELAPI PHANDLE_TABLE_ENTRY ExMapHandleToPointerEx (__in PHANDLE_TABLE HandleTable, __in HANDLE Handle, __in KPROCESSOR_MODE PreviousMode);
-NTKERNELAPI NTSTATUS ExSetHandleInfo (__inout PHANDLE_TABLE HandleTable, __in HANDLE Handle, __in PHANDLE_TABLE_ENTRY_INFO EntryInfo, __in BOOLEAN EntryLocked);
-NTKERNELAPI PHANDLE_TABLE_ENTRY_INFO ExpGetHandleInfo (__in PHANDLE_TABLE HandleTable, __in HANDLE Handle, __in BOOLEAN EntryLocked);
+NTKERNELAPI PHANDLE_TABLE_ENTRY ExMapHandleToPointer(__in PHANDLE_TABLE HandleTable, __in HANDLE Handle);
+NTKERNELAPI PHANDLE_TABLE_ENTRY ExMapHandleToPointerEx(__in PHANDLE_TABLE HandleTable,
+                                                       __in HANDLE Handle,
+                                                       __in KPROCESSOR_MODE PreviousMode);
+NTKERNELAPI NTSTATUS ExSetHandleInfo(__inout PHANDLE_TABLE HandleTable,
+                                     __in HANDLE Handle,
+                                     __in PHANDLE_TABLE_ENTRY_INFO EntryInfo,
+                                     __in BOOLEAN EntryLocked);
+NTKERNELAPI PHANDLE_TABLE_ENTRY_INFO ExpGetHandleInfo(__in PHANDLE_TABLE HandleTable,
+                                                      __in HANDLE Handle,
+                                                      __in BOOLEAN EntryLocked);
 
 #define ExGetHandleInfo(HT,H,E)     ((HT)->ExtraInfoPages ? ExpGetHandleInfo((HT),(H),(E)) : NULL)
 
@@ -2794,7 +2817,7 @@ NTKERNELAPI PHANDLE_TABLE_ENTRY_INFO ExpGetHandleInfo (__in PHANDLE_TABLE Handle
 #define ExSetHandleTableOrder(ht,or) {NOTHING;}
 
 // Locally Unique Identifier Services
-NTKERNELAPI BOOLEAN ExLuidInitialization (VOID);
+NTKERNELAPI BOOLEAN ExLuidInitialization(VOID);
 
 // VOID ExAllocateLocallyUniqueId (PLUID Luid)
 // Routine Description:
@@ -2809,12 +2832,12 @@ NTKERNELAPI BOOLEAN ExLuidInitialization (VOID);
 extern LARGE_INTEGER ExpLuid;
 extern const LARGE_INTEGER ExpLuidIncrement;
 
-__inline VOID ExAllocateLocallyUniqueId (IN OUT PLUID Luid)
+__inline VOID ExAllocateLocallyUniqueId(IN OUT PLUID Luid)
 {
     LARGE_INTEGER Initial;
 
 #if defined (_WIN64) && !defined(_X86AMD64_)
-    Initial.QuadPart = InterlockedAdd64 (&ExpLuid.QuadPart, ExpLuidIncrement.QuadPart);
+    Initial.QuadPart = InterlockedAdd64(&ExpLuid.QuadPart, ExpLuidIncrement.QuadPart);
 #else
     LARGE_INTEGER Value;
 
@@ -2838,11 +2861,11 @@ __inline VOID ExAllocateLocallyUniqueId (IN OUT PLUID Luid)
 NTKERNELAPI KPROCESSOR_MODE ExGetPreviousMode(VOID);// Get previous mode
 // end_ntddk end_wdm end_ntifs end_ntosp
 
-NTKERNELAPI VOID NTAPI ExRaiseException (__in PEXCEPTION_RECORD ExceptionRecord);// Raise exception from kernel mode.
+NTKERNELAPI VOID NTAPI ExRaiseException(__in PEXCEPTION_RECORD ExceptionRecord);// Raise exception from kernel mode.
 
 // begin_ntosp
 
-FORCEINLINE VOID ProbeForWriteSmallStructure (IN PVOID Address, IN SIZE_T Size, IN ULONG Alignment)
+FORCEINLINE VOID ProbeForWriteSmallStructure(IN PVOID Address, IN SIZE_T Size, IN ULONG Alignment)
 /*
 Routine Description:
     Probes a structure for write access whose size is known at compile time.
@@ -2866,32 +2889,31 @@ Arguments:
 
 #if defined(_AMD64_)
         if ((ULONG_PTR)(Address) >= (ULONG_PTR)MM_USER_PROBE_ADDRESS) {
-             Address = (UCHAR * const)MM_USER_PROBE_ADDRESS;
+            Address = (UCHAR* const)MM_USER_PROBE_ADDRESS;
         }
 
-        ((volatile UCHAR *)(Address))[0] = ((volatile UCHAR *)(Address))[0];
-        ((volatile UCHAR *)(Address))[Size - 1] = ((volatile UCHAR *)(Address))[Size - 1];
+        ((volatile UCHAR*)(Address))[0] = ((volatile UCHAR*)(Address))[0];
+        ((volatile UCHAR*)(Address))[Size - 1] = ((volatile UCHAR*)(Address))[Size - 1];
 #else
         if ((ULONG_PTR)(Address) >= (ULONG_PTR)MM_USER_PROBE_ADDRESS) {
-             *((volatile UCHAR * const)MM_USER_PROBE_ADDRESS) = 0;
+            *((volatile UCHAR* const)MM_USER_PROBE_ADDRESS) = 0;
         }
 
-        *(volatile UCHAR *)(Address) = *(volatile UCHAR *)(Address);
+        *(volatile UCHAR*)(Address) = *(volatile UCHAR*)(Address);
         if (Size > Alignment) {
-            ((volatile UCHAR *)(Address))[(Size - 1) & ~(SIZE_T)(Alignment - 1)] = ((volatile UCHAR *)(Address))[(Size - 1) & ~(SIZE_T)(Alignment - 1)];
+            ((volatile UCHAR*)(Address))[(Size - 1) & ~(SIZE_T)(Alignment - 1)] = ((volatile UCHAR*)(Address))[(Size - 1) & ~(SIZE_T)(Alignment - 1)];
         }
 #endif
     }
 }
 
-NTKERNELAPI NTSTATUS ExRaiseHardError(
-    __in NTSTATUS ErrorStatus,
-    __in ULONG NumberOfParameters,
-    __in ULONG UnicodeStringParameterMask,
-    __in_ecount(NumberOfParameters) PULONG_PTR Parameters,
-    __in ULONG ValidResponseOptions,
-    __out PULONG Response
-    );
+NTKERNELAPI NTSTATUS ExRaiseHardError(__in NTSTATUS ErrorStatus,
+                                      __in ULONG NumberOfParameters,
+                                      __in ULONG UnicodeStringParameterMask,
+                                      __in_ecount(NumberOfParameters) PULONG_PTR Parameters,
+                                      __in ULONG ValidResponseOptions,
+                                      __out PULONG Response
+);
 
 int ExSystemExceptionFilter(VOID);
 NTKERNELAPI VOID ExGetCurrentProcessorCpuUsage(__out PULONG CpuUsage);
@@ -2919,18 +2941,18 @@ extern ULONG EvPrSetLow;
 #define EX_DEBUG_LOG_NUMBER_OF_BACK_TRACES 4
 
 typedef struct _EX_DEBUG_LOG_TAG {
-    UCHAR Format[ EX_DEBUG_LOG_NUMBER_OF_DATA_VALUES ];
+    UCHAR Format[EX_DEBUG_LOG_NUMBER_OF_DATA_VALUES];
     PCHAR Name;
-} EX_DEBUG_LOG_TAG, *PEX_DEBUG_LOG_TAG;
+} EX_DEBUG_LOG_TAG, * PEX_DEBUG_LOG_TAG;
 
 typedef struct _EX_DEBUG_LOG_EVENT {
     USHORT ThreadId;
     USHORT ProcessId;
     ULONG Time : 24;
     ULONG Tag : 8;
-    ULONG BackTrace[ EX_DEBUG_LOG_NUMBER_OF_BACK_TRACES ];
-    ULONG Data[ EX_DEBUG_LOG_NUMBER_OF_DATA_VALUES ];
-} EX_DEBUG_LOG_EVENT, *PEX_DEBUG_LOG_EVENT;
+    ULONG BackTrace[EX_DEBUG_LOG_NUMBER_OF_BACK_TRACES];
+    ULONG Data[EX_DEBUG_LOG_NUMBER_OF_DATA_VALUES];
+} EX_DEBUG_LOG_EVENT, * PEX_DEBUG_LOG_EVENT;
 
 typedef struct _EX_DEBUG_LOG {
     KSPIN_LOCK Lock;
@@ -2941,28 +2963,38 @@ typedef struct _EX_DEBUG_LOG {
     PEX_DEBUG_LOG_EVENT First;
     PEX_DEBUG_LOG_EVENT Last;
     PEX_DEBUG_LOG_EVENT Next;
-} EX_DEBUG_LOG, *PEX_DEBUG_LOG;
+} EX_DEBUG_LOG, * PEX_DEBUG_LOG;
 
 NTKERNELAPI PEX_DEBUG_LOG ExCreateDebugLog(__in UCHAR MaximumNumberOfTags, __in ULONG MaximumNumberOfEvents);
-NTKERNELAPI UCHAR ExCreateDebugLogTag(__in PEX_DEBUG_LOG Log, __in PCHAR Name, __in UCHAR Format1, __in UCHAR Format2, __in UCHAR Format3, __in UCHAR Format4);
-NTKERNELAPI VOID ExDebugLogEvent(__in PEX_DEBUG_LOG Log, __in UCHAR Tag, __in ULONG Data1, __in ULONG Data2, __in ULONG Data3, __in ULONG Data4);
+NTKERNELAPI UCHAR ExCreateDebugLogTag(__in PEX_DEBUG_LOG Log,
+                                      __in PCHAR Name,
+                                      __in UCHAR Format1,
+                                      __in UCHAR Format2,
+                                      __in UCHAR Format3,
+                                      __in UCHAR Format4);
+NTKERNELAPI VOID ExDebugLogEvent(__in PEX_DEBUG_LOG Log,
+                                 __in UCHAR Tag,
+                                 __in ULONG Data1,
+                                 __in ULONG Data2,
+                                 __in ULONG Data3,
+                                 __in ULONG Data4);
 VOID ExShutdownSystem(IN ULONG Phase);
 BOOLEAN ExAcquireTimeRefreshLock(IN BOOLEAN Wait);
 VOID ExReleaseTimeRefreshLock(VOID);
-VOID ExUpdateSystemTimeFromCmos (IN BOOLEAN UpdateInterruptTime, IN ULONG MaxSepInSeconds);
-VOID ExGetNextWakeTime (OUT PULONGLONG DueTime, OUT PTIME_FIELDS TimeFields, OUT PVOID *TimerObject);
+VOID ExUpdateSystemTimeFromCmos(IN BOOLEAN UpdateInterruptTime, IN ULONG MaxSepInSeconds);
+VOID ExGetNextWakeTime(OUT PULONGLONG DueTime, OUT PTIME_FIELDS TimeFields, OUT PVOID* TimerObject);
 
 // begin_ntddk begin_wdm begin_ntifs begin_ntosp
 
 // Set timer resolution.
 
-NTKERNELAPI ULONG ExSetTimerResolution (__in ULONG DesiredTime, __in BOOLEAN SetResolution);
+NTKERNELAPI ULONG ExSetTimerResolution(__in ULONG DesiredTime, __in BOOLEAN SetResolution);
 
 // Subtract time zone bias from system time to get local time.
-NTKERNELAPI VOID ExSystemTimeToLocalTime (__in PLARGE_INTEGER SystemTime, __out PLARGE_INTEGER LocalTime);
+NTKERNELAPI VOID ExSystemTimeToLocalTime(__in PLARGE_INTEGER SystemTime, __out PLARGE_INTEGER LocalTime);
 
 // Add time zone bias to local time to get system time.
-NTKERNELAPI VOID ExLocalTimeToSystemTime (__in PLARGE_INTEGER LocalTime, __out PLARGE_INTEGER SystemTime);
+NTKERNELAPI VOID ExLocalTimeToSystemTime(__in PLARGE_INTEGER LocalTime, __out PLARGE_INTEGER SystemTime);
 
 // end_ntddk end_wdm end_ntifs end_ntosp
 
@@ -2971,16 +3003,18 @@ NTKERNELAPI VOID ExInitializeTimeRefresh(VOID);
 // begin_ntddk begin_wdm begin_ntifs begin_nthal begin_ntminiport begin_ntosp
 
 // Define the type for Callback function.
-typedef struct _CALLBACK_OBJECT *PCALLBACK_OBJECT;
-typedef VOID (*PCALLBACK_FUNCTION ) (__in_opt PVOID CallbackContext, __in_opt PVOID Argument1, __in_opt PVOID Argument2);
+typedef struct _CALLBACK_OBJECT* PCALLBACK_OBJECT;
+typedef VOID(*PCALLBACK_FUNCTION) (__in_opt PVOID CallbackContext, __in_opt PVOID Argument1, __in_opt PVOID Argument2);
 
-NTKERNELAPI NTSTATUS ExCreateCallback (__deref_out PCALLBACK_OBJECT *CallbackObject,
-__in POBJECT_ATTRIBUTES ObjectAttributes,
-__in BOOLEAN Create,
-__in BOOLEAN AllowMultipleCallbacks);
-NTKERNELAPI PVOID ExRegisterCallback (__inout PCALLBACK_OBJECT CallbackObject, __in PCALLBACK_FUNCTION CallbackFunction, __in_opt PVOID CallbackContext);
-NTKERNELAPI VOID ExUnregisterCallback (__inout PVOID CallbackRegistration);
-NTKERNELAPI VOID ExNotifyCallback (__in PVOID CallbackObject, __in_opt PVOID Argument1, __in_opt PVOID Argument2);
+NTKERNELAPI NTSTATUS ExCreateCallback(__deref_out PCALLBACK_OBJECT* CallbackObject,
+                                      __in POBJECT_ATTRIBUTES ObjectAttributes,
+                                      __in BOOLEAN Create,
+                                      __in BOOLEAN AllowMultipleCallbacks);
+NTKERNELAPI PVOID ExRegisterCallback(__inout PCALLBACK_OBJECT CallbackObject,
+                                     __in PCALLBACK_FUNCTION CallbackFunction,
+                                     __in_opt PVOID CallbackContext);
+NTKERNELAPI VOID ExUnregisterCallback(__inout PVOID CallbackRegistration);
+NTKERNELAPI VOID ExNotifyCallback(__in PVOID CallbackObject, __in_opt PVOID Argument1, __in_opt PVOID Argument2);
 
 // end_ntddk end_wdm end_ntifs end_nthal end_ntminiport end_ntosp
 
@@ -3006,7 +3040,7 @@ extern PCALLBACK_OBJECT ExCbPowerState;
 
 // begin_ntosp
 
-typedef PVOID (*PKWIN32_GLOBALATOMTABLE_CALLOUT) ( void );
+typedef PVOID(*PKWIN32_GLOBALATOMTABLE_CALLOUT) (void);
 
 extern PKWIN32_GLOBALATOMTABLE_CALLOUT ExGlobalAtomTableCallout;
 
@@ -3017,7 +3051,7 @@ extern PKWIN32_GLOBALATOMTABLE_CALLOUT ExGlobalAtomTableCallout;
 // UUID Generation
 typedef GUID UUID;
 
-NTKERNELAPI NTSTATUS ExUuidCreate(__out UUID *Uuid);
+NTKERNELAPI NTSTATUS ExUuidCreate(__out UUID* Uuid);
 
 // end_ntddk end_ntosp end_ntifs
 
@@ -3032,31 +3066,31 @@ NTKERNELAPI BOOLEAN ExVerifySuite(__in SUITE_TYPE SuiteType);
 // begin_wdm begin_ntddk begin_ntosp begin_ntifs
 
 //  Rundown Locks
-NTKERNELAPI VOID FASTCALL ExInitializeRundownProtection (__out PEX_RUNDOWN_REF RunRef);
-NTKERNELAPI VOID FASTCALL ExReInitializeRundownProtection (__out PEX_RUNDOWN_REF RunRef);
-NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtection (__inout PEX_RUNDOWN_REF RunRef);
-NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtectionEx (__inout PEX_RUNDOWN_REF RunRef, __in ULONG Count);
-NTKERNELAPI VOID FASTCALL ExReleaseRundownProtection (__inout PEX_RUNDOWN_REF RunRef);
-NTKERNELAPI VOID FASTCALL ExReleaseRundownProtectionEx (__inout PEX_RUNDOWN_REF RunRef, __in ULONG Count);
-NTKERNELAPI VOID FASTCALL ExRundownCompleted (__out PEX_RUNDOWN_REF RunRef);
-NTKERNELAPI VOID FASTCALL ExWaitForRundownProtectionRelease (__inout PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExInitializeRundownProtection(__out PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExReInitializeRundownProtection(__out PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtection(__inout PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtectionEx(__inout PEX_RUNDOWN_REF RunRef, __in ULONG Count);
+NTKERNELAPI VOID FASTCALL ExReleaseRundownProtection(__inout PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExReleaseRundownProtectionEx(__inout PEX_RUNDOWN_REF RunRef, __in ULONG Count);
+NTKERNELAPI VOID FASTCALL ExRundownCompleted(__out PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExWaitForRundownProtectionRelease(__inout PEX_RUNDOWN_REF RunRef);
 NTKERNELAPI PEX_RUNDOWN_REF_CACHE_AWARE ExAllocateCacheAwareRundownProtection(__in POOL_TYPE PoolType, __in ULONG PoolTag);
-NTKERNELAPI SIZE_T ExSizeOfRundownProtectionCacheAware( VOID);
+NTKERNELAPI SIZE_T ExSizeOfRundownProtectionCacheAware(VOID);
 NTKERNELAPI VOID ExInitializeRundownProtectionCacheAware(__out PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware, __in SIZE_T RunRefSize);
 NTKERNELAPI VOID ExFreeCacheAwareRundownProtection(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
-NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtectionCacheAware (__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
-NTKERNELAPI VOID FASTCALL ExReleaseRundownProtectionCacheAware (__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
-NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtectionCacheAwareEx (__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware, __in ULONG Count);
-NTKERNELAPI VOID FASTCALL ExReleaseRundownProtectionCacheAwareEx (__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRef, __in ULONG Count);
-NTKERNELAPI VOID FASTCALL ExWaitForRundownProtectionReleaseCacheAware (__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRef);
-NTKERNELAPI VOID FASTCALL ExReInitializeRundownProtectionCacheAware (__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
-NTKERNELAPI VOID FASTCALL ExRundownCompletedCacheAware (__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
+NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtectionCacheAware(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
+NTKERNELAPI VOID FASTCALL ExReleaseRundownProtectionCacheAware(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
+NTKERNELAPI BOOLEAN FASTCALL ExAcquireRundownProtectionCacheAwareEx(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware, __in ULONG Count);
+NTKERNELAPI VOID FASTCALL ExReleaseRundownProtectionCacheAwareEx(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRef, __in ULONG Count);
+NTKERNELAPI VOID FASTCALL ExWaitForRundownProtectionReleaseCacheAware(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRef);
+NTKERNELAPI VOID FASTCALL ExReInitializeRundownProtectionCacheAware(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
+NTKERNELAPI VOID FASTCALL ExRundownCompletedCacheAware(__inout PEX_RUNDOWN_REF_CACHE_AWARE RunRefCacheAware);
 
 // end_wdm end_ntddk end_ntosp end_ntifs
 
-NTKERNELAPI VOID FASTCALL ExfInitializeRundownProtection (__out PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExfInitializeRundownProtection(__out PEX_RUNDOWN_REF RunRef);
 
-NTKERNELAPI VOID FORCEINLINE FASTCALL ExInitializeRundownProtection (__out PEX_RUNDOWN_REF RunRef)
+NTKERNELAPI VOID FORCEINLINE FASTCALL ExInitializeRundownProtection(__out PEX_RUNDOWN_REF RunRef)
 /*
 Routine Description:
     Initialize rundown protection structure
@@ -3069,9 +3103,9 @@ Arguments:
 
 
 // Reset a rundown protection block
-NTKERNELAPI VOID FASTCALL ExfReInitializeRundownProtection (__out PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExfReInitializeRundownProtection(__out PEX_RUNDOWN_REF RunRef);
 
-NTKERNELAPI VOID FORCEINLINE FASTCALL ExReInitializeRundownProtection (__out PEX_RUNDOWN_REF RunRef)
+NTKERNELAPI VOID FORCEINLINE FASTCALL ExReInitializeRundownProtection(__out PEX_RUNDOWN_REF RunRef)
 /*
 Routine Description:
     Reinitialize rundown protection structure after its been rundown
@@ -3079,52 +3113,52 @@ Arguments:
     RunRef - Rundown block to be referenced
 */
 {
-    PAGED_CODE ();
+    PAGED_CODE();
 
-    ASSERT ((RunRef->Count&EX_RUNDOWN_ACTIVE) != 0);
-    InterlockedExchangePointer (&RunRef->Ptr, NULL);
+    ASSERT((RunRef->Count & EX_RUNDOWN_ACTIVE) != 0);
+    InterlockedExchangePointer(&RunRef->Ptr, NULL);
 }
 
 
 // Acquire rundown protection
-NTKERNELAPI BOOLEAN FASTCALL ExfAcquireRundownProtection (__inout PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI BOOLEAN FASTCALL ExfAcquireRundownProtection(__inout PEX_RUNDOWN_REF RunRef);
 
-NTKERNELAPI BOOLEAN FORCEINLINE FASTCALL ExAcquireRundownProtection (__inout PEX_RUNDOWN_REF RunRef)
+NTKERNELAPI BOOLEAN FORCEINLINE FASTCALL ExAcquireRundownProtection(__inout PEX_RUNDOWN_REF RunRef)
 {
     ULONG_PTR Value, NewValue;
 
     Value = ReadForWriteAccess(&RunRef->Count) & ~EX_RUNDOWN_ACTIVE;
     NewValue = Value + EX_RUNDOWN_COUNT_INC;
-    NewValue = (ULONG_PTR) InterlockedCompareExchangePointerAcquire (&RunRef->Ptr, (PVOID) NewValue, (PVOID) Value);
+    NewValue = (ULONG_PTR)InterlockedCompareExchangePointerAcquire(&RunRef->Ptr, (PVOID)NewValue, (PVOID)Value);
     if (NewValue == Value) {
         return TRUE;
     } else {
-        return ExfAcquireRundownProtection (RunRef);
+        return ExfAcquireRundownProtection(RunRef);
     }
 }
 
 // Release rundown protection
-NTKERNELAPI VOID FASTCALL ExfReleaseRundownProtection (__inout PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExfReleaseRundownProtection(__inout PEX_RUNDOWN_REF RunRef);
 
-NTKERNELAPI VOID FORCEINLINE FASTCALL ExReleaseRundownProtection (__inout PEX_RUNDOWN_REF RunRef)
+NTKERNELAPI VOID FORCEINLINE FASTCALL ExReleaseRundownProtection(__inout PEX_RUNDOWN_REF RunRef)
 {
     ULONG_PTR Value, NewValue;
 
     Value = ReadForWriteAccess(&RunRef->Count) & ~EX_RUNDOWN_ACTIVE;
     NewValue = Value - EX_RUNDOWN_COUNT_INC;
-    NewValue = (ULONG_PTR) InterlockedCompareExchangePointerRelease (&RunRef->Ptr, (PVOID) NewValue, (PVOID) Value);
+    NewValue = (ULONG_PTR)InterlockedCompareExchangePointerRelease(&RunRef->Ptr, (PVOID)NewValue, (PVOID)Value);
     if (NewValue != Value) {
-        ExfReleaseRundownProtection (RunRef);
+        ExfReleaseRundownProtection(RunRef);
     } else {
-       // For cache-aware rundown protection it is possible, that the value is zero at this point for this processor
-        ASSERT ((Value >= EX_RUNDOWN_COUNT_INC) || (KeNumberProcessors > 1));
+        // For cache-aware rundown protection it is possible, that the value is zero at this point for this processor
+        ASSERT((Value >= EX_RUNDOWN_COUNT_INC) || (KeNumberProcessors > 1));
     }
 }
 
 // Mark rundown block as rundown having been completed.
-NTKERNELAPI VOID FASTCALL ExfRundownCompleted (__out PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExfRundownCompleted(__out PEX_RUNDOWN_REF RunRef);
 
-NTKERNELAPI VOID FORCEINLINE FASTCALL ExRundownCompleted (__out PEX_RUNDOWN_REF RunRef)
+NTKERNELAPI VOID FORCEINLINE FASTCALL ExRundownCompleted(__out PEX_RUNDOWN_REF RunRef)
 /*
 Routine Description:
     Mark rundown block has having completed rundown so we can wait again safely.
@@ -3132,23 +3166,23 @@ Arguments:
     RunRef - Rundown block to be referenced
 */
 {
-    PAGED_CODE ();
+    PAGED_CODE();
 
-    ASSERT ((RunRef->Count&EX_RUNDOWN_ACTIVE) != 0);
-    InterlockedExchangePointer (&RunRef->Ptr, (PVOID) EX_RUNDOWN_ACTIVE);
+    ASSERT((RunRef->Count & EX_RUNDOWN_ACTIVE) != 0);
+    InterlockedExchangePointer(&RunRef->Ptr, (PVOID)EX_RUNDOWN_ACTIVE);
 }
 
 
 // Wait for all protected acquires to exit
-NTKERNELAPI VOID FASTCALL ExfWaitForRundownProtectionRelease (__inout PEX_RUNDOWN_REF RunRef);
+NTKERNELAPI VOID FASTCALL ExfWaitForRundownProtectionRelease(__inout PEX_RUNDOWN_REF RunRef);
 
-NTKERNELAPI VOID FORCEINLINE FASTCALL ExWaitForRundownProtectionRelease (__inout PEX_RUNDOWN_REF RunRef)
+NTKERNELAPI VOID FORCEINLINE FASTCALL ExWaitForRundownProtectionRelease(__inout PEX_RUNDOWN_REF RunRef)
 {
     ULONG_PTR OldValue;
 
-    OldValue = (ULONG_PTR) InterlockedCompareExchangePointerAcquire (&RunRef->Ptr, (PVOID) EX_RUNDOWN_ACTIVE, (PVOID) 0);
+    OldValue = (ULONG_PTR)InterlockedCompareExchangePointerAcquire(&RunRef->Ptr, (PVOID)EX_RUNDOWN_ACTIVE, (PVOID)0);
     if (OldValue != 0 && OldValue != EX_RUNDOWN_ACTIVE) {
-        ExfWaitForRundownProtectionRelease (RunRef);
+        ExfWaitForRundownProtectionRelease(RunRef);
     }
 }
 
@@ -3170,10 +3204,10 @@ typedef struct _EX_FAST_REF {
 #endif
         ULONG_PTR Value;
     };
-} EX_FAST_REF, *PEX_FAST_REF;
+} EX_FAST_REF, * PEX_FAST_REF;
 
 
-NTKERNELAPI LOGICAL FORCEINLINE ExFastRefCanBeReferenced (__in EX_FAST_REF FastRef)
+NTKERNELAPI LOGICAL FORCEINLINE ExFastRefCanBeReferenced(__in EX_FAST_REF FastRef)
 /*
 Routine Description:
     This routine allows the caller to determine if the fast reference structure contains cached references.
@@ -3186,7 +3220,7 @@ Return Value:
     return FastRef.RefCnt != 0;
 }
 
-NTKERNELAPI LOGICAL FORCEINLINE ExFastRefCanBeDereferenced (__in EX_FAST_REF FastRef)
+NTKERNELAPI LOGICAL FORCEINLINE ExFastRefCanBeDereferenced(__in EX_FAST_REF FastRef)
 /*
 Routine Description:
     This routine allows the caller to determine if the fast reference structure contains room for cached references.
@@ -3200,7 +3234,7 @@ Return Value:
     return FastRef.RefCnt != MAX_FAST_REFS;
 }
 
-NTKERNELAPI LOGICAL FORCEINLINE ExFastRefIsLastReference (__in EX_FAST_REF FastRef)
+NTKERNELAPI LOGICAL FORCEINLINE ExFastRefIsLastReference(__in EX_FAST_REF FastRef)
 /*
 Routine Description:
     This routine allows the caller to determine if the fast reference structure contains only 1 cached reference.
@@ -3214,7 +3248,7 @@ Return Value:
     return FastRef.RefCnt == 1;
 }
 
-NTKERNELAPI PVOID FORCEINLINE ExFastRefGetObject (__in EX_FAST_REF FastRef)
+NTKERNELAPI PVOID FORCEINLINE ExFastRefGetObject(__in EX_FAST_REF FastRef)
 /*
 Routine Description:
     This routine allows the caller to obtain the object pointer from a fast reference structure.
@@ -3224,10 +3258,10 @@ Return Value:
     PVOID - The contained object or NULL if there isn't one.
 */
 {
-    return (PVOID) (FastRef.Value & ~MAX_FAST_REFS);
+    return (PVOID)(FastRef.Value & ~MAX_FAST_REFS);
 }
 
-NTKERNELAPI BOOLEAN FORCEINLINE ExFastRefObjectNull (__in EX_FAST_REF FastRef)
+NTKERNELAPI BOOLEAN FORCEINLINE ExFastRefObjectNull(__in EX_FAST_REF FastRef)
 /*
 Routine Description:
     This routine allows the caller to test of the specified fastref value has a null pointer
@@ -3237,10 +3271,10 @@ Return Value:
     BOOLEAN - TRUE if the object is NULL FALSE otherwise
 */
 {
-    return (BOOLEAN) (FastRef.Value == 0);
+    return (BOOLEAN)(FastRef.Value == 0);
 }
 
-NTKERNELAPI BOOLEAN FORCEINLINE ExFastRefEqualObjects (__in EX_FAST_REF FastRef, __in PVOID Object)
+NTKERNELAPI BOOLEAN FORCEINLINE ExFastRefEqualObjects(__in EX_FAST_REF FastRef, __in PVOID Object)
 /*
 Routine Description:
     This routine allows the caller to test of the specified fastref contains the specified object
@@ -3250,10 +3284,10 @@ Return Value:
     BOOLEAN - TRUE if the object matches FALSE otherwise
 */
 {
-    return (BOOLEAN)((FastRef.Value^(ULONG_PTR)Object) <= MAX_FAST_REFS);
+    return (BOOLEAN)((FastRef.Value ^ (ULONG_PTR)Object) <= MAX_FAST_REFS);
 }
 
-NTKERNELAPI ULONG FORCEINLINE ExFastRefGetUnusedReferences (__in EX_FAST_REF FastRef)
+NTKERNELAPI ULONG FORCEINLINE ExFastRefGetUnusedReferences(__in EX_FAST_REF FastRef)
 /*
 Routine Description:
     This routine allows the caller to obtain the number of cached references in the fast reference structure.
@@ -3263,10 +3297,10 @@ Return Value:
     ULONG - The number of cached references.
 */
 {
-    return (ULONG) FastRef.RefCnt;
+    return (ULONG)FastRef.RefCnt;
 }
 
-NTKERNELAPI VOID FORCEINLINE ExFastRefInitialize (__out PEX_FAST_REF FastRef, __in_opt PVOID Object)
+NTKERNELAPI VOID FORCEINLINE ExFastRefInitialize(__out PEX_FAST_REF FastRef, __in_opt PVOID Object)
 /*
 Routine Description:
     This routine initializes fast reference structure.
@@ -3275,16 +3309,19 @@ Arguments:
     Object  - Object pointer to be assigned to the fast reference
 */
 {
-    ASSERT ((((ULONG_PTR)Object)&MAX_FAST_REFS) == 0);
+    ASSERT((((ULONG_PTR)Object) & MAX_FAST_REFS) == 0);
 
     if (Object == NULL) {
-       FastRef->Object = NULL;
+        FastRef->Object = NULL;
     } else {
-       FastRef->Value = (ULONG_PTR) Object | MAX_FAST_REFS;
+        FastRef->Value = (ULONG_PTR)Object | MAX_FAST_REFS;
     }
 }
 
-NTKERNELAPI VOID FORCEINLINE ExFastRefInitializeEx (__out PEX_FAST_REF FastRef, __in_opt PVOID Object, __in ULONG AdditionalRefs)
+NTKERNELAPI VOID FORCEINLINE ExFastRefInitializeEx(__out PEX_FAST_REF FastRef,
+                                                   __in_opt PVOID Object,
+                                                   __in ULONG AdditionalRefs
+)
 /*
 Routine Description:
     This routine initializes fast reference structure with the specified additional references.
@@ -3294,22 +3331,22 @@ Arguments:
     AdditionalRefs - Number of additional refs to add to the object
 */
 {
-    ASSERT (AdditionalRefs <= MAX_FAST_REFS);
-    ASSERT ((((ULONG_PTR)Object)&MAX_FAST_REFS) == 0);
+    ASSERT(AdditionalRefs <= MAX_FAST_REFS);
+    ASSERT((((ULONG_PTR)Object) & MAX_FAST_REFS) == 0);
 
     if (Object == NULL) {
-       FastRef->Object = NULL;
+        FastRef->Object = NULL;
     } else {
-       FastRef->Value = (ULONG_PTR) Object + AdditionalRefs;
+        FastRef->Value = (ULONG_PTR)Object + AdditionalRefs;
     }
 }
 
-NTKERNELAPI ULONG FORCEINLINE ExFastRefGetAdditionalReferenceCount (VOID)
+NTKERNELAPI ULONG FORCEINLINE ExFastRefGetAdditionalReferenceCount(VOID)
 {
     return MAX_FAST_REFS;
 }
 
-NTKERNELAPI EX_FAST_REF FORCEINLINE ExFastReference (__inout PEX_FAST_REF FastRef)
+NTKERNELAPI EX_FAST_REF FORCEINLINE ExFastReference(__inout PEX_FAST_REF FastRef)
 /*
 Routine Description:
     This routine attempts to obtain a fast (cached) reference from a fast  reference structure.
@@ -3330,7 +3367,7 @@ Return Value:
         if (OldRef.RefCnt != 0) {
             // We know the bottom bits can't underflow into the pointer for a request that works so just decrement
             NewRef.Value = OldRef.Value - 1;
-            NewRef.Object = InterlockedCompareExchangePointerAcquire (&FastRef->Object, NewRef.Object, OldRef.Object);
+            NewRef.Object = InterlockedCompareExchangePointerAcquire(&FastRef->Object, NewRef.Object, OldRef.Object);
             if (NewRef.Object != OldRef.Object) {
                 continue;// The structured changed beneath us. Try the operation again
             }
@@ -3341,7 +3378,7 @@ Return Value:
     return OldRef;
 }
 
-NTKERNELAPI LOGICAL FORCEINLINE ExFastRefDereference (__inout PEX_FAST_REF FastRef, __in PVOID Object)
+NTKERNELAPI LOGICAL FORCEINLINE ExFastRefDereference(__inout PEX_FAST_REF FastRef, __in PVOID Object)
 /*
 Routine Description:
     This routine attempts to release a fast reference from a fast ref structure.
@@ -3356,21 +3393,21 @@ Return Value:
 {
     EX_FAST_REF OldRef, NewRef;
 
-    ASSERT ((((ULONG_PTR)Object)&MAX_FAST_REFS) == 0);
-    ASSERT (Object != NULL);
+    ASSERT((((ULONG_PTR)Object) & MAX_FAST_REFS) == 0);
+    ASSERT(Object != NULL);
 
     while (1) {
         OldRef = ReadForWriteAccess(FastRef);// Fetch the old contents of the fast ref structure
 
         // If the reference cache is fully populated or the pointer has changed to another object then just return the old value.
         // The caller can return the reference to the object instead.
-        if ((OldRef.Value^(ULONG_PTR)Object) >= MAX_FAST_REFS) {
+        if ((OldRef.Value ^ (ULONG_PTR)Object) >= MAX_FAST_REFS) {
             return FALSE;
         }
 
         // We know the bottom bits can't overflow into the pointer so just increment
         NewRef.Value = OldRef.Value + 1;
-        NewRef.Object = InterlockedCompareExchangePointerRelease (&FastRef->Object, NewRef.Object, OldRef.Object);
+        NewRef.Object = InterlockedCompareExchangePointerRelease(&FastRef->Object, NewRef.Object, OldRef.Object);
         if (NewRef.Object != OldRef.Object) {
             continue;// The structured changed beneath us. Try the operation again
         }
@@ -3380,7 +3417,10 @@ Return Value:
     return TRUE;
 }
 
-NTKERNELAPI LOGICAL FORCEINLINE ExFastRefAddAdditionalReferenceCounts (__inout PEX_FAST_REF FastRef, __in PVOID Object, __in ULONG RefsToAdd)
+NTKERNELAPI LOGICAL FORCEINLINE ExFastRefAddAdditionalReferenceCounts(__inout PEX_FAST_REF FastRef,
+                                                                      __in PVOID Object,
+                                                                      __in ULONG RefsToAdd
+)
 /*
 Routine Description:
     This routine attempts to update the cached references on structure to allow future callers to run lock free.
@@ -3396,20 +3436,20 @@ Return Value:
 {
     EX_FAST_REF OldRef, NewRef;
 
-    ASSERT (RefsToAdd <= MAX_FAST_REFS);
-    ASSERT ((((ULONG_PTR)Object)&MAX_FAST_REFS) == 0);
+    ASSERT(RefsToAdd <= MAX_FAST_REFS);
+    ASSERT((((ULONG_PTR)Object) & MAX_FAST_REFS) == 0);
 
     while (1) {
         OldRef = ReadForWriteAccess(FastRef);// Fetch the old contents of the fast ref structure
 
         // If the count would push us above maximum cached references or if the object pointer has changed the fail the request.
-        if (OldRef.RefCnt + RefsToAdd > MAX_FAST_REFS || (ULONG_PTR) Object != (OldRef.Value & ~MAX_FAST_REFS)) {
+        if (OldRef.RefCnt + RefsToAdd > MAX_FAST_REFS || (ULONG_PTR)Object != (OldRef.Value & ~MAX_FAST_REFS)) {
             return FALSE;
         }
 
         // We know the bottom bits can't overflow into the pointer so just increment
         NewRef.Value = OldRef.Value + RefsToAdd;
-        NewRef.Object = InterlockedCompareExchangePointerAcquire (&FastRef->Object, NewRef.Object, OldRef.Object);
+        NewRef.Object = InterlockedCompareExchangePointerAcquire(&FastRef->Object, NewRef.Object, OldRef.Object);
         if (NewRef.Object != OldRef.Object) {
             continue;// The structured changed beneath us. Use the return value from the exchange and try it all again.
         }
@@ -3419,7 +3459,7 @@ Return Value:
     return TRUE;
 }
 
-NTKERNELAPI EX_FAST_REF FORCEINLINE ExFastRefSwapObject (__inout PEX_FAST_REF FastRef, __in_opt PVOID Object)
+NTKERNELAPI EX_FAST_REF FORCEINLINE ExFastRefSwapObject(__inout PEX_FAST_REF FastRef, __in_opt PVOID Object)
 /*
 Routine Description:
     This routine attempts to replace the current object with a new object.
@@ -3436,19 +3476,22 @@ Return Value:
     EX_FAST_REF OldRef;
     EX_FAST_REF NewRef;
 
-    ASSERT ((((ULONG_PTR)Object)&MAX_FAST_REFS) == 0);
+    ASSERT((((ULONG_PTR)Object) & MAX_FAST_REFS) == 0);
     if (Object != NULL) {
-        NewRef.Value = (ULONG_PTR) Object | MAX_FAST_REFS;
+        NewRef.Value = (ULONG_PTR)Object | MAX_FAST_REFS;
     } else {
         NewRef.Value = 0;
     }
 
-    OldRef.Object = InterlockedExchangePointer (&FastRef->Object, NewRef.Object);
+    OldRef.Object = InterlockedExchangePointer(&FastRef->Object, NewRef.Object);
 
     return OldRef;
 }
 
-NTKERNELAPI EX_FAST_REF FORCEINLINE ExFastRefCompareSwapObject (__inout PEX_FAST_REF FastRef, __in_opt PVOID Object, __in PVOID OldObject)
+NTKERNELAPI EX_FAST_REF FORCEINLINE ExFastRefCompareSwapObject(__inout PEX_FAST_REF FastRef,
+                                                               __in_opt PVOID Object,
+                                                               __in PVOID OldObject
+)
 /*
 Routine Description:
     This routine attempts to replace the current object with a new object if the current object matches the old object.
@@ -3466,22 +3509,22 @@ Return Value:
     EX_FAST_REF OldRef;
     EX_FAST_REF NewRef;
 
-    ASSERT ((((ULONG_PTR)Object)&MAX_FAST_REFS) == 0);
+    ASSERT((((ULONG_PTR)Object) & MAX_FAST_REFS) == 0);
     while (1) {
         OldRef = ReadForWriteAccess(FastRef);// Fetch the old contents of the fast ref structure
 
         // Compare the current object to the old to see if a swap is possible.
-        if (!ExFastRefEqualObjects (OldRef, OldObject)) {
+        if (!ExFastRefEqualObjects(OldRef, OldObject)) {
             return OldRef;
         }
 
         if (Object != NULL) {
-            NewRef.Value = (ULONG_PTR) Object | MAX_FAST_REFS;
+            NewRef.Value = (ULONG_PTR)Object | MAX_FAST_REFS;
         } else {
-            NewRef.Value = (ULONG_PTR) Object;
+            NewRef.Value = (ULONG_PTR)Object;
         }
 
-        NewRef.Object = InterlockedCompareExchangePointerRelease (&FastRef->Object, NewRef.Object, OldRef.Object);
+        NewRef.Object = InterlockedCompareExchangePointerRelease(&FastRef->Object, NewRef.Object, OldRef.Object);
         if (NewRef.Object != OldRef.Object) {
             continue;// The structured changed beneath us. Try it all again.
         }
@@ -3495,7 +3538,7 @@ Return Value:
 
 #if !defined(NONTOSPINTERLOCK)
 
-VOID FORCEINLINE ExInitializePushLock (__out PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExInitializePushLock(__out PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Initialize a push lock structure
@@ -3505,21 +3548,21 @@ Arguments:
 {
     PushLock->Value = 0;
 }
-NTKERNELAPI VOID FASTCALL ExfAcquirePushLockExclusive (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI VOID FASTCALL ExfAcquirePushLockShared (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI VOID FASTCALL ExfReleasePushLock (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI VOID FASTCALL ExfReleasePushLockShared (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI VOID FASTCALL ExfAcquirePushLockExclusive (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI VOID FASTCALL ExfReleasePushLockExclusive (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI BOOLEAN FASTCALL ExfTryAcquirePushLockExclusive (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI BOOLEAN FASTCALL ExfTryAcquirePushLockShared (__inout PEX_PUSH_LOCK PushLock);
-NTKERNELAPI VOID FASTCALL ExfTryToWakePushLock (__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfAcquirePushLockExclusive(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfAcquirePushLockShared(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfReleasePushLock(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfReleasePushLockShared(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfAcquirePushLockExclusive(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfReleasePushLockExclusive(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI BOOLEAN FASTCALL ExfTryAcquirePushLockExclusive(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI BOOLEAN FASTCALL ExfTryAcquirePushLockShared(__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfTryToWakePushLock(__inout PEX_PUSH_LOCK PushLock);
 
 // end_ntosp
 
-NTKERNELAPI VOID FASTCALL ExfConvertPushLockExclusiveToShared (__inout PEX_PUSH_LOCK PushLock);
+NTKERNELAPI VOID FASTCALL ExfConvertPushLockExclusiveToShared(__inout PEX_PUSH_LOCK PushLock);
 
-NTKERNELAPI VOID FORCEINLINE ExAcquireReleasePushLockExclusive (__inout PEX_PUSH_LOCK PushLock)
+NTKERNELAPI VOID FORCEINLINE ExAcquireReleasePushLockExclusive(__inout PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Acquire a push lock exclusively and immediately release it
@@ -3529,18 +3572,18 @@ Arguments:
 {
     ULONG_PTR Locked;
 
-    KeMemoryBarrier ();
+    KeMemoryBarrier();
     Locked = PushLock->Locked;
-    KeMemoryBarrier ();
+    KeMemoryBarrier();
 
     if (Locked) {
-        ExfAcquirePushLockExclusive (PushLock);
-        ASSERT (PushLock->Locked);
-        ExfReleasePushLockExclusive (PushLock);
+        ExfAcquirePushLockExclusive(PushLock);
+        ASSERT(PushLock->Locked);
+        ExfReleasePushLockExclusive(PushLock);
     }
 }
 
-NTKERNELAPI BOOLEAN FORCEINLINE ExTryAcquireReleasePushLockExclusive (__inout PEX_PUSH_LOCK PushLock)
+NTKERNELAPI BOOLEAN FORCEINLINE ExTryAcquireReleasePushLockExclusive(__inout PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Try to acquire a push lock exclusively and immediately release it
@@ -3552,9 +3595,9 @@ Return Value:
 {
     ULONG_PTR Locked;
 
-    KeMemoryBarrier ();
+    KeMemoryBarrier();
     Locked = PushLock->Locked;
-    KeMemoryBarrier ();
+    KeMemoryBarrier();
 
     if (Locked) {
         return FALSE;
@@ -3563,7 +3606,7 @@ Return Value:
     }
 }
 
-VOID FORCEINLINE ExConvertPushLockExclusiveToShared (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExConvertPushLockExclusiveToShared(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Attempts to convert an exclusive acquire to shared. If other shared waiters are present at the end of the waiters chain they are released.
@@ -3576,23 +3619,23 @@ Arguments:
 
     OldValue = *PushLock;
 
-    ASSERT (OldValue.Waiting || OldValue.Shared == 0);
-    ASSERT (OldValue.Locked);
+    ASSERT(OldValue.Waiting || OldValue.Shared == 0);
+    ASSERT(OldValue.Locked);
 #endif
 
-    if (InterlockedCompareExchangePointer (&PushLock->Ptr, (PVOID) (EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK), (PVOID) EX_PUSH_LOCK_LOCK) != (PVOID) EX_PUSH_LOCK_LOCK) {
-        ExfConvertPushLockExclusiveToShared (PushLock);
+    if (InterlockedCompareExchangePointer(&PushLock->Ptr, (PVOID)(EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK), (PVOID)EX_PUSH_LOCK_LOCK) != (PVOID)EX_PUSH_LOCK_LOCK) {
+        ExfConvertPushLockExclusiveToShared(PushLock);
 #if DBG
         OldValue = *PushLock;
-        ASSERT (OldValue.Locked);
-        ASSERT (OldValue.Waiting || OldValue.Shared > 0);
+        ASSERT(OldValue.Locked);
+        ASSERT(OldValue.Waiting || OldValue.Shared > 0);
 #endif
     }
 }
 
 // begin_ntosp
 
-VOID FORCEINLINE ExAcquirePushLockExclusive (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExAcquirePushLockExclusive(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Acquire a push lock exclusively
@@ -3601,17 +3644,17 @@ Arguments:
 */
 {
 #if defined (_WIN64)
-    if (InterlockedBitTestAndSet64 ((LONG64 *)&PushLock->Value, EX_PUSH_LOCK_LOCK_V))
+    if (InterlockedBitTestAndSet64((LONG64*)&PushLock->Value, EX_PUSH_LOCK_LOCK_V))
 #else
-    if (InterlockedBitTestAndSet ((LONG *)&PushLock->Value, EX_PUSH_LOCK_LOCK_V))
+    if (InterlockedBitTestAndSet((LONG*)&PushLock->Value, EX_PUSH_LOCK_LOCK_V))
 #endif
     {
-        ExfAcquirePushLockExclusive (PushLock);
+        ExfAcquirePushLockExclusive(PushLock);
     }
-    ASSERT (PushLock->Locked);
+    ASSERT(PushLock->Locked);
 }
 
-BOOLEAN FORCEINLINE ExTryAcquirePushLockExclusive (IN PEX_PUSH_LOCK PushLock)
+BOOLEAN FORCEINLINE ExTryAcquirePushLockExclusive(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Try and acquire a push lock exclusively
@@ -3622,18 +3665,18 @@ Return Value:
 */
 {
 #if defined (_WIN64)
-    if (!InterlockedBitTestAndSet64 ((LONG64 *)&PushLock->Value, EX_PUSH_LOCK_LOCK_V)) {
+    if (!InterlockedBitTestAndSet64((LONG64*)&PushLock->Value, EX_PUSH_LOCK_LOCK_V)) {
 #else
-    if (!InterlockedBitTestAndSet ((LONG *)&PushLock->Value, EX_PUSH_LOCK_LOCK_V)) {
+    if (!InterlockedBitTestAndSet((LONG*)&PushLock->Value, EX_PUSH_LOCK_LOCK_V)) {
 #endif
-        ASSERT (PushLock->Locked);
+        ASSERT(PushLock->Locked);
         return TRUE;
     } else {
         return FALSE;
     }
 }
 
-BOOLEAN FORCEINLINE ExTryAcquirePushLockShared (IN PEX_PUSH_LOCK PushLock)
+BOOLEAN FORCEINLINE ExTryAcquirePushLockShared(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Try to Acquire a push lock shared.
@@ -3646,23 +3689,23 @@ Return Value:
     EX_PUSH_LOCK OldValue, NewValue;
 
     OldValue.Value = 0;
-    NewValue.Value = EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK;
-    if (InterlockedCompareExchangePointer (&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
-        if (!ExfTryAcquirePushLockShared (PushLock)) {
+    NewValue.Value = EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK;
+    if (InterlockedCompareExchangePointer(&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
+        if (!ExfTryAcquirePushLockShared(PushLock)) {
             return FALSE;
         }
     }
 
 #if DBG
     OldValue = *PushLock;
-    ASSERT (OldValue.Locked);
-    ASSERT (OldValue.Waiting || OldValue.Shared > 0);
+    ASSERT(OldValue.Locked);
+    ASSERT(OldValue.Waiting || OldValue.Shared > 0);
 #endif
 
     return TRUE;
 }
 
-VOID FORCEINLINE ExAcquirePushLockShared (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExAcquirePushLockShared(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Acquire a push lock shared
@@ -3673,19 +3716,19 @@ Arguments:
     EX_PUSH_LOCK OldValue, NewValue;
 
     OldValue.Value = 0;
-    NewValue.Value = EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK;
-    if (InterlockedCompareExchangePointer (&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
-        ExfAcquirePushLockShared (PushLock);
+    NewValue.Value = EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK;
+    if (InterlockedCompareExchangePointer(&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
+        ExfAcquirePushLockShared(PushLock);
     }
 
 #if DBG
     OldValue = *PushLock;
-    ASSERT (OldValue.Locked);
-    ASSERT (OldValue.Waiting || OldValue.Shared > 0);
+    ASSERT(OldValue.Locked);
+    ASSERT(OldValue.Waiting || OldValue.Shared > 0);
 #endif
 }
 
-VOID FORCEINLINE ExAcquirePushLockSharedAssumeNoOwner (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExAcquirePushLockSharedAssumeNoOwner(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Acquire a push lock shared making the assumption that its not currently owned.
@@ -3693,12 +3736,12 @@ Arguments:
     PushLock - Push lock to be acquired
 */
 {
-    if (InterlockedCompareExchangePointer (&PushLock->Ptr, (PVOID)(EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK), NULL) != NULL) {
-        ExfAcquirePushLockShared (PushLock);
+    if (InterlockedCompareExchangePointer(&PushLock->Ptr, (PVOID)(EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK), NULL) != NULL) {
+        ExfAcquirePushLockShared(PushLock);
     }
 }
 
-BOOLEAN FORCEINLINE ExTryConvertPushLockSharedToExclusive (IN PEX_PUSH_LOCK PushLock)
+BOOLEAN FORCEINLINE ExTryConvertPushLockSharedToExclusive(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Attempts to convert a shared acquire to exclusive. If other sharers or waiters are present the function fails.
@@ -3708,19 +3751,18 @@ Return Value:
     BOOLEAN - TRUE: Conversion worked ok, FALSE: The conversion could not be achieved
 */
 {
-    if (InterlockedCompareExchangePointer (
-    &PushLock->Ptr,
-    (PVOID) EX_PUSH_LOCK_LOCK,
-    (PVOID) (EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK)) == (PVOID)(EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK))
-    {
-        ASSERT (PushLock->Locked);
+    if (InterlockedCompareExchangePointer(
+        &PushLock->Ptr,
+        (PVOID)EX_PUSH_LOCK_LOCK,
+        (PVOID)(EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK)) == (PVOID)(EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK)) {
+        ASSERT(PushLock->Locked);
         return TRUE;
     } else {
         return FALSE;
     }
 }
 
-VOID FORCEINLINE ExReleasePushLock (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExReleasePushLock(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Release a push lock that was acquired exclusively or shared
@@ -3730,8 +3772,8 @@ Arguments:
 {
     EX_PUSH_LOCK OldValue, NewValue;
 
-    OldValue = ReadForWriteAccess (PushLock);
-    ASSERT (OldValue.Locked);
+    OldValue = ReadForWriteAccess(PushLock);
+    ASSERT(OldValue.Locked);
 
     if (OldValue.Shared > 1) {
         NewValue.Value = OldValue.Value - EX_PUSH_LOCK_SHARE_INC;
@@ -3739,12 +3781,12 @@ Arguments:
         NewValue.Value = 0;
     }
 
-    if (OldValue.Waiting || InterlockedCompareExchangePointer (&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
-        ExfReleasePushLock (PushLock);
+    if (OldValue.Waiting || InterlockedCompareExchangePointer(&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
+        ExfReleasePushLock(PushLock);
     }
 }
 
-VOID FORCEINLINE ExReleasePushLockExclusive (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExReleasePushLockExclusive(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Release a push lock that was acquired exclusively
@@ -3757,27 +3799,27 @@ Arguments:
 #if DBG
     OldValue = *PushLock;
 
-    ASSERT (OldValue.Locked);
-    ASSERT (OldValue.Waiting || OldValue.Shared == 0);
+    ASSERT(OldValue.Locked);
+    ASSERT(OldValue.Waiting || OldValue.Shared == 0);
 #endif
 
 #if defined (_WIN64)
-    OldValue.Value = InterlockedExchangeAdd64 ((PLONG64)&PushLock->Value, -(LONG64)EX_PUSH_LOCK_LOCK);
+    OldValue.Value = InterlockedExchangeAdd64((PLONG64)&PushLock->Value, -(LONG64)EX_PUSH_LOCK_LOCK);
 #else
-    OldValue.Value = InterlockedExchangeAdd ((PLONG)&PushLock->Value, -(LONG)EX_PUSH_LOCK_LOCK);
+    OldValue.Value = InterlockedExchangeAdd((PLONG)&PushLock->Value, -(LONG)EX_PUSH_LOCK_LOCK);
 #endif
 
-    ASSERT (OldValue.Locked);
-    ASSERT (OldValue.Waiting || OldValue.Shared == 0);
+    ASSERT(OldValue.Locked);
+    ASSERT(OldValue.Waiting || OldValue.Shared == 0);
 
     if (!OldValue.Waiting || OldValue.Waking) {
         return;
     }
 
-    ExfTryToWakePushLock (PushLock);
+    ExfTryToWakePushLock(PushLock);
 }
 
-VOID FORCEINLINE ExReleasePushLockShared (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExReleasePushLockShared(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Release a push lock that was acquired shared
@@ -3790,18 +3832,18 @@ Arguments:
 #if DBG
     OldValue = *PushLock;
 
-    ASSERT (OldValue.Locked);
-    ASSERT (OldValue.Waiting || OldValue.Shared > 0);
+    ASSERT(OldValue.Locked);
+    ASSERT(OldValue.Waiting || OldValue.Shared > 0);
 #endif
 
-    OldValue.Value = EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK;
+    OldValue.Value = EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK;
     NewValue.Value = 0;
-    if (InterlockedCompareExchangePointer (&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
-        ExfReleasePushLockShared (PushLock);
+    if (InterlockedCompareExchangePointer(&PushLock->Ptr, NewValue.Ptr, OldValue.Ptr) != OldValue.Ptr) {
+        ExfReleasePushLockShared(PushLock);
     }
 }
 
-VOID FORCEINLINE ExReleasePushLockSharedAssumeSingleOwner (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExReleasePushLockSharedAssumeSingleOwner(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Release a push lock that was acquired shared assuming that we are the only owner
@@ -3814,19 +3856,19 @@ Arguments:
 
     OldValue = *PushLock;
 
-    ASSERT (OldValue.Locked);
-    ASSERT (OldValue.Waiting || OldValue.Shared > 0);
+    ASSERT(OldValue.Locked);
+    ASSERT(OldValue.Waiting || OldValue.Shared > 0);
 #endif
 
-    if (InterlockedCompareExchangePointer (&PushLock->Ptr, NULL, (PVOID)(EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK)) != (PVOID)(EX_PUSH_LOCK_SHARE_INC|EX_PUSH_LOCK_LOCK)) {
-        ExfReleasePushLockShared (PushLock);
+    if (InterlockedCompareExchangePointer(&PushLock->Ptr, NULL, (PVOID)(EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK)) != (PVOID)(EX_PUSH_LOCK_SHARE_INC | EX_PUSH_LOCK_LOCK)) {
+        ExfReleasePushLockShared(PushLock);
     }
 }
 
 // end_ntosp
 
 // This is a block held on the local stack of the waiting threads.
-typedef  struct DECLSPEC_ALIGN(16) _EX_PUSH_LOCK_WAIT_BLOCK *PEX_PUSH_LOCK_WAIT_BLOCK;
+typedef  struct DECLSPEC_ALIGN(16) _EX_PUSH_LOCK_WAIT_BLOCK* PEX_PUSH_LOCK_WAIT_BLOCK;
 
 typedef struct DECLSPEC_ALIGN(16) _EX_PUSH_LOCK_WAIT_BLOCK {
     union {
@@ -3852,25 +3894,27 @@ typedef struct DECLSPEC_ALIGN(16) _EX_PUSH_LOCK_WAIT_BLOCK {
 } DECLSPEC_ALIGN(16) EX_PUSH_LOCK_WAIT_BLOCK;
 
 
-NTKERNELAPI VOID FASTCALL ExBlockPushLock (__inout PEX_PUSH_LOCK PushLock, __inout PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock);
-NTKERNELAPI VOID FASTCALL ExfUnblockPushLock (__inout PEX_PUSH_LOCK PushLock, __inout_opt PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock);
-VOID FORCEINLINE ExUnblockPushLock (IN PEX_PUSH_LOCK PushLock, IN PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock OPTIONAL)
+NTKERNELAPI VOID FASTCALL ExBlockPushLock(__inout PEX_PUSH_LOCK PushLock, __inout PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock);
+NTKERNELAPI VOID FASTCALL ExfUnblockPushLock(__inout PEX_PUSH_LOCK PushLock, __inout_opt PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock);
+VOID FORCEINLINE ExUnblockPushLock(IN PEX_PUSH_LOCK PushLock, IN PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock OPTIONAL)
 {
-    KeMemoryBarrier ();
+    KeMemoryBarrier();
     if (WaitBlock != NULL || PushLock->Ptr != NULL) {
-        ExfUnblockPushLock (PushLock, WaitBlock);
+        ExfUnblockPushLock(PushLock, WaitBlock);
     }
 }
-NTKERNELAPI VOID FASTCALL ExWaitForUnblockPushLock (__inout PEX_PUSH_LOCK PushLock, __inout PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock);
-NTKERNELAPI NTSTATUS FASTCALL ExTimedWaitForUnblockPushLock (__inout PEX_PUSH_LOCK PushLock, __inout PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock, __in_opt PLARGE_INTEGER Timeout);
+NTKERNELAPI VOID FASTCALL ExWaitForUnblockPushLock(__inout PEX_PUSH_LOCK PushLock, __inout PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock);
+NTKERNELAPI NTSTATUS FASTCALL ExTimedWaitForUnblockPushLock(__inout PEX_PUSH_LOCK PushLock,
+                                                            __inout PEX_PUSH_LOCK_WAIT_BLOCK WaitBlock,
+                                                            __in_opt PLARGE_INTEGER Timeout);
 
 // begin_ntosp
 
-NTKERNELAPI PEX_PUSH_LOCK_CACHE_AWARE ExAllocateCacheAwarePushLock (VOID);
-NTKERNELAPI VOID ExFreeCacheAwarePushLock (__inout PEX_PUSH_LOCK_CACHE_AWARE PushLock);
-NTKERNELAPI VOID ExAcquireCacheAwarePushLockExclusive (__inout PEX_PUSH_LOCK_CACHE_AWARE CacheAwarePushLock);
-NTKERNELAPI VOID ExReleaseCacheAwarePushLockExclusive (__inout PEX_PUSH_LOCK_CACHE_AWARE CacheAwarePushLock);
-PEX_PUSH_LOCK FORCEINLINE ExAcquireCacheAwarePushLockShared (IN PEX_PUSH_LOCK_CACHE_AWARE CacheAwarePushLock)
+NTKERNELAPI PEX_PUSH_LOCK_CACHE_AWARE ExAllocateCacheAwarePushLock(VOID);
+NTKERNELAPI VOID ExFreeCacheAwarePushLock(__inout PEX_PUSH_LOCK_CACHE_AWARE PushLock);
+NTKERNELAPI VOID ExAcquireCacheAwarePushLockExclusive(__inout PEX_PUSH_LOCK_CACHE_AWARE CacheAwarePushLock);
+NTKERNELAPI VOID ExReleaseCacheAwarePushLockExclusive(__inout PEX_PUSH_LOCK_CACHE_AWARE CacheAwarePushLock);
+PEX_PUSH_LOCK FORCEINLINE ExAcquireCacheAwarePushLockShared(IN PEX_PUSH_LOCK_CACHE_AWARE CacheAwarePushLock)
 /*
 Routine Description:
     Acquire a cache aware push lock shared.
@@ -3882,12 +3926,12 @@ Arguments:
 
     // Take a single one of the slots in shared mode.
     // Exclusive acquires must obtain all the slots exclusive.
-    PushLock = CacheAwarePushLock->Locks[KeGetCurrentProcessorNumber()%EX_PUSH_LOCK_FANNED_COUNT];
-    ExAcquirePushLockSharedAssumeNoOwner (PushLock);
+    PushLock = CacheAwarePushLock->Locks[KeGetCurrentProcessorNumber() % EX_PUSH_LOCK_FANNED_COUNT];
+    ExAcquirePushLockSharedAssumeNoOwner(PushLock);
     return PushLock;
 }
 
-VOID FORCEINLINE ExReleaseCacheAwarePushLockShared (IN PEX_PUSH_LOCK PushLock)
+VOID FORCEINLINE ExReleaseCacheAwarePushLockShared(IN PEX_PUSH_LOCK PushLock)
 /*
 Routine Description:
     Acquire a cache aware push lock shared.
@@ -3895,7 +3939,7 @@ Arguments:
     PushLock - Part of cache aware push lock returned by ExAcquireCacheAwarePushLockShared
 */
 {
-    ExReleasePushLockSharedAssumeSingleOwner (PushLock);
+    ExReleasePushLockSharedAssumeSingleOwner(PushLock);
 }
 
 #endif // !defined(NONTOSPINTERLOCK)
@@ -3907,7 +3951,7 @@ Arguments:
 // begin_wdm begin_ntddk
 
 // Define a block to hold the actual routine registration.
-typedef NTSTATUS (*PEX_CALLBACK_FUNCTION ) (IN PVOID CallbackContext, IN PVOID Argument1, IN PVOID Argument2);
+typedef NTSTATUS(*PEX_CALLBACK_FUNCTION) (IN PVOID CallbackContext, IN PVOID Argument1, IN PVOID Argument2);
 
 // end_wdm end_ntddk
 
@@ -3915,22 +3959,24 @@ typedef struct _EX_CALLBACK_ROUTINE_BLOCK {
     EX_RUNDOWN_REF        RundownProtect;
     PEX_CALLBACK_FUNCTION Function;
     PVOID                 Context;
-} EX_CALLBACK_ROUTINE_BLOCK, *PEX_CALLBACK_ROUTINE_BLOCK;
+} EX_CALLBACK_ROUTINE_BLOCK, * PEX_CALLBACK_ROUTINE_BLOCK;
 
 typedef struct _EX_CALLBACK {// Define a structure the caller uses to hold the callbacks
     EX_FAST_REF RoutineBlock;
-} EX_CALLBACK, *PEX_CALLBACK;
+} EX_CALLBACK, * PEX_CALLBACK;
 
-VOID ExInitializeCallBack (IN OUT PEX_CALLBACK CallBack);
-BOOLEAN ExCompareExchangeCallBack (IN OUT PEX_CALLBACK CallBack, IN PEX_CALLBACK_ROUTINE_BLOCK NewBlock, IN PEX_CALLBACK_ROUTINE_BLOCK OldBlock);
-NTSTATUS ExCallCallBack (IN OUT PEX_CALLBACK CallBack, IN PVOID Argument1, IN PVOID Argument2);
-PEX_CALLBACK_ROUTINE_BLOCK ExAllocateCallBack (IN PEX_CALLBACK_FUNCTION Function, IN PVOID Context);
-VOID ExFreeCallBack (IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
-PEX_CALLBACK_ROUTINE_BLOCK ExReferenceCallBackBlock (IN OUT PEX_CALLBACK CallBack);
-PEX_CALLBACK_FUNCTION ExGetCallBackBlockRoutine (IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
-PVOID ExGetCallBackBlockContext (IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
-VOID ExDereferenceCallBackBlock (IN OUT PEX_CALLBACK CallBack, IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
-VOID ExWaitForCallBacks (IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
+VOID ExInitializeCallBack(IN OUT PEX_CALLBACK CallBack);
+BOOLEAN ExCompareExchangeCallBack(IN OUT PEX_CALLBACK CallBack,
+                                  IN PEX_CALLBACK_ROUTINE_BLOCK NewBlock,
+                                  IN PEX_CALLBACK_ROUTINE_BLOCK OldBlock);
+NTSTATUS ExCallCallBack(IN OUT PEX_CALLBACK CallBack, IN PVOID Argument1, IN PVOID Argument2);
+PEX_CALLBACK_ROUTINE_BLOCK ExAllocateCallBack(IN PEX_CALLBACK_FUNCTION Function, IN PVOID Context);
+VOID ExFreeCallBack(IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
+PEX_CALLBACK_ROUTINE_BLOCK ExReferenceCallBackBlock(IN OUT PEX_CALLBACK CallBack);
+PEX_CALLBACK_FUNCTION ExGetCallBackBlockRoutine(IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
+PVOID ExGetCallBackBlockContext(IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
+VOID ExDereferenceCallBackBlock(IN OUT PEX_CALLBACK CallBack, IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
+VOID ExWaitForCallBacks(IN PEX_CALLBACK_ROUTINE_BLOCK CallBackBlock);
 
 //  Hotpatch declarations
 extern volatile LONG ExHotpSyncRenameSequence;

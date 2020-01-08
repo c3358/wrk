@@ -69,7 +69,7 @@ typedef struct _MI_LARGE_VA_RANGES
 {
     PVOID VirtualAddress;
     PVOID EndVirtualAddress;
-} MI_LARGE_VA_RANGES, *PMI_LARGE_VA_RANGES;
+} MI_LARGE_VA_RANGES, * PMI_LARGE_VA_RANGES;
 
 
 // There are potentially 3 large page ranges:
@@ -121,7 +121,11 @@ Environment:
 
     // Examine the free descriptor to see if enough usable memory is available.
     if (PagesNeeded > MxFreeDescriptor->PageCount) {
-        KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, MxFreeDescriptor->PageCount, MxOldFreeDescriptor.PageCount, PagesNeeded);
+        KeBugCheckEx(INSTALL_MORE_MEMORY, 
+                     MmNumberOfPhysicalPages,
+                     MxFreeDescriptor->PageCount, 
+                     MxOldFreeDescriptor.PageCount, 
+                     PagesNeeded);
     }
 
     PageFrameIndex = MxFreeDescriptor->BasePage;
@@ -193,7 +197,9 @@ Environment:
         PageFrameIndex = MI_GET_PAGE_FRAME_FROM_PTE(PointerPte);
         ASSERT((PageFrameIndex & (MM_PFN_MAPPED_BY_PDE - 1)) == 0);
         for (i = 0; i < PTE_PER_PAGE; i += 1) {
-            ASSERT((PointerPte->u.Long == 0) || (ValidPteFound == FALSE) || (PageFrameIndex == MI_GET_PAGE_FRAME_FROM_PTE(PointerPte)));
+            ASSERT((PointerPte->u.Long == 0) ||
+                (ValidPteFound == FALSE) || 
+                   (PageFrameIndex == MI_GET_PAGE_FRAME_FROM_PTE(PointerPte)));
             if (PointerPte->u.Hard.Valid == 1) {
                 if (ValidPteFound == FALSE) {
                     ValidPteFound = TRUE;
@@ -255,7 +261,9 @@ Environment:
         MemoryDescriptor = CONTAINING_RECORD(NextMd, MEMORY_ALLOCATION_DESCRIPTOR, ListEntry);
         if (PageFrameIndex >= MemoryDescriptor->BasePage) {
             if (PageFrameIndex < MemoryDescriptor->BasePage + MemoryDescriptor->PageCount) {
-                if ((MemoryDescriptor->MemoryType == LoaderFirmwarePermanent) || (MemoryDescriptor->MemoryType == LoaderBBTMemory) || (MemoryDescriptor->MemoryType == LoaderSpecialMemory)) {
+                if ((MemoryDescriptor->MemoryType == LoaderFirmwarePermanent) || 
+                    (MemoryDescriptor->MemoryType == LoaderBBTMemory) || 
+                    (MemoryDescriptor->MemoryType == LoaderSpecialMemory)) {
                     // This page lies in a memory descriptor for which we will never create PFN entries, hence return FALSE.
                     break;
                 }
@@ -271,19 +279,23 @@ Environment:
     }
 
     // The final check before returning FALSE is to ensure that the requested page wasn't one of the ones we used to normal-map the loader mappings, etc.
-    if ((PageFrameIndex >= MxOldFreeDescriptor.BasePage) && (PageFrameIndex < MxOldFreeDescriptor.BasePage + MxOldFreeDescriptor.PageCount)) {
+    if ((PageFrameIndex >= MxOldFreeDescriptor.BasePage) && 
+        (PageFrameIndex < MxOldFreeDescriptor.BasePage + MxOldFreeDescriptor.PageCount)) {
         return TRUE;
     }
 
-    if ((PageFrameIndex >= MxOldSlushDescriptor1.BasePage) && (PageFrameIndex < MxOldSlushDescriptor1.BasePage + MxOldSlushDescriptor1.PageCount)) {
+    if ((PageFrameIndex >= MxOldSlushDescriptor1.BasePage) && 
+        (PageFrameIndex < MxOldSlushDescriptor1.BasePage + MxOldSlushDescriptor1.PageCount)) {
         return TRUE;
     }
 
-    if ((PageFrameIndex >= MxOldSlushDescriptor2.BasePage) && (PageFrameIndex < MxOldSlushDescriptor2.BasePage + MxOldSlushDescriptor2.PageCount)) {
+    if ((PageFrameIndex >= MxOldSlushDescriptor2.BasePage) && 
+        (PageFrameIndex < MxOldSlushDescriptor2.BasePage + MxOldSlushDescriptor2.PageCount)) {
         return TRUE;
     }
 
-    if ((PageFrameIndex >= MiSlushDescriptorBase) && (PageFrameIndex < MiSlushDescriptorBase + MiSlushDescriptorCount)) {
+    if ((PageFrameIndex >= MiSlushDescriptorBase) && 
+        (PageFrameIndex < MiSlushDescriptorBase + MiSlushDescriptorCount)) {
         return TRUE;
     }
 
@@ -522,7 +534,8 @@ Environment:
         // Make sure the value is power of two and within limits.
         if (MmSecondaryColors > MM_SECONDARY_COLORS_MAX) {
             MmSecondaryColors = MM_SECONDARY_COLORS_MAX;
-        } else if (((MmSecondaryColors & (MmSecondaryColors - 1)) != 0) || (MmSecondaryColors < MM_SECONDARY_COLORS_MIN)) {
+        } else if (((MmSecondaryColors & (MmSecondaryColors - 1)) != 0) || 
+            (MmSecondaryColors < MM_SECONDARY_COLORS_MIN)) {
             MmSecondaryColors = MM_SECONDARY_COLORS_DEFAULT;
         }
     }
@@ -531,7 +544,8 @@ Environment:
     // Set the secondary color mask on the boot processor since it is needed very early.
     KeGetCurrentPrcb()->SecondaryColorMask = MmSecondaryColorMask;
 
-    // Determine number of bits in MmSecondayColorMask. This is the number of bits the Node color must be shifted by before it is included in colors.
+    // Determine number of bits in MmSecondayColorMask. 
+    // This is the number of bits the Node color must be shifted by before it is included in colors.
     i = MmSecondaryColorMask;
     MmSecondaryColorNodeShift = 0;
     while (i) {
@@ -564,7 +578,8 @@ Environment:
         MmMaximumNonPagedPoolInBytes = MmDefaultMaximumNonPagedPool;
         ASSERT(BYTE_OFFSET(MmMaximumNonPagedPoolInBytes) == 0);
         MmMaximumNonPagedPoolInBytes += ((SIZE_T)((MxTotalFreePages - _x16mbnp) / _x1mbnp) * MmMaxAdditionNonPagedPoolPerMb);
-        if ((MmMaximumNonPagedPoolPercent != 0) && (MmMaximumNonPagedPoolInBytes > MaximumNonPagedPoolInBytesLimit)) {
+        if ((MmMaximumNonPagedPoolPercent != 0) && 
+            (MmMaximumNonPagedPoolInBytes > MaximumNonPagedPoolInBytesLimit)) {
             MmMaximumNonPagedPoolInBytes = MaximumNonPagedPoolInBytesLimit;
         }
     }
@@ -576,12 +591,18 @@ Environment:
     }
 
     MiInitialLargePageSize = NumberOfBytes >> PAGE_SHIFT;
-    if ((MmProtectFreedNonPagedPool == FALSE) && (MxMapLargePages != 0) && (MxPfnAllocation <= MxFreeDescriptor->PageCount / 2)) {
+    if ((MmProtectFreedNonPagedPool == FALSE) && (MxMapLargePages != 0) && 
+        (MxPfnAllocation <= MxFreeDescriptor->PageCount / 2)) {
         // See if the free descriptor has enough pages of large page alignment to satisfy our calculation.
         BasePage = MI_ROUND_TO_SIZE(MxFreeDescriptor->BasePage, MM_MINIMUM_VA_FOR_LARGE_PAGE >> PAGE_SHIFT);
         LastPage = MxFreeDescriptor->BasePage + MxFreeDescriptor->PageCount;
-        if ((BasePage < MxFreeDescriptor->BasePage) || (BasePage + (NumberOfBytes >> PAGE_SHIFT) > LastPage)) {
-            KeBugCheckEx(INSTALL_MORE_MEMORY, NumberOfBytes >> PAGE_SHIFT, MxFreeDescriptor->BasePage, MxFreeDescriptor->PageCount, 2);
+        if ((BasePage < MxFreeDescriptor->BasePage) || 
+            (BasePage + (NumberOfBytes >> PAGE_SHIFT) > LastPage)) {
+            KeBugCheckEx(INSTALL_MORE_MEMORY, 
+                         NumberOfBytes >> PAGE_SHIFT, 
+                         MxFreeDescriptor->BasePage,
+                         MxFreeDescriptor->PageCount,
+                         2);
         }
 
         if (BasePage == MxFreeDescriptor->BasePage) {
@@ -622,7 +643,9 @@ Environment:
 }
 
 
-PMEMORY_ALLOCATION_DESCRIPTOR MiFindDescriptor(IN PLOADER_PARAMETER_BLOCK LoaderBlock, IN PFN_NUMBER PageFrameIndex)
+PMEMORY_ALLOCATION_DESCRIPTOR MiFindDescriptor(IN PLOADER_PARAMETER_BLOCK LoaderBlock, 
+                                               IN PFN_NUMBER PageFrameIndex
+)
 {
     PLIST_ENTRY NextMd;
     PFN_NUMBER PageCount;
@@ -635,7 +658,9 @@ PMEMORY_ALLOCATION_DESCRIPTOR MiFindDescriptor(IN PLOADER_PARAMETER_BLOCK Loader
         if (MemoryDescriptor->BasePage == PageFrameIndex) {
             // Found the descriptor following the image.
             // If it is marked firmware temporary and it spans to the *next* large page boundary, then it's good.
-            if ((MemoryDescriptor->MemoryType == LoaderFirmwareTemporary) && (MemoryDescriptor->PageCount == PageCount) && (MemoryDescriptor != MxFreeDescriptor)) {
+            if ((MemoryDescriptor->MemoryType == LoaderFirmwareTemporary) && 
+                (MemoryDescriptor->PageCount == PageCount) && 
+                (MemoryDescriptor != MxFreeDescriptor)) {
                 return MemoryDescriptor;
             }
 
@@ -653,7 +678,8 @@ VOID MiInitMachineDependent(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
 /*
 Routine Description:
     This routine performs the necessary operations to enable virtual memory.
-    This includes building the page directory parent pages and the page directories for the system, building page table pages to map the code section, the data section, the stack section and the trap handler.
+    This includes building the page directory parent pages and the page directories for the system,
+    building page table pages to map the code section, the data section, the stack section and the trap handler.
     It also initializes the PFN database and populates the free list.
 Arguments:
     LoaderBlock - Supplies the address of the loader block.
@@ -661,7 +687,8 @@ Return Value:
     None.
 Environment:
     Kernel mode.
-    N.B.  This routine uses memory from the loader block descriptors, but the descriptors themselves must be restored prior to return as our caller walks them to create the MmPhysicalMemoryBlock.
+    N.B.  This routine uses memory from the loader block descriptors, 
+    but the descriptors themselves must be restored prior to return as our caller walks them to create the MmPhysicalMemoryBlock.
 */
 {
     PHYSICAL_ADDRESS MaxHotPlugMemoryAddress;
@@ -721,13 +748,15 @@ Environment:
     ULONG DummyFlags;
 
     if (InitializationPhase == 1) {
-        // If the number of physical pages is greater than 255mb and the verifier is not enabled, then map the kernel and HAL images with large pages.
+        // If the number of physical pages is greater than 255mb and the verifier is not enabled, 
+        // then map the kernel and HAL images with large pages.
 
         // The PFN database and initial nonpaged pool are already mapped with large pages.
         if (MxMapLargePages != 0) {
             for (i = 0; i < MiLargeVaRangeIndex; i += 1) {
                 if (MiLargeVaRanges[i].VirtualAddress != NULL) {
-                    MxConvertToLargePage(MiLargeVaRanges[i].VirtualAddress, MiLargeVaRanges[i].EndVirtualAddress);
+                    MxConvertToLargePage(MiLargeVaRanges[i].VirtualAddress,
+                                         MiLargeVaRanges[i].EndVirtualAddress);
                 }
             }
         }
@@ -822,7 +851,10 @@ Environment:
 
     // Retrieve highest hot plug memory range from the HAL if available and not otherwise retrieved from the registry.
     if (MmDynamicPfn == 0) {
-        status = HalQuerySystemInformation(HalQueryMaxHotPlugMemoryAddress, sizeof(PHYSICAL_ADDRESS), (PPHYSICAL_ADDRESS)&MaxHotPlugMemoryAddress, &ReturnedLength);
+        status = HalQuerySystemInformation(HalQueryMaxHotPlugMemoryAddress,
+                                           sizeof(PHYSICAL_ADDRESS),
+                                           (PPHYSICAL_ADDRESS)&MaxHotPlugMemoryAddress,
+                                           &ReturnedLength);
         if (NT_SUCCESS(status)) {
             ASSERT(ReturnedLength == sizeof(PHYSICAL_ADDRESS));
             MmDynamicPfn = (PFN_NUMBER)(MaxHotPlugMemoryAddress.QuadPart / PAGE_SIZE);
@@ -855,7 +887,11 @@ Environment:
     // Save the original descriptor value as everything must be restored prior to this function returning.
     *(PMEMORY_ALLOCATION_DESCRIPTOR)&MxOldFreeDescriptor = *MxFreeDescriptor;
     if (MmNumberOfPhysicalPages < 2048) {
-        KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, MmLowestPhysicalPage, MmHighestPhysicalPage, 0);
+        KeBugCheckEx(INSTALL_MORE_MEMORY, 
+                     MmNumberOfPhysicalPages,
+                     MmLowestPhysicalPage,
+                     MmHighestPhysicalPage, 
+                     0);
     }
 
     // Initialize no-execute access permissions.
@@ -1022,7 +1058,8 @@ Environment:
                     MiLargeVaRangeIndex += 1;
                 }
             } else {
-                // The kernel and HAL are discontiguous, thus they span more than one large page and usually (but not if the image ends on a large page boundary) have slush after each image.
+                // The kernel and HAL are discontiguous, 
+                // thus they span more than one large page and usually (but not if the image ends on a large page boundary) have slush after each image.
 
                 // Note there may also even be a gap between each large page.
 
@@ -1191,7 +1228,11 @@ Environment:
                     NextPhysicalPage += 1;
                     FreeNumberOfPages -= 1;
                     if (FreeNumberOfPages == 0) {
-                        KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                        KeBugCheckEx(INSTALL_MORE_MEMORY,
+                                     MmNumberOfPhysicalPages,
+                                     FreeNumberOfPages, 
+                                     MxOldFreeDescriptor.PageCount,
+                                     3);
                     }
                     MI_WRITE_VALID_PTE(StartPxe, TempPte);
                     RtlZeroMemory(MiGetVirtualAddressMappedByPte(StartPxe), PAGE_SIZE);
@@ -1204,7 +1245,11 @@ Environment:
                     NextPhysicalPage += 1;
                     FreeNumberOfPages -= 1;
                     if (FreeNumberOfPages == 0) {
-                        KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                        KeBugCheckEx(INSTALL_MORE_MEMORY, 
+                                     MmNumberOfPhysicalPages,
+                                     FreeNumberOfPages,
+                                     MxOldFreeDescriptor.PageCount,
+                                     3);
                     }
                     MI_WRITE_VALID_PTE(StartPpe, TempPte);
                     RtlZeroMemory(MiGetVirtualAddressMappedByPte(StartPpe), PAGE_SIZE);
@@ -1217,7 +1262,11 @@ Environment:
                     NextPhysicalPage += 1;
                     FreeNumberOfPages -= 1;
                     if (FreeNumberOfPages == 0) {
-                        KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                        KeBugCheckEx(INSTALL_MORE_MEMORY, 
+                                     MmNumberOfPhysicalPages,
+                                     FreeNumberOfPages, 
+                                     MxOldFreeDescriptor.PageCount,
+                                     3);
                     }
                     MI_WRITE_VALID_PTE(StartPde, TempPte);
                     RtlZeroMemory(MiGetVirtualAddressMappedByPte(StartPde), PAGE_SIZE);
@@ -1229,7 +1278,11 @@ Environment:
                     NextPhysicalPage += 1;
                     FreeNumberOfPages -= 1;
                     if (FreeNumberOfPages == 0) {
-                        KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                        KeBugCheckEx(INSTALL_MORE_MEMORY,
+                                     MmNumberOfPhysicalPages, 
+                                     FreeNumberOfPages, 
+                                     MxOldFreeDescriptor.PageCount,
+                                     3);
                     }
                     MI_WRITE_VALID_PTE(PointerPte, TempPte);
                     RtlZeroMemory(MiGetVirtualAddressMappedByPte(PointerPte), PAGE_SIZE);
@@ -1254,7 +1307,11 @@ Environment:
                 NextPhysicalPage += 1;
                 FreeNumberOfPages -= 1;
                 if (FreeNumberOfPages == 0) {
-                    KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                    KeBugCheckEx(INSTALL_MORE_MEMORY, 
+                                 MmNumberOfPhysicalPages, 
+                                 FreeNumberOfPages,
+                                 MxOldFreeDescriptor.PageCount,
+                                 3);
                 }
                 MI_WRITE_VALID_PTE(StartPxe, TempPte);
                 RtlZeroMemory(MiGetVirtualAddressMappedByPte(StartPxe), PAGE_SIZE);
@@ -1266,7 +1323,11 @@ Environment:
                 NextPhysicalPage += 1;
                 FreeNumberOfPages -= 1;
                 if (FreeNumberOfPages == 0) {
-                    KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                    KeBugCheckEx(INSTALL_MORE_MEMORY,
+                                 MmNumberOfPhysicalPages,
+                                 FreeNumberOfPages, 
+                                 MxOldFreeDescriptor.PageCount,
+                                 3);
                 }
                 MI_WRITE_VALID_PTE(StartPpe, TempPte);
                 RtlZeroMemory(MiGetVirtualAddressMappedByPte(StartPpe), PAGE_SIZE);
@@ -1278,7 +1339,11 @@ Environment:
                 NextPhysicalPage += 1;
                 FreeNumberOfPages -= 1;
                 if (FreeNumberOfPages == 0) {
-                    KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                    KeBugCheckEx(INSTALL_MORE_MEMORY,
+                                 MmNumberOfPhysicalPages,
+                                 FreeNumberOfPages, 
+                                 MxOldFreeDescriptor.PageCount,
+                                 3);
                 }
                 MI_WRITE_VALID_PTE(PointerPde, TempPte);
                 RtlZeroMemory(MiGetVirtualAddressMappedByPte(PointerPde), PAGE_SIZE);
@@ -1290,7 +1355,11 @@ Environment:
                 NextPhysicalPage += 1;
                 FreeNumberOfPages -= 1;
                 if (FreeNumberOfPages == 0) {
-                    KeBugCheckEx(INSTALL_MORE_MEMORY, MmNumberOfPhysicalPages, FreeNumberOfPages, MxOldFreeDescriptor.PageCount, 3);
+                    KeBugCheckEx(INSTALL_MORE_MEMORY,
+                                 MmNumberOfPhysicalPages, 
+                                 FreeNumberOfPages, 
+                                 MxOldFreeDescriptor.PageCount,
+                                 3);
                 }
                 MI_WRITE_VALID_PTE(PointerPte, TempPte);
                 RtlZeroMemory(MiGetVirtualAddressMappedByPte(PointerPte), PAGE_SIZE);
@@ -1609,7 +1678,8 @@ Environment:
         NextMd = MemoryDescriptor->ListEntry.Blink;
     }
 
-    // If the large page chunk came from the middle of the free descriptor (due to alignment requirements), then add the pages from the split bottom portion of the free descriptor now.
+    // If the large page chunk came from the middle of the free descriptor (due to alignment requirements),
+    // then add the pages from the split bottom portion of the free descriptor now.
     i = MiSlushDescriptorCount;
     NextPhysicalPage = MiSlushDescriptorBase;
     Pfn1 = MI_PFN_ELEMENT(NextPhysicalPage);

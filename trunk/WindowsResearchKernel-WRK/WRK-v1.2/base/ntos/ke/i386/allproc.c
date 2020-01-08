@@ -8,7 +8,8 @@ Module Name:
     allproc.c
 
 Abstract:
-    This module allocates and initializes kernel resources required to start a new processor, and passes a complete process_state structure to the hal to obtain a new processor.
+    This module allocates and initializes kernel resources required to start a new processor,
+    and passes a complete process_state structure to the hal to obtain a new processor.
     This is done for every processor.
 
 Environment:
@@ -28,22 +29,29 @@ VOID KeStartAllProcessors(VOID)
     // UP Build - this function is a nop
 }
 #else
-static VOID KiCloneDescriptor(IN PKDESCRIPTOR  pSrcDescriptorInfo, IN PKDESCRIPTOR  pDestDescriptorInfo, IN PVOID         Base);
-static VOID KiCloneSelector(IN ULONG    SrcSelector, IN PKGDTENTRY    pNGDT, IN PKDESCRIPTOR  pDestDescriptor, IN PVOID         Base);
+static VOID KiCloneDescriptor(IN PKDESCRIPTOR  pSrcDescriptorInfo,
+                              IN PKDESCRIPTOR  pDestDescriptorInfo,
+                              IN PVOID         Base);
+static VOID KiCloneSelector(IN ULONG    SrcSelector,
+                            IN PKGDTENTRY    pNGDT,
+                            IN PKDESCRIPTOR  pDestDescriptor,
+                            IN PVOID         Base);
 
-PKPRCB
-KiInitProcessorState(
-    PKPROCESSOR_STATE  pProcessorState,
-    PVOID               PerProcessorAllocation,
-    ULONG               NewProcessorNumber,
-    UCHAR               NodeNumber,
-    ULONG               IdtOffset,
-    ULONG               GdtOffset,
-    PVOID            *ppStack,
-    PVOID            *ppDpcStack
+PKPRCB KiInitProcessorState(PKPROCESSOR_STATE  pProcessorState,
+                            PVOID               PerProcessorAllocation,
+                            ULONG               NewProcessorNumber,
+                            UCHAR               NodeNumber,
+                            ULONG               IdtOffset,
+                            ULONG               GdtOffset,
+                            PVOID* ppStack,
+                            PVOID* ppDpcStack
 );
 
-BOOLEAN KiInitProcessor(ULONG    NewProcessorNumber, PUCHAR  pNodeNumber, ULONG    IdtOffset, ULONG    GdtOffset, SIZE_T   ProcessorDataSize);
+BOOLEAN KiInitProcessor(ULONG    NewProcessorNumber,
+                        PUCHAR  pNodeNumber,
+                        ULONG    IdtOffset,
+                        ULONG    GdtOffset,
+                        SIZE_T   ProcessorDataSize);
 
 VOID KiAdjustSimultaneousMultiThreadingCharacteristics(VOID);
 VOID KiProcessorStart(VOID);
@@ -110,15 +118,14 @@ KNODE KiNodeInit[MAXIMUM_CCNUMA_NODES];
 #define ROUNDUP16(x)        (((x)+15) & ~15)
 
 
-PKPRCB KiInitProcessorState(
-    PKPROCESSOR_STATE  pProcessorState,
-    PVOID               PerProcessorAllocation,
-    ULONG               NewProcessorNumber,
-    UCHAR               NodeNumber,
-    ULONG               IdtOffset,
-    ULONG               GdtOffset,
-    PVOID             *ppStack,
-    PVOID             *ppDpcStack
+PKPRCB KiInitProcessorState(PKPROCESSOR_STATE  pProcessorState,
+                            PVOID               PerProcessorAllocation,
+                            ULONG               NewProcessorNumber,
+                            UCHAR               NodeNumber,
+                            ULONG               IdtOffset,
+                            ULONG               GdtOffset,
+                            PVOID* ppStack,
+                            PVOID* ppDpcStack
 )
 /*
 Routine Description:
@@ -182,7 +189,7 @@ Return value:
     // Set other SpecialRegisters in processor state.
     _asm {
         mov     eax, cr0
-        and     eax, NOT(CR0_AM or CR0_WP)
+        and eax, NOT(CR0_AM or CR0_WP)
         mov     xCr0, eax
         mov     eax, cr3
         mov     xCr3, eax
@@ -190,7 +197,7 @@ Return value:
         pushfd
         pop     eax
         mov     xEFlags, eax
-        and     xEFlags, NOT EFLAGS_INTERRUPT_MASK
+        and xEFlags, NOT EFLAGS_INTERRUPT_MASK
     }
 
     pProcessorState->SpecialRegisters.Cr0 = xCr0;
@@ -208,7 +215,7 @@ Return value:
 #endif
 
     // Allocate a DPC stack, idle thread stack and ThreadObject for the new processor.
-    *ppStack = MmCreateKernelStack(FALSE, NodeNumber);
+    * ppStack = MmCreateKernelStack(FALSE, NodeNumber);
     *ppDpcStack = MmCreateKernelStack(FALSE, NodeNumber);
 
     // Setup context - push variables onto new stack.
@@ -223,14 +230,13 @@ Return value:
     pProcessorState->ContextFrame.SegSs = KGDT_R0_DATA;
 
     // Initialize new processor's PCR & Prcb.
-    KiInitializePcr(
-        (ULONG)NewProcessorNumber,
+    KiInitializePcr((ULONG)NewProcessorNumber,
         (PKPCR)PCRDesc.Base,
-        (PKIDTENTRY)pProcessorState->SpecialRegisters.Idtr.Base,
-        (PKGDTENTRY)pProcessorState->SpecialRegisters.Gdtr.Base,
-        (PKTSS)TSSDesc.Base,
-        (PKTHREAD)pThreadObject,
-        (PVOID)*ppDpcStack);
+                    (PKIDTENTRY)pProcessorState->SpecialRegisters.Idtr.Base,
+                    (PKGDTENTRY)pProcessorState->SpecialRegisters.Gdtr.Base,
+                    (PKTSS)TSSDesc.Base,
+                    (PKTHREAD)pThreadObject,
+                    (PVOID)*ppDpcStack);
 
     NewPrcb = ((PKPCR)(PCRDesc.Base))->Prcb;
 
@@ -304,25 +310,13 @@ Return Value:
     }
 
 #if defined(KE_MULTINODE)
-
-
     // In the unlikely event that processor 0 is not on node
     // 0, fix it.
-
-
     if (KeNumberNodes > 1) {
-        Status = KiQueryProcessorNode(0,
-                                      &ProcessorId,
-                                      &NodeNumber);
-
+        Status = KiQueryProcessorNode(0, &ProcessorId, &NodeNumber);
         if (NT_SUCCESS(Status)) {
-
-
             // Adjust the data structures to reflect that P0 is not on Node 0.
-
-
             if (NodeNumber != 0) {
-
                 ASSERT(KeNodeBlock[0] == &KiNode0);
                 KeNodeBlock[0]->ProcessorMask &= ~1;
                 KiNodeInit[0] = *KeNodeBlock[0];
@@ -334,7 +328,6 @@ Return Value:
             }
         }
     }
-
 #endif
 
 
@@ -364,47 +357,30 @@ Return Value:
         ROUNDUP16(DOUBLE_FAULT_STACK_SIZE);
 
 #if defined(KE_MULTINODE)
-
     ProcessorDataSize += ROUNDUP16(sizeof(KNODE));
-
 #endif
 
-
     // Add sizeof GDT
-
-
     GdtOffset = ProcessorDataSize;
     _asm {
         sgdt    Descriptor.Limit
     }
     ProcessorDataSize += Descriptor.Limit + 1;
 
-
     // Add sizeof IDT
-
-
     IdtOffset = ProcessorDataSize;
     _asm {
         sidt    Descriptor.Limit
     }
     ProcessorDataSize += Descriptor.Limit + 1;
 
-
     // Set barrier that will prevent any other processor from entering the
     // idle loop until all processors have been started.
-
-
     KiBarrierWait = 1;
-
 
     // Loop asking the HAL for the next processor.   Stop when the
     // HAL says there aren't any more.
-
-
-    for (NewProcessorNumber = 1;
-         NewProcessorNumber < MAXIMUM_PROCESSORS;
-         NewProcessorNumber++) {
-
+    for (NewProcessorNumber = 1; NewProcessorNumber < MAXIMUM_PROCESSORS; NewProcessorNumber++) {
         if (!KiInitProcessor(NewProcessorNumber, &NodeNumber, IdtOffset, GdtOffset, ProcessorDataSize)) {
             break;
         }
@@ -412,47 +388,32 @@ Return Value:
         KiProcessorStartControl = KcStartContinue;
 
 #if defined(KE_MULTINODE)
-
         Node->ProcessorMask |= 1 << NewProcessorNumber;
-
 #endif
 
-
         // Wait for processor to initialize in kernel, then loop for another.
-
-
-        while (*((volatile ULONG *)&KeLoaderBlock->Prcb) != 0) {
+        while (*((volatile ULONG*)&KeLoaderBlock->Prcb) != 0) {
             KeYieldProcessor();
         }
     }
 
-
     // All processors have been started.
-
-
     KiAllProcessorsStarted();
-
 
     // Reset and synchronize the performance counters of all processors, by
     // applying a null adjustment to the interrupt time.
-
-
     KeAdjustInterruptTime(0);
-
 
     // Allow all processors that were started to enter the idle loop and
     // begin execution.
-
-
     KiBarrierWait = 0;
 }
 
 
-static VOID KiCloneSelector(
-    IN ULONG    SrcSelector,
-    IN PKGDTENTRY    pNGDT,
-    IN PKDESCRIPTOR  pDestDescriptor,
-    IN PVOID         Base
+static VOID KiCloneSelector(IN ULONG    SrcSelector,
+                            IN PKGDTENTRY    pNGDT,
+                            IN PKDESCRIPTOR  pDestDescriptor,
+                            IN PVOID         Base
 )
 /*
 Routine Description:
@@ -497,10 +458,9 @@ Arguments:
 }
 
 
-static VOID KiCloneDescriptor(
-    IN PKDESCRIPTOR  pSrcDescriptor,
-    IN PKDESCRIPTOR  pDestDescriptor,
-    IN PVOID         Base
+static VOID KiCloneDescriptor(IN PKDESCRIPTOR  pSrcDescriptor,
+                              IN PKDESCRIPTOR  pDestDescriptor,
+                              IN PVOID         Base
 )
 /*
 Routine Description:
@@ -550,7 +510,8 @@ Routine Description:
         }
 
         // Find all processors with the same physical processor APIC ID.
-        // The APIC ID for the physical processor is the upper portion of the APIC ID, the number of bits in the lower portion is log 2 (number logical processors per physical rounded up to a power of 2).
+        // The APIC ID for the physical processor is the upper portion of the APIC ID, 
+        // the number of bits in the lower portion is log 2 (number logical processors per physical rounded up to a power of 2).
         ApicId = Prcb->InitialApicId;
 
         // Round number of logical processors up to a power of 2 then subtract one to get the logical processor apic mask.
@@ -599,7 +560,8 @@ Routine Description:
     PKPRCB Prcb;
     PKNODE ParentNode;
 
-    // If the system contains Simultaneous Multi Threaded processors, adjust grouping information now that each processor is started.
+    // If the system contains Simultaneous Multi Threaded processors,
+    // adjust grouping information now that each processor is started.
     KiAdjustSimultaneousMultiThreadingCharacteristics();
 
 #if defined(KE_MULTINODE)
@@ -663,7 +625,8 @@ VOID KiProcessorStart(VOID)
 /*
 Routine Description:
     This routine is a called when a processor begins execution.
-    It is used to pass processor characteristic information to the boot processor and to control the starting or non-starting of this processor.
+    It is used to pass processor characteristic information to the boot processor and
+    to control the starting or non-starting of this processor.
 */
 {
     while (TRUE) {
@@ -674,13 +637,18 @@ Routine Description:
             KeYieldProcessor();
             break;
         case KcStartGetId:
-            CPUID(KiProcessorStartData[0], &KiProcessorStartData[0], &KiProcessorStartData[1], &KiProcessorStartData[2], &KiProcessorStartData[3]);
+            CPUID(KiProcessorStartData[0],
+                  &KiProcessorStartData[0],
+                  &KiProcessorStartData[1],
+                  &KiProcessorStartData[2],
+                  &KiProcessorStartData[3]);
             KiProcessorStartControl = KcStartWait;
             break;
         case KcStartDoNotStart:
             // The boot processor has determined that this processor should NOT be started.
 
-            // Acknowledge the command so the boot processor will continue, disable interrupts (should already be the case here) and HALT the processor.
+            // Acknowledge the command so the boot processor will continue, 
+            // disable interrupts (should already be the case here) and HALT the processor.
             KiProcessorStartControl = KcStartWait;
             KiSetHaltedNmiandDoubleFaultHandler();
             _disable();
@@ -722,11 +690,11 @@ Routine Description:
 
     Pcr = KeGetPcr();
 
-    GdtPtr = (PKGDTENTRY)&(Pcr->GDT[Pcr->IDT[IDT_NMI_VECTOR].Selector >> 3]);
+    GdtPtr = (PKGDTENTRY) & (Pcr->GDT[Pcr->IDT[IDT_NMI_VECTOR].Selector >> 3]);
     TssAddr = (((GdtPtr->HighWord.Bits.BaseHi << 8) + GdtPtr->HighWord.Bits.BaseMid) << 16) + GdtPtr->BaseLow;
     ((PKTSS)TssAddr)->Eip = (ULONG)KiDummyNmiHandler;
 
-    GdtPtr = (PKGDTENTRY)&(Pcr->GDT[Pcr->IDT[IDT_DFH_VECTOR].Selector >> 3]);
+    GdtPtr = (PKGDTENTRY) & (Pcr->GDT[Pcr->IDT[IDT_DFH_VECTOR].Selector >> 3]);
     TssAddr = (((GdtPtr->HighWord.Bits.BaseHi << 8) + GdtPtr->HighWord.Bits.BaseMid) << 16) + GdtPtr->BaseLow;
     ((PKTSS)TssAddr)->Eip = (ULONG)KiDummyDoubleFaultHandler;
 }
@@ -735,7 +703,8 @@ Routine Description:
 VOID KiDummyNmiHandler(VOID)
 /*
 Routine Description:
-    This is the dummy handler that is executed by the processor that is not started. We are just being paranoid about clearing the busy bit for the NMI and Double Fault Handler TSS.
+    This is the dummy handler that is executed by the processor that is not started.
+    We are just being paranoid about clearing the busy bit for the NMI and Double Fault Handler TSS.
 Return Value:
     Does not return
 */

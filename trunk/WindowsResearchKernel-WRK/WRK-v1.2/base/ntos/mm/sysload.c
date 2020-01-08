@@ -41,15 +41,15 @@ PVOID MmPteCodeStart;
 PVOID MmPteCodeEnd;
 
 
-NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID *AddressOfEntryPoint);
+NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID* AddressOfEntryPoint);
 PVOID MiCacheImageSymbols(IN PVOID ImageBase);
 NTSTATUS MiResolveImageReferences(
     PVOID ImageBase,
     IN PUNICODE_STRING ImageFileDirectory,
     IN PUNICODE_STRING NamePrefix OPTIONAL,
-    OUT PCHAR *MissingProcedureName,
-    OUT PWSTR *MissingDriverName,
-    OUT PLOAD_IMPORTS *LoadedImports);
+    OUT PCHAR* MissingProcedureName,
+    OUT PWSTR* MissingDriverName,
+    OUT PLOAD_IMPORTS* LoadedImports);
 NTSTATUS MiSnapThunk(
     IN PVOID DllBase,
     IN PVOID ImageBase,
@@ -58,10 +58,10 @@ NTSTATUS MiSnapThunk(
     IN PIMAGE_EXPORT_DIRECTORY ExportDirectory,
     IN ULONG ExportSize,
     IN LOGICAL SnapForwarder,
-    OUT PCHAR *MissingProcedureName);
+    OUT PCHAR* MissingProcedureName);
 NTSTATUS MiLoadImageSection(
-    IN OUT PSECTION *InputSectionPointer,
-    OUT PVOID *ImageBase,
+    IN OUT PSECTION* InputSectionPointer,
+    OUT PVOID* ImageBase,
     IN PUNICODE_STRING ImageFileName,
     IN ULONG LoadInSessionSpace,
     IN PKLDR_DATA_TABLE_ENTRY FoundDataTableEntry);
@@ -81,7 +81,7 @@ VOID MiLocateKernelSections(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 VOID MiCaptureImageExceptionValues(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 VOID MiUpdateThunks(IN PLOADER_PARAMETER_BLOCK LoaderBlock, IN PVOID OldAddress, IN PVOID NewAddress, IN ULONG NumberOfBytes);
 PVOID MiFindExportedRoutineByName(IN PVOID DllBase, IN PANSI_STRING AnsiImageRoutineName);
-LOGICAL MiUseLargeDriverPage(IN ULONG NumberOfPtes, IN OUT PVOID *ImageBaseAddress, IN PUNICODE_STRING PrefixedImageName, IN ULONG Pass);
+LOGICAL MiUseLargeDriverPage(IN ULONG NumberOfPtes, IN OUT PVOID* ImageBaseAddress, IN PUNICODE_STRING PrefixedImageName, IN ULONG Pass);
 VOID MiRundownHotpatchList(PVOID PatchHead);
 VOID MiSessionProcessGlobalSubsections(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 MM_PROTECTION_MASK MiComputeDriverProtection(IN LOGICAL SessionDriver, IN ULONG SectionProtection);
@@ -157,10 +157,10 @@ Environment:
 }
 
 
-typedef struct _MI_LARGE_PAGE_DRIVER_ENTRY{
+typedef struct _MI_LARGE_PAGE_DRIVER_ENTRY {
     LIST_ENTRY Links;
     UNICODE_STRING BaseName;
-} MI_LARGE_PAGE_DRIVER_ENTRY, *PMI_LARGE_PAGE_DRIVER_ENTRY;
+} MI_LARGE_PAGE_DRIVER_ENTRY, * PMI_LARGE_PAGE_DRIVER_ENTRY;
 
 
 LIST_ENTRY MiLargePageDriverList;
@@ -227,9 +227,10 @@ Environment:
 
 
 LOGICAL MiUseLargeDriverPage(IN ULONG NumberOfPtes,
-                             IN OUT PVOID *ImageBaseAddress,
+                             IN OUT PVOID* ImageBaseAddress,
                              IN PUNICODE_STRING BaseImageName,
-                             IN ULONG Pass)
+                             IN ULONG Pass
+)
 /*
 Routine Description:
     This routine checks whether the specified image should be loaded into a large page address space, and if so, tries to load it.
@@ -413,7 +414,8 @@ Environment:
         PIMAGE_LOAD_CONFIG_DIRECTORY32 LoadConfig;
         ULONG LoadConfigSize;
         if (IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG < NtHeader->OptionalHeader.NumberOfRvaAndSizes) {
-            LoadConfig = (PIMAGE_LOAD_CONFIG_DIRECTORY32)((PCHAR)CurrentBase + NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].VirtualAddress);
+            LoadConfig = (PIMAGE_LOAD_CONFIG_DIRECTORY32)((PCHAR)CurrentBase +
+                                                          NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].VirtualAddress);
             LoadConfigSize = NtHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].Size;
             if (LoadConfig &&
                 LoadConfigSize &&
@@ -442,30 +444,31 @@ NTSTATUS MmLoadSystemImage(IN PUNICODE_STRING ImageFileName,
                            IN PUNICODE_STRING NamePrefix OPTIONAL,
                            IN PUNICODE_STRING LoadedBaseName OPTIONAL,
                            IN ULONG LoadFlags,
-                           OUT PVOID *ImageHandle,
-                           OUT PVOID *ImageBaseAddress)
-    /*
-    Routine Description:
-        This routine reads the image pages from the specified section into the system and returns the address of the DLL's header.
-        At successful completion, the Section is referenced so it remains until the system image is unloaded.
-    Arguments:
-        ImageFileName - Supplies the full path name (including the image name) of the image to load.
-        NamePrefix - If present, supplies the prefix to use with the image name on load operations.
-                     This is used to load the same image multiple times, by using different prefixes.
-        LoadedBaseName - If present, supplies the base name to use on the loaded image instead of the base name found on the image name.
-        LoadFlags - Supplies a combination of bit flags as follows:
-            MM_LOAD_IMAGE_IN_SESSION :
-                           - Supplies whether to load this image in session space.
-                             Each session gets a different copy of this driver with pages shared as much as possible via copy on write.
-            MM_LOAD_IMAGE_AND_LOCKDOWN :
-                           - Supplies TRUE if the image pages should be made non-pageable.
-        ImageHandle - Returns an opaque pointer to the referenced section object of the image that was loaded.
-        ImageBaseAddress - Returns the image base within the system.
-    Return Value:
-        Status of the load operation.
-    Environment:
-        Kernel mode, APC_LEVEL or below, arbitrary process context.
-    */
+                           OUT PVOID* ImageHandle,
+                           OUT PVOID* ImageBaseAddress
+)
+/*
+Routine Description:
+    This routine reads the image pages from the specified section into the system and returns the address of the DLL's header.
+    At successful completion, the Section is referenced so it remains until the system image is unloaded.
+Arguments:
+    ImageFileName - Supplies the full path name (including the image name) of the image to load.
+    NamePrefix - If present, supplies the prefix to use with the image name on load operations.
+                 This is used to load the same image multiple times, by using different prefixes.
+    LoadedBaseName - If present, supplies the base name to use on the loaded image instead of the base name found on the image name.
+    LoadFlags - Supplies a combination of bit flags as follows:
+        MM_LOAD_IMAGE_IN_SESSION :
+                       - Supplies whether to load this image in session space.
+                         Each session gets a different copy of this driver with pages shared as much as possible via copy on write.
+        MM_LOAD_IMAGE_AND_LOCKDOWN :
+                       - Supplies TRUE if the image pages should be made non-pageable.
+    ImageHandle - Returns an opaque pointer to the referenced section object of the image that was loaded.
+    ImageBaseAddress - Returns the image base within the system.
+Return Value:
+    Status of the load operation.
+Environment:
+    Kernel mode, APC_LEVEL or below, arbitrary process context.
+*/
 {
     LONG OldValue;
     ULONG i;
@@ -735,14 +738,15 @@ ReCheckLoaderList:
                                            SECTION_MAP_EXECUTE,
                                            MmSectionObjectType,
                                            KernelMode,
-                                           (PVOID *)&SectionPointer,
+                                           (PVOID*)&SectionPointer,
                                            (POBJECT_HANDLE_INFORMATION)NULL);
         ZwClose(SectionHandle);
         if (!NT_SUCCESS(Status)) {
             goto return1;
         }
 
-        if ((LoadFlags & MM_LOAD_IMAGE_IN_SESSION) && (SectionPointer->Segment->ControlArea->u.Flags.FloppyMedia == 0)) {
+        if ((LoadFlags & MM_LOAD_IMAGE_IN_SESSION) &&
+            (SectionPointer->Segment->ControlArea->u.Flags.FloppyMedia == 0)) {
             // Check with all of the drivers along the path to win32k.sys to ensure that they are willing to follow the rules required
             // of them and to give them a chance to lock down code and data that needs to be locked.
             // If any of the drivers along the path refuses to participate, fail the win32k.sys load.
@@ -782,7 +786,11 @@ ReCheckLoaderList:
 
     // Load the driver from the filesystem and pick a virtual address for it.
     // All session images are paged directly to and from the filesystem so these images remain busy.
-    Status = MiLoadImageSection(&SectionPointer, ImageBaseAddress, ImageFileName, LoadFlags & MM_LOAD_IMAGE_IN_SESSION, FoundDataTableEntry);
+    Status = MiLoadImageSection(&SectionPointer,
+                                ImageBaseAddress,
+                                ImageFileName,
+                                LoadFlags & MM_LOAD_IMAGE_IN_SESSION,
+                                FoundDataTableEntry);
     ASSERT(Status != STATUS_ALREADY_COMMITTED);
     NumberOfPtes = SectionPointer->Segment->TotalNumberOfPtes;
 
@@ -985,7 +993,9 @@ ReCheckLoaderList:
                 ASSERT(MissingProcedureName == NULL);
             }
 
-            if ((Status == STATUS_DRIVER_ORDINAL_NOT_FOUND) || (Status == STATUS_OBJECT_NAME_NOT_FOUND) || (Status == STATUS_DRIVER_ENTRYPOINT_NOT_FOUND)) {
+            if ((Status == STATUS_DRIVER_ORDINAL_NOT_FOUND) ||
+                (Status == STATUS_OBJECT_NAME_NOT_FOUND) ||
+                (Status == STATUS_DRIVER_ENTRYPOINT_NOT_FOUND)) {
                 if ((ULONG_PTR)MissingProcedureName & ~((ULONG_PTR)(X64K - 1))) {
                     // If not an ordinal, print string.
                     DbgPrintEx(DPFLTR_MM_ID, DPFLTR_WARNING_LEVEL, "MissingProcedureName %s\n", MissingProcedureName);
@@ -1216,7 +1226,7 @@ return1:
                 ErrLog->ErrorCode = STATUS_LOG_HARD_ERROR;
                 ErrLog->FinalStatus = Status;
                 ErrLog->UniqueErrorValue = UniqueErrorValue;
-                ErrLog->StringOffset = (USHORT) sizeof(IO_ERROR_LOG_PACKET);
+                ErrLog->StringOffset = (USHORT)sizeof(IO_ERROR_LOG_PACKET);
                 temp = (PWCHAR)((PUCHAR)ErrLog + ErrLog->StringOffset);
                 for (i = 0; i < StringCount; i += 1) {
                     ptr = ErrorStrings[i].Buffer;
@@ -1300,33 +1310,34 @@ Arguments:
 }
 
 
-NTSTATUS MiLoadImageSection(IN OUT PSECTION *InputSectionPointer,
-                            OUT PVOID *ImageBaseAddress,
+NTSTATUS MiLoadImageSection(IN OUT PSECTION* InputSectionPointer,
+                            OUT PVOID* ImageBaseAddress,
                             IN PUNICODE_STRING ImageFileName,
                             IN ULONG LoadInSessionSpace,
-                            IN PKLDR_DATA_TABLE_ENTRY FoundDataTableEntry)
-    /*
-    Routine Description:
-        This routine loads the specified image into the kernel part of the address space.
-    Arguments:
+                            IN PKLDR_DATA_TABLE_ENTRY FoundDataTableEntry
+)
+/*
+Routine Description:
+    This routine loads the specified image into the kernel part of the address space.
+Arguments:
 
-        InputSectionPointer - Supplies the section object for the image.
-                              This may be replaced by a pagefile-backed section (for protection purposes) for session images if it is determined that the image section is concurrently being accessed by a user app.
+    InputSectionPointer - Supplies the section object for the image.
+                          This may be replaced by a pagefile-backed section (for protection purposes) for session images if it is determined that the image section is concurrently being accessed by a user app.
 
-        ImageBaseAddress - Returns the address that the image header is at.
+    ImageBaseAddress - Returns the address that the image header is at.
 
-        ImageFileName - Supplies the full path name (including the image name) of the image to load.
+    ImageFileName - Supplies the full path name (including the image name) of the image to load.
 
-        LoadInSessionSpace - Supplies nonzero to load this image in session space.
-                             Each session gets a different copy of this driver with pages shared as much as possible via copy on write.
+    LoadInSessionSpace - Supplies nonzero to load this image in session space.
+                         Each session gets a different copy of this driver with pages shared as much as possible via copy on write.
 
-                             Supplies zero if this image should be loaded in global space.
-        FoundDataTableEntry - Supplies the loader data table entry if the image has already been loaded.
-                              This can only happen for session space.
-                              It means this driver has already been loaded into a different session, so this session still needs to map it.
-    Return Value:
-        Status of the operation.
-    */
+                         Supplies zero if this image should be loaded in global space.
+    FoundDataTableEntry - Supplies the loader data table entry if the image has already been loaded.
+                          This can only happen for session space.
+                          It means this driver has already been loaded into a different session, so this session still needs to map it.
+Return Value:
+    Status of the operation.
+*/
 {
     KAPC_STATE ApcState;
     PFN_NUMBER PagesRequired;
@@ -1449,7 +1460,16 @@ NTSTATUS MiLoadImageSection(IN OUT PSECTION *InputSectionPointer,
         LoadSymbols = FALSE;
     }
     TargetProcess = PsGetCurrentProcess();
-    Status = MmMapViewOfSection(SectionPointer, TargetProcess, &Base, 0, 0, &SectionOffset, &ViewSize, ViewUnmap, 0, PAGE_EXECUTE);
+    Status = MmMapViewOfSection(SectionPointer,
+                                TargetProcess,
+                                &Base,
+                                0,
+                                0,
+                                &SectionOffset,
+                                &ViewSize,
+                                ViewUnmap,
+                                0,
+                                PAGE_EXECUTE);
     if (LoadSymbols) {
         NtGlobalFlag |= FLG_ENABLE_KDEBUG_SYMBOL_LOAD;
     }
@@ -1589,7 +1609,10 @@ Arguments:
         return;
     }
 
-    NtSection = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeaders + sizeof(ULONG) + sizeof(IMAGE_FILE_HEADER) + NtHeaders->FileHeader.SizeOfOptionalHeader);
+    NtSection = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeaders +
+                                        sizeof(ULONG) +
+                                        sizeof(IMAGE_FILE_HEADER) +
+                                        NtHeaders->FileHeader.SizeOfOptionalHeader);
     NtSection += NtHeaders->FileHeader.NumberOfSections;
     FoundSection = NULL;
     for (i = 0; i < NtHeaders->FileHeader.NumberOfSections; i += 1) {
@@ -1648,7 +1671,7 @@ Return Value:
 }
 
 
-VOID MiFlushPteListFreePfns(IN PVOID *VaFlushList, IN ULONG FlushCount)
+VOID MiFlushPteListFreePfns(IN PVOID* VaFlushList, IN ULONG FlushCount)
 /*
 Routine Description:
     This routine flushes all the PTEs in the PTE flush list.
@@ -1837,7 +1860,7 @@ Environment:
                 FlushCount += 1;
 
                 if (FlushCount == MM_MAXIMUM_FLUSH_COUNT) {
-                    MiFlushPteListFreePfns((PVOID *)&VaFlushList, FlushCount);
+                    MiFlushPteListFreePfns((PVOID*)&VaFlushList, FlushCount);
                     FlushCount = 0;
                 }
 
@@ -1849,7 +1872,7 @@ Environment:
     }
 
     if (FlushCount != 0) {
-        MiFlushPteListFreePfns((PVOID *)&VaFlushList, FlushCount);
+        MiFlushPteListFreePfns((PVOID*)&VaFlushList, FlushCount);
     }
 
     UNLOCK_WORKING_SET(Thread, &MmSystemCacheWs);
@@ -1955,7 +1978,10 @@ Environment:
         return;
     }
 
-    FoundSection = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeaders + sizeof(ULONG) + sizeof(IMAGE_FILE_HEADER) + NtHeaders->FileHeader.SizeOfOptionalHeader);
+    FoundSection = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeaders +
+                                           sizeof(ULONG) +
+                                           sizeof(IMAGE_FILE_HEADER) +
+                                           NtHeaders->FileHeader.SizeOfOptionalHeader);
     i = NtHeaders->FileHeader.NumberOfSections;
     PointerPte = NULL;
 
@@ -2348,7 +2374,7 @@ Return Value:
     ULONG i;
     ULONG j;
     ULONG ImageCount;
-    PVOID *ImageReferences;
+    PVOID* ImageReferences;
     PVOID LastImageReference;
     PULONG_PTR ImportThunk;
     ULONG_PTR BaseAddress;
@@ -2409,7 +2435,7 @@ Return Value:
         return STATUS_NOT_FOUND;
     }
 
-    ImageReferences = (PVOID *)ExAllocatePoolWithTag(PagedPool | POOL_COLD_ALLOCATION, ImageCount * sizeof(PVOID), 'TDmM');
+    ImageReferences = (PVOID*)ExAllocatePoolWithTag(PagedPool | POOL_COLD_ALLOCATION, ImageCount * sizeof(PVOID), 'TDmM');
     if (ImageReferences == NULL) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -2419,7 +2445,10 @@ Return Value:
 
     for (; NextEntry != &PsLoadedModuleList; NextEntry = NextEntry->Flink) {
         DataTableEntry = CONTAINING_RECORD(NextEntry, KLDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
-        ImportThunk = (PULONG_PTR)RtlImageDirectoryEntryToData(DataTableEntry->DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_IAT, &ImportSize);
+        ImportThunk = (PULONG_PTR)RtlImageDirectoryEntryToData(DataTableEntry->DllBase,
+                                                               TRUE,
+                                                               IMAGE_DIRECTORY_ENTRY_IAT,
+                                                               &ImportSize);
         if (ImportThunk == NULL) {
             DataTableEntry->LoadedImports = NO_IMPORTS_USED;
             continue;
@@ -2631,7 +2660,10 @@ Return Value:
     Func = NULL;
 
     // Locate the DLL's export directory.
-    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &ExportSize);
+    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase,
+                                                                            TRUE,
+                                                                            IMAGE_DIRECTORY_ENTRY_EXPORT,
+                                                                            &ExportSize);
     if (ExportDirectory) {
         NameTableBase = (PULONG)((PCHAR)DllBase + (ULONG)ExportDirectory->AddressOfNames);
         NameOrdinalTableBase = (PUSHORT)((PCHAR)DllBase + (ULONG)ExportDirectory->AddressOfNameOrdinals);
@@ -2762,18 +2794,19 @@ Return Value:
 NTSTATUS MiResolveImageReferences(PVOID ImageBase,
                                   IN PUNICODE_STRING ImageFileDirectory,
                                   IN PUNICODE_STRING NamePrefix OPTIONAL,
-                                  OUT PCHAR *MissingProcedureName,
-                                  OUT PWSTR *MissingDriverName,
-                                  OUT PLOAD_IMPORTS *LoadedImports)
-    /*
-    Routine Description:
-        This routine resolves the references from the newly loaded driver to the kernel, HAL and other drivers.
-    Arguments:
-        ImageBase - Supplies the address of which the image header resides.
-        ImageFileDirectory - Supplies the directory to load referenced DLLs.
-    Return Value:
-        Status of the image reference resolution.
-    */
+                                  OUT PCHAR* MissingProcedureName,
+                                  OUT PWSTR* MissingDriverName,
+                                  OUT PLOAD_IMPORTS* LoadedImports
+)
+/*
+Routine Description:
+    This routine resolves the references from the newly loaded driver to the kernel, HAL and other drivers.
+Arguments:
+    ImageBase - Supplies the address of which the image header resides.
+    ImageFileDirectory - Supplies the directory to load referenced DLLs.
+Return Value:
+    Status of the image reference resolution.
+*/
 {
     PCHAR MissingProcedureStorageArea;
     PVOID ImportBase;
@@ -2812,7 +2845,10 @@ NTSTATUS MiResolveImageReferences(PVOID ImageBase,
 
     *LoadedImports = NO_IMPORTS_USED;
     MissingProcedureStorageArea = *MissingProcedureName;
-    ImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)RtlImageDirectoryEntryToData(ImageBase, TRUE, IMAGE_DIRECTORY_ENTRY_IMPORT, &ImportSize);
+    ImportDescriptor = (PIMAGE_IMPORT_DESCRIPTOR)RtlImageDirectoryEntryToData(ImageBase,
+                                                                              TRUE,
+                                                                              IMAGE_DIRECTORY_ENTRY_IMPORT,
+                                                                              &ImportSize);
     if (ImportDescriptor == NULL) {
         return STATUS_SUCCESS;
     }
@@ -3077,7 +3113,10 @@ NTSTATUS MiResolveImageReferences(PVOID ImageBase,
         }
 
         *MissingDriverName = DataTableEntry->BaseDllName.Buffer;
-        ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(ImportBase, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &ExportSize);
+        ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(ImportBase,
+                                                                                TRUE,
+                                                                                IMAGE_DIRECTORY_ENTRY_EXPORT,
+                                                                                &ExportSize);
         if (!ExportDirectory) {
             MiDereferenceImports(ImportList);
             if (ImportList) {
@@ -3091,7 +3130,14 @@ NTSTATUS MiResolveImageReferences(PVOID ImageBase,
             NameThunk = (PIMAGE_THUNK_DATA)((PCHAR)ImageBase + (ULONG)ImportDescriptor->OriginalFirstThunk);
             AddrThunk = (PIMAGE_THUNK_DATA)((PCHAR)ImageBase + (ULONG)ImportDescriptor->FirstThunk);
             while (NameThunk->u1.AddressOfData) {
-                st = MiSnapThunk(ImportBase, ImageBase, NameThunk++, AddrThunk++, ExportDirectory, ExportSize, FALSE, MissingProcedureName);
+                st = MiSnapThunk(ImportBase,
+                                 ImageBase,
+                                 NameThunk++,
+                                 AddrThunk++,
+                                 ExportDirectory,
+                                 ExportSize,
+                                 FALSE,
+                                 MissingProcedureName);
                 if (!NT_SUCCESS(st)) {
                     MiDereferenceImports(ImportList);
                     if (ImportList) {
@@ -3160,24 +3206,25 @@ NTSTATUS MiSnapThunk(IN PVOID DllBase,
                      IN PIMAGE_EXPORT_DIRECTORY ExportDirectory,
                      IN ULONG ExportSize,
                      IN LOGICAL SnapForwarder,
-                     OUT PCHAR *MissingProcedureName)
-    /*
-    Routine Description:
-        This function snaps a thunk using the specified Export Section data.
-        If the section data does not support the thunk, then the thunk is partially snapped (Dll field is still non-null, but snap address is set).
+                     OUT PCHAR* MissingProcedureName
+)
+/*
+Routine Description:
+    This function snaps a thunk using the specified Export Section data.
+    If the section data does not support the thunk, then the thunk is partially snapped (Dll field is still non-null, but snap address is set).
 
-    Arguments:
-        DllBase - Base of DLL being snapped to.
-        ImageBase - Base of image that contains the thunks to snap.
-        Thunk - On input, supplies the thunk to snap.  When successfully
-                snapped, the function field is set to point to the address in the DLL, and the DLL field is set to NULL.
+Arguments:
+    DllBase - Base of DLL being snapped to.
+    ImageBase - Base of image that contains the thunks to snap.
+    Thunk - On input, supplies the thunk to snap.  When successfully
+            snapped, the function field is set to point to the address in the DLL, and the DLL field is set to NULL.
 
-        ExportDirectory - Supplies the Export Section data from a DLL.
-        SnapForwarder - Supplies TRUE if the snap is for a forwarder, and therefore Address of Data is already setup.
+    ExportDirectory - Supplies the Export Section data from a DLL.
+    SnapForwarder - Supplies TRUE if the snap is for a forwarder, and therefore Address of Data is already setup.
 
-    Return Value:
-        STATUS_SUCCESS or STATUS_DRIVER_ENTRYPOINT_NOT_FOUND or STATUS_DRIVER_ORDINAL_NOT_FOUND
-    */
+Return Value:
+    STATUS_SUCCESS or STATUS_DRIVER_ENTRYPOINT_NOT_FOUND or STATUS_DRIVER_ORDINAL_NOT_FOUND
+*/
 {
     BOOLEAN Ordinal;
     USHORT OrdinalNumber;
@@ -3279,8 +3326,10 @@ NTSTATUS MiSnapThunk(IN PVOID DllBase,
                     // as opposed to looking in the exporting image for the name.
                     // we also use the prefix function to ignore the .exe or .sys or .dll at the end.
                     if (RtlPrefixString((PSTRING)&UnicodeString, (PSTRING)&DataTableEntry->BaseDllName, TRUE)) {
-                        LocalExportDirectory = (PIMAGE_EXPORT_DIRECTORY)
-                            RtlImageDirectoryEntryToData(DataTableEntry->DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &LocalExportSize);
+                        LocalExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DataTableEntry->DllBase,
+                                                                                                     TRUE,
+                                                                                                     IMAGE_DIRECTORY_ENTRY_EXPORT,
+                                                                                                     &LocalExportSize);
                         if (LocalExportDirectory != NULL) {
                             IMAGE_THUNK_DATA thunkData;
                             PIMAGE_IMPORT_BY_NAME addressOfData;
@@ -3357,7 +3406,13 @@ Return Value:
 
 retry:
     InitializeObjectAttributes(&ObjectAttributes, NULL, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE), NULL, NULL);
-    Status = ZwCreateSection(&Section, SECTION_MAP_EXECUTE, &ObjectAttributes, NULL, PAGE_EXECUTE, SectionType, ImageFileHandle);
+    Status = ZwCreateSection(&Section,
+                             SECTION_MAP_EXECUTE,
+                             &ObjectAttributes,
+                             NULL,
+                             PAGE_EXECUTE,
+                             SectionType,
+                             ImageFileHandle);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -3367,7 +3422,16 @@ retry:
     // Since callees are not always in the context of the system process, 
     // attach here when necessary to guarantee the driver load occurs in a known safe address space to prevent security holes.
     KeStackAttachProcess(&PsInitialSystemProcess->Pcb, &ApcState);
-    Status = ZwMapViewOfSection(Section, NtCurrentProcess(), (PVOID *)&ViewBase, 0L, 0L, NULL, &ViewSize, ViewShare, 0L, PAGE_EXECUTE);
+    Status = ZwMapViewOfSection(Section,
+                                NtCurrentProcess(),
+                                (PVOID*)&ViewBase,
+                                0L,
+                                0L,
+                                NULL,
+                                &ViewSize,
+                                ViewShare,
+                                0L,
+                                PAGE_EXECUTE);
     if (!NT_SUCCESS(Status)) {
         KeUnstackDetachProcess(&ApcState);
         ZwClose(Section);
@@ -3375,7 +3439,11 @@ retry:
     }
 
     // Now the image is mapped as a data file... Calculate its size and then check its checksum.
-    Status = ZwQueryInformationFile(ImageFileHandle, &IoStatusBlock, &StandardInfo, sizeof(StandardInfo), FileStandardInformation);
+    Status = ZwQueryInformationFile(ImageFileHandle,
+                                    &IoStatusBlock,
+                                    &StandardInfo,
+                                    sizeof(StandardInfo),
+                                    FileStandardInformation);
     if (NT_SUCCESS(Status)) {
         if (SectionType == SEC_IMAGE) {
             NumberOfBytes = ViewSize;
@@ -3436,7 +3504,7 @@ out:
                                             SECTION_MAP_EXECUTE,
                                             MmSectionObjectType,
                                             KernelMode,
-                                            (PVOID *)&SectionPointer,
+                                            (PVOID*)&SectionPointer,
                                             (POBJECT_HANDLE_INFORMATION)NULL);
         if (NT_SUCCESS(Status2)) {
             MmPurgeSection(SectionPointer->Segment->ControlArea->FilePointer->SectionObjectPointer, NULL, 0, FALSE);
@@ -3471,18 +3539,19 @@ BOOLEAN MmVerifyImageIsOkForMpUse(IN PVOID BaseAddress)
 PFN_NUMBER MiDeleteSystemPageableVm(IN PMMPTE PointerPte,
                                     IN PFN_NUMBER NumberOfPtes,
                                     IN ULONG Flags,
-                                    OUT PPFN_NUMBER ResidentPages OPTIONAL)
-    /*
-    Routine Description:
-        This function deletes pageable system address space (paged pool or driver pageable sections).
-    Arguments:
-        PointerPte - Supplies the start of the PTE range to delete.
-        NumberOfPtes - Supplies the number of PTEs in the range.
-        Flags - Supplies flags indicating what the caller desires.
-        ResidentPages - If not NULL, the number of resident pages freed is returned here.
-    Return Value:
-        Returns the number of pages actually freed.
-    */
+                                    OUT PPFN_NUMBER ResidentPages OPTIONAL
+)
+/*
+Routine Description:
+    This function deletes pageable system address space (paged pool or driver pageable sections).
+Arguments:
+    PointerPte - Supplies the start of the PTE range to delete.
+    NumberOfPtes - Supplies the number of PTEs in the range.
+    Flags - Supplies flags indicating what the caller desires.
+    ResidentPages - If not NULL, the number of resident pages freed is returned here.
+Return Value:
+    Returns the number of pages actually freed.
+*/
 {
     ULONG TimeStamp;
     PMMSUPPORT Ws;
@@ -3913,7 +3982,8 @@ Environment:
                 MI_CAPTURE_DIRTY_BIT_TO_PFN(&PteContents, Pfn1);
             }
 
-            // If the new protection is also directly writable, then preserve the dirty and write bits so subsequent accesses do not fault.
+            // If the new protection is also directly writable,
+            // then preserve the dirty and write bits so subsequent accesses do not fault.
             if ((ProtectionMask == MM_READWRITE) || (ProtectionMask == MM_EXECUTE_READWRITE)) {
                 if (PteContents.u.Hard.Dirty == 1) {
                     TempPte.u.Hard.Dirty = 1;
@@ -4388,7 +4458,11 @@ Arguments:
 }
 
 
-VOID MiUpdateThunks(IN PLOADER_PARAMETER_BLOCK LoaderBlock, IN PVOID OldAddress, IN PVOID NewAddress, IN ULONG NumberOfBytes)
+VOID MiUpdateThunks(IN PLOADER_PARAMETER_BLOCK LoaderBlock,
+                    IN PVOID OldAddress,
+                    IN PVOID NewAddress,
+                    IN ULONG NumberOfBytes
+)
 /*
 Routine Description:
     This function updates the IATs of all the loaded modules in the system to handle a newly relocated image.
@@ -4415,7 +4489,10 @@ Arguments:
     NextEntry = LoaderBlock->LoadOrderListHead.Flink;
     for (; NextEntry != &LoaderBlock->LoadOrderListHead; NextEntry = NextEntry->Flink) {
         DataTableEntry = CONTAINING_RECORD(NextEntry, KLDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
-        ImportThunk = (PULONG_PTR)RtlImageDirectoryEntryToData(DataTableEntry->DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_IAT, &ImportSize);
+        ImportThunk = (PULONG_PTR)RtlImageDirectoryEntryToData(DataTableEntry->DllBase,
+                                                               TRUE,
+                                                               IMAGE_DIRECTORY_ENTRY_IAT,
+                                                               &ImportSize);
         if (ImportThunk == NULL) {
             continue;
         }
@@ -4596,7 +4673,9 @@ Environment:
                 RelocatedVa += PAGE_SIZE;
                 NonRelocatedVa += PAGE_SIZE;
             } else {
-                MI_MAKE_VALID_KERNEL_PTE(TempPte, PteContents.u.Hard.PageFrameNumber, MM_EXECUTE_READWRITE, PointerPte);
+                MI_MAKE_VALID_KERNEL_PTE(TempPte,
+                                         PteContents.u.Hard.PageFrameNumber,
+                                         MM_EXECUTE_READWRITE, PointerPte);
                 MI_SET_PTE_DIRTY(TempPte);
                 MI_WRITE_VALID_PTE(PointerPte, TempPte);
             }
@@ -4748,7 +4827,10 @@ Environment:
 
     CurrentBase = (PVOID)DataTableEntry->DllBase;
     NtHeader = RtlImageNtHeader(CurrentBase);
-    SectionTableEntry = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeader + sizeof(ULONG) + sizeof(IMAGE_FILE_HEADER) + NtHeader->FileHeader.SizeOfOptionalHeader);
+    SectionTableEntry = (PIMAGE_SECTION_HEADER)((PCHAR)NtHeader +
+                                                sizeof(ULONG) +
+                                                sizeof(IMAGE_FILE_HEADER) +
+                                                NtHeader->FileHeader.SizeOfOptionalHeader);
 
     // From the image header, locate the section named '.rsrc'.
     i = NtHeader->FileHeader.NumberOfSections;
@@ -4908,7 +4990,9 @@ Environment:
         ((PKLDR_DATA_TABLE_ENTRY)DataTableEntry1)->NonPagedDebugInfo = NULL;
         DataTableEntry1->PatchInformation = NULL;
 
-        DataTableEntry1->FullDllName.Buffer = ExAllocatePoolWithTag(PagedPool, DataTableEntry2->FullDllName.MaximumLength + sizeof(UNICODE_NULL), 'TDmM');
+        DataTableEntry1->FullDllName.Buffer = ExAllocatePoolWithTag(PagedPool,
+                                                                    DataTableEntry2->FullDllName.MaximumLength + sizeof(UNICODE_NULL),
+                                                                    'TDmM');
         if (DataTableEntry1->FullDllName.Buffer == NULL) {
             ExFreePool(DataTableEntry1);
             return FALSE;
@@ -4988,7 +5072,9 @@ Environment:
     }
 
     RegistryPath.Length = CmRegistryMachineSystemCurrentControlSetServices.Length;
-    RtlCopyMemory(RegistryPath.Buffer, CmRegistryMachineSystemCurrentControlSetServices.Buffer, CmRegistryMachineSystemCurrentControlSetServices.Length);
+    RtlCopyMemory(RegistryPath.Buffer,
+                  CmRegistryMachineSystemCurrentControlSetServices.Buffer,
+                  CmRegistryMachineSystemCurrentControlSetServices.Length);
     RtlAppendUnicodeToString(&RegistryPath, (const PUSHORT)L"\\");
     Dot = wcschr(ImportName.Buffer, L'.');
     if (Dot) {
@@ -5133,7 +5219,10 @@ Return Value:
 
     PAGED_CODE();
 
-    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &ExportSize);
+    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase,
+                                                                            TRUE,
+                                                                            IMAGE_DIRECTORY_ENTRY_EXPORT,
+                                                                            &ExportSize);
     if (ExportDirectory == NULL) {
         return NULL;
     }

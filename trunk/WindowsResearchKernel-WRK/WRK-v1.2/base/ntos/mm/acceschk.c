@@ -44,19 +44,19 @@ NTSTATUS MiAccessCheck(IN PMMPTE PointerPte,
                        IN ULONG Protection,
                        IN PVOID TrapInformation,
                        IN BOOLEAN CallerHoldsPfnLock)
-/*
-Arguments:
-    PointerPte - Supplies the pointer to the PTE which caused the page fault.
-    WriteOperation - Supplies nonzero if the operation is a write, 0 if the operation is a read.
-    PreviousMode - Supplies the previous mode, one of UserMode or KernelMode.
-    Protection - Supplies the protection mask to check.
-    TrapInformation - Supplies the trap information.
-    CallerHoldsPfnLock - Supplies TRUE if the PFN lock is held, FALSE otherwise.
-Return Value:
-    Returns TRUE if access to the page is allowed, FALSE otherwise.
-Environment:
-    Kernel mode, APCs disabled.
-*/
+    /*
+    Arguments:
+        PointerPte - Supplies the pointer to the PTE which caused the page fault.
+        WriteOperation - Supplies nonzero if the operation is a write, 0 if the operation is a read.
+        PreviousMode - Supplies the previous mode, one of UserMode or KernelMode.
+        Protection - Supplies the protection mask to check.
+        TrapInformation - Supplies the trap information.
+        CallerHoldsPfnLock - Supplies TRUE if the PFN lock is held, FALSE otherwise.
+    Return Value:
+        Returns TRUE if access to the page is allowed, FALSE otherwise.
+    Environment:
+        Kernel mode, APCs disabled.
+    */
 {
     MMPTE PteContents;
     KIRQL OldIrql;
@@ -200,7 +200,7 @@ Environment:
     NTSTATUS status;
     PVOID DeallocationStack;
     PVOID MaximumAddress;
-    PVOID *StackLimit;
+    PVOID* StackLimit;
     PVOID StackBase;
     PETHREAD Thread;
     ULONG_PTR PageSize;
@@ -312,7 +312,7 @@ Environment:
             if (RegionSize < PAGE_4K) {
                 RegionSize = PAGE_4K;
             }
-            StackLimit = (PVOID *)&Teb32->NtTib.StackLimit;
+            StackLimit = (PVOID*)&Teb32->NtTib.StackLimit;
             AdditionalSize = RegionSize - PAGE_4K;
             NextPage = (ULONG_PTR)PAGE_4K_ALIGN(FaultingAddress) - RegionSize;
 
@@ -330,109 +330,109 @@ Environment:
     ExtendTheStack:
 #endif
 
-                  // If the image was marked for no stack extensions, return stack overflow immediately.
-                  Process = PsGetCurrentProcessByThread(Thread);
-                  Peb = Process->Peb;
-                  try {
-                      GlobalFlag = Peb->NtGlobalFlag;
-                  } except(EXCEPTION_EXECUTE_HANDLER)
-                  {
-                      // An exception has occurred during the referencing of the PEB, just return a guard page violation and don't deal with the stack overflow.
-                      return STATUS_GUARD_PAGE_VIOLATION;
-                  }
+    // If the image was marked for no stack extensions, return stack overflow immediately.
+    Process = PsGetCurrentProcessByThread(Thread);
+    Peb = Process->Peb;
+    try {
+        GlobalFlag = Peb->NtGlobalFlag;
+    } except(EXCEPTION_EXECUTE_HANDLER)
+    {
+        // An exception has occurred during the referencing of the PEB, just return a guard page violation and don't deal with the stack overflow.
+        return STATUS_GUARD_PAGE_VIOLATION;
+    }
 
-                  // NextPage is within the current stack, if there is ample room for another guard page then attempt to commit it.
-                  if ((NextPage - PageSize) <= (ULONG_PTR)MaximumAddress) {
-                      // There is no more room for expansion, attempt to commit the page(s) before the last page of the stack.
-                      NextPage = (ULONG_PTR)DeallocationStack + PageSize;
-                      status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID *)&NextPage, 0, &RegionSize, MEM_COMMIT, PAGE_READWRITE);
-                      if (NT_SUCCESS(status)) {
-                          try {
+    // NextPage is within the current stack, if there is ample room for another guard page then attempt to commit it.
+    if ((NextPage - PageSize) <= (ULONG_PTR)MaximumAddress) {
+        // There is no more room for expansion, attempt to commit the page(s) before the last page of the stack.
+        NextPage = (ULONG_PTR)DeallocationStack + PageSize;
+        status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)&NextPage, 0, &RegionSize, MEM_COMMIT, PAGE_READWRITE);
+        if (NT_SUCCESS(status)) {
+            try {
 #if defined(_WIN64)
-                              if (Teb32 != NULL) {
-                                  *(PULONG)StackLimit = (ULONG)NextPage;
-                              } else
+                if (Teb32 != NULL) {
+                    *(PULONG)StackLimit = (ULONG)NextPage;
+                } else
 #endif
-                                  *StackLimit = (PVOID)NextPage;
-                          } except(EXCEPTION_EXECUTE_HANDLER)
-                          {
-                              // An exception has occurred during the referencing of the TIB,
-                              // just return a guard page violation and don't deal with the stack overflow.
-                              return STATUS_GUARD_PAGE_VIOLATION;
-                          }
-                      }
+                    * StackLimit = (PVOID)NextPage;
+            } except(EXCEPTION_EXECUTE_HANDLER)
+            {
+                // An exception has occurred during the referencing of the TIB,
+                // just return a guard page violation and don't deal with the stack overflow.
+                return STATUS_GUARD_PAGE_VIOLATION;
+            }
+        }
 
-                      return STATUS_STACK_OVERFLOW;
-                  }
+        return STATUS_STACK_OVERFLOW;
+    }
 
-                  if ((GlobalFlag & FLG_DISABLE_STACK_EXTENSION)
+    if ((GlobalFlag & FLG_DISABLE_STACK_EXTENSION)
 #if defined(_WIN64)
-                      // Don't do this for emulation processes because it's not worth the work to clear the guard bits in the native stack,
-                      // the emulation stack and the backing store PTEs.
-                      && (Teb32 == NULL)
+        // Don't do this for emulation processes because it's not worth the work to clear the guard bits in the native stack,
+        // the emulation stack and the backing store PTEs.
+        && (Teb32 == NULL)
 #endif
-                      ) {
-                      // Since guard pages may get inserted anywhere in the stack (including prior to the committed region),
-                      // make sure the PTE is not committed before failing to grow it.
-                      LOCK_ADDRESS_SPACE(Process);
-                      Vad = MiCheckForConflictingVad(Process, NextPage, NextPage);
-                      if (Vad != NULL) {
-                          LOCK_WS_SHARED(Thread, Process);
-                          if (MiQueryAddressState((PVOID)NextPage, Vad, Process, &OldProtection, &NextVaToQuery) != MEM_RESERVE) {
-                              GlobalFlag = 0; // The state is committed (not reserved) so allow the growth.
-                          }
-                          UNLOCK_WS_SHARED(Thread, Process);
-                      }
-                      UNLOCK_ADDRESS_SPACE(Process);
+        ) {
+        // Since guard pages may get inserted anywhere in the stack (including prior to the committed region),
+        // make sure the PTE is not committed before failing to grow it.
+        LOCK_ADDRESS_SPACE(Process);
+        Vad = MiCheckForConflictingVad(Process, NextPage, NextPage);
+        if (Vad != NULL) {
+            LOCK_WS_SHARED(Thread, Process);
+            if (MiQueryAddressState((PVOID)NextPage, Vad, Process, &OldProtection, &NextVaToQuery) != MEM_RESERVE) {
+                GlobalFlag = 0; // The state is committed (not reserved) so allow the growth.
+            }
+            UNLOCK_WS_SHARED(Thread, Process);
+        }
+        UNLOCK_ADDRESS_SPACE(Process);
 
-                      if (GlobalFlag & FLG_DISABLE_STACK_EXTENSION) {
-                          // We're handing back an overflow so remove any guard bits now so the app can handle it.
-                          MiClearStackGuardBits(FaultingAddress, StackBase, DeallocationStack);
-                          return STATUS_STACK_OVERFLOW;
-                      }
-                  }
+        if (GlobalFlag & FLG_DISABLE_STACK_EXTENSION) {
+            // We're handing back an overflow so remove any guard bits now so the app can handle it.
+            MiClearStackGuardBits(FaultingAddress, StackBase, DeallocationStack);
+            return STATUS_STACK_OVERFLOW;
+        }
+    }
 
-                  try {
+    try {
 #if defined(_WIN64)
-                      if (Teb32 != NULL) {
-                          *(PULONG)StackLimit = (ULONG)(NextPage + RegionSize);// Update the 32-bit stack limit.
-                      } else
+        if (Teb32 != NULL) {
+            *(PULONG)StackLimit = (ULONG)(NextPage + RegionSize);// Update the 32-bit stack limit.
+        } else
 #endif
-                          *StackLimit = (PVOID)(NextPage + RegionSize);
-                  } except(EXCEPTION_EXECUTE_HANDLER)
-                  {
-                      // An exception has occurred during the referencing of the TEB or TIB,
-                      // just return a guard page violation and don't deal with the stack overflow.
-                      return STATUS_GUARD_PAGE_VIOLATION;
-                  }
+            * StackLimit = (PVOID)(NextPage + RegionSize);
+    } except(EXCEPTION_EXECUTE_HANDLER)
+    {
+        // An exception has occurred during the referencing of the TEB or TIB,
+        // just return a guard page violation and don't deal with the stack overflow.
+        return STATUS_GUARD_PAGE_VIOLATION;
+    }
 
-                  // Set the guard page(s).
-                  // For Wow64 processes the protection will not contain the PAGE_GUARD bit.
-                  // This is ok since in these cases we will set the bit for the top emulated 4K page.
-                  status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID *)&NextPage, 0, &RegionSize, MEM_COMMIT, ProtectionFlags);
-                  if (NT_SUCCESS(status) || (status == STATUS_ALREADY_COMMITTED)) {
+    // Set the guard page(s).
+    // For Wow64 processes the protection will not contain the PAGE_GUARD bit.
+    // This is ok since in these cases we will set the bit for the top emulated 4K page.
+    status = ZwAllocateVirtualMemory(NtCurrentProcess(), (PVOID*)&NextPage, 0, &RegionSize, MEM_COMMIT, ProtectionFlags);
+    if (NT_SUCCESS(status) || (status == STATUS_ALREADY_COMMITTED)) {
 #if EMULATE_USERMODE_STACK_4K
-                      if (Teb32 != NULL) {
-                          LOCK_ADDRESS_SPACE(Process);
-                          MiProtectFor4kPage((PVOID)NextPage, RegionSize, (MM_READWRITE | MM_GUARD_PAGE), ALT_CHANGE, Process);
-                          UNLOCK_ADDRESS_SPACE(Process);
-                      }
+        if (Teb32 != NULL) {
+            LOCK_ADDRESS_SPACE(Process);
+            MiProtectFor4kPage((PVOID)NextPage, RegionSize, (MM_READWRITE | MM_GUARD_PAGE), ALT_CHANGE, Process);
+            UNLOCK_ADDRESS_SPACE(Process);
+        }
 #endif
-                      return STATUS_PAGE_FAULT_GUARD_PAGE;// The guard page is now committed or stack space is already present, return success.
-                  }
+        return STATUS_PAGE_FAULT_GUARD_PAGE;// The guard page is now committed or stack space is already present, return success.
+    }
 
-                  // The attempt to commit guard page(s) failed.
-                  // If there are any guard pages between the base of the attempt and the faulting stack address, 
-                  // then strip their guard bits now so the application can handle the overflow exception without hitting successive exceptions.
-                  // Note if an application desires successive exceptions, 
-                  // it must explicitly set guard page protection on the desired virtual addresses upon return.
-                  if (AdditionalSize != 0) {
-                      NextPage += PageSize;
-                      RegionSize -= PageSize;
-                      ZwProtectVirtualMemory(NtCurrentProcess(), (PVOID *)&NextPage, &RegionSize, PAGE_READWRITE, &OldProtection);
-                  }
+    // The attempt to commit guard page(s) failed.
+    // If there are any guard pages between the base of the attempt and the faulting stack address, 
+    // then strip their guard bits now so the application can handle the overflow exception without hitting successive exceptions.
+    // Note if an application desires successive exceptions, 
+    // it must explicitly set guard page protection on the desired virtual addresses upon return.
+    if (AdditionalSize != 0) {
+        NextPage += PageSize;
+        RegionSize -= PageSize;
+        ZwProtectVirtualMemory(NtCurrentProcess(), (PVOID*)&NextPage, &RegionSize, PAGE_READWRITE, &OldProtection);
+    }
 
-                  return STATUS_STACK_OVERFLOW;
+    return STATUS_STACK_OVERFLOW;
 }
 
 
@@ -443,7 +443,7 @@ NTSTATUS MiClearStackGuardBits(IN PVOID CurrentSP, IN PVOID StackBase, IN PVOID 
     ULONG_PTR NextPage;
     SIZE_T RegionSize;
     NTSTATUS status;
-    PVOID *StackLimit;
+    PVOID* StackLimit;
     PETHREAD Thread;
     ULONG_PTR PageSize;
     PEPROCESS Process;
@@ -499,7 +499,7 @@ NTSTATUS MiClearStackGuardBits(IN PVOID CurrentSP, IN PVOID StackBase, IN PVOID 
 #if EMULATE_USERMODE_STACK_4K
             PageSize = PAGE_4K;
 #endif
-            StackLimit = (PVOID *)&Teb32->NtTib.StackLimit;
+            StackLimit = (PVOID*)&Teb32->NtTib.StackLimit;
         }
 #endif
     }
@@ -551,7 +551,7 @@ NTSTATUS MiClearStackGuardBits(IN PVOID CurrentSP, IN PVOID StackBase, IN PVOID 
                         *(PULONG)StackLimit = (ULONG)(ULONG_PTR)CurrentSP;
                     } else
 #endif
-                        *StackLimit = (PVOID)CurrentSP;
+                        * StackLimit = (PVOID)CurrentSP;
                 } except(EXCEPTION_EXECUTE_HANDLER)
                 {
                     // An exception has occurred during the referencing of the TEB, just return a guard page violation instead.

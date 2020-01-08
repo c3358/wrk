@@ -43,7 +43,12 @@ IopSetDeviceSecurityDescriptor(
 #endif
 
 
-VOID IopCloseFile(IN PEPROCESS Process OPTIONAL, IN PVOID Object, IN ULONG GrantedAccess, IN ULONG_PTR ProcessHandleCount, IN ULONG_PTR SystemHandleCount)
+VOID IopCloseFile(IN PEPROCESS Process OPTIONAL,
+                  IN PVOID Object, 
+                  IN ULONG GrantedAccess, 
+                  IN ULONG_PTR ProcessHandleCount, 
+                  IN ULONG_PTR SystemHandleCount
+)
 /*
 Routine Description:
     This routine is invoked whenever a handle to a file is deleted.
@@ -110,7 +115,9 @@ Arguments:
         // Turbo unlock support.
         // If the fast Io Dispatch specifies a fast lock routine then we'll first try and calling it with the specified lock parameters.
         // If this is all successful then we do not need to do the Irp based unlock all call.
-        if (fastIoDispatch && fastIoDispatch->FastIoUnlockAll && fastIoDispatch->FastIoUnlockAll(fileObject, PsGetCurrentProcess(), &localIoStatus, deviceObject)) {
+        if (fastIoDispatch && 
+            fastIoDispatch->FastIoUnlockAll &&
+            fastIoDispatch->FastIoUnlockAll(fileObject, PsGetCurrentProcess(), &localIoStatus, deviceObject)) {
             NOTHING;
         } else {
             KeInitializeEvent(&event, SynchronizationEvent, FALSE); // Initialize the local event that will be used to synchronize access to the driver completing this I/O operation.
@@ -255,7 +262,8 @@ Arguments:
     fileObject = (PFILE_OBJECT)Object;// Obtain a pointer to the file object.
 
     // Get a pointer to the first device driver which should be notified that this file is going away.
-    // If the device driver field is NULL, then this file is being shut down due to an error attempting to get it open in the first place, so do not do any further processing.
+    // If the device driver field is NULL,
+    // then this file is being shut down due to an error attempting to get it open in the first place, so do not do any further processing.
     if (fileObject->DeviceObject) {
         if (!(fileObject->Flags & FO_DIRECT_DEVICE_OPEN)) {
             deviceObject = IoGetRelatedDeviceObject(fileObject);
@@ -264,7 +272,7 @@ Arguments:
         }
 
         // On IopDeleteFile path the lock should always be ours as there should be no one else using this object.
-        ASSERT(!(fileObject->Flags & FO_SYNCHRONOUS_IO) || (InterlockedExchange((PLONG)& fileObject->Busy, (ULONG)TRUE) == FALSE));
+        ASSERT(!(fileObject->Flags & FO_SYNCHRONOUS_IO) || (InterlockedExchange((PLONG)&fileObject->Busy, (ULONG)TRUE) == FALSE));
 
         // If this file has never had a file handle created for it, and yet it exists, 
         // invoke the close file procedure so that the file system gets the cleanup IRP it is expecting before sending the close IRP.
@@ -310,7 +318,7 @@ Arguments:
         vpb = fileObject->Vpb;
 
         if (vpb && !(fileObject->Flags & FO_DIRECT_DEVICE_OPEN)) {
-            IopInterlockedDecrementUlong(LockQueueIoVpbLock, (PLONG)& vpb->ReferenceCount);
+            IopInterlockedDecrementUlong(LockQueueIoVpbLock, (PLONG)&vpb->ReferenceCount);
 
             // Bump the handle count of the filesystem volume device object.
             // This will prevent the filesystem filter stack from being torn down until after the close IRP completes.
@@ -379,7 +387,8 @@ Arguments:
         deviceObject = fileObject->DeviceObject;
 
         // Decrement the reference count on the device object.
-        // Note that if the driver has been marked for an unload operation, and the reference count goes to zero, then the driver may need to be unloaded at this point.
+        // Note that if the driver has been marked for an unload operation, 
+        // and the reference count goes to zero, then the driver may need to be unloaded at this point.
 
         // Note: only do this if the reference count was not already done
         // above.  The device object may be gone in this case.
@@ -544,7 +553,12 @@ ReturnValue:
         ExReleaseResourceLite(&IopSecurityResource);
         KeLeaveCriticalRegionThread(CurrentThread);
         NewDescriptor = OldDescriptor;
-        Status = SeSetSecurityDescriptorInfo(NULL, SecurityInformation, SecurityDescriptor, &NewDescriptor, PoolType, GenericMapping);
+        Status = SeSetSecurityDescriptorInfo(NULL, 
+                                             SecurityInformation,
+                                             SecurityDescriptor,
+                                             &NewDescriptor, 
+                                             PoolType,
+                                             GenericMapping);
         if (NT_SUCCESS(Status)) {//  If we successfully set the new security descriptor then we need to log it in our database and get yet another pointer to the finally security descriptor
             Status = ObLogSecurityDescriptor(NewDescriptor, &CachedDescriptor, 1);
             ExFreePool(NewDescriptor);
@@ -629,7 +643,11 @@ ReturnValue:
 
         // Save away and return the device status only for the main device object
         // For example if OldSecurityDescriptor is NULL the IO manager should return STATUS_NO_SECURITY_ON_OBJECT.
-        status = IopSetDeviceSecurityDescriptor(DeviceObject, SecurityInformation, SecurityDescriptor, PoolType, GenericMapping);
+        status = IopSetDeviceSecurityDescriptor(DeviceObject,
+                                                SecurityInformation,
+                                                SecurityDescriptor, 
+                                                PoolType, 
+                                                GenericMapping);
         if (DeviceObject == OriginalDeviceObject) {
             returnStatus = status;
         }
@@ -649,8 +667,7 @@ ReturnValue:
 }
 
 
-NTSTATUS IopGetSetSecurityObject(
-    IN PVOID Object,
+NTSTATUS IopGetSetSecurityObject(IN PVOID Object,
     IN SECURITY_OPERATION_CODE OperationCode,
     IN PSECURITY_INFORMATION SecurityInformation,
     IN OUT PSECURITY_DESCRIPTOR SecurityDescriptor,
@@ -707,7 +724,9 @@ Return Value:
         deviceObject = fileObject->DeviceObject;
     }
 
-    if (!fileObject || (!fileObject->FileName.Length && !fileObject->RelatedFileObject) || (fileObject->Flags & FO_DIRECT_DEVICE_OPEN)) {
+    if (!fileObject || 
+        (!fileObject->FileName.Length && !fileObject->RelatedFileObject) || 
+        (fileObject->Flags & FO_DIRECT_DEVICE_OPEN)) {
         // This security operation is for the device itself, either through a file object, or directly to the device object.
         // For the latter case, assignment operations are also possible.
         // Also note that this may be a stream file object, which do not have security.
@@ -736,13 +755,23 @@ Return Value:
             // See comment in IopSetDeviceSecurityDescriptors
             devicePDO = IopGetDevicePDO(deviceObject);
             if (devicePDO) {// set PDO and all attached device objects
-                status = IopSetDeviceSecurityDescriptors(deviceObject, devicePDO, SecurityInformation, SecurityDescriptor, PoolType, GenericMapping);
+                status = IopSetDeviceSecurityDescriptors(deviceObject,
+                                                         devicePDO, 
+                                                         SecurityInformation, 
+                                                         SecurityDescriptor, 
+                                                         PoolType, 
+                                                         GenericMapping);
                 ObDereferenceObject(devicePDO);
             } else {// set this device object only
-                status = IopSetDeviceSecurityDescriptor(deviceObject, SecurityInformation, SecurityDescriptor, PoolType, GenericMapping);
+                status = IopSetDeviceSecurityDescriptor(deviceObject, 
+                                                        SecurityInformation, 
+                                                        SecurityDescriptor, 
+                                                        PoolType, 
+                                                        GenericMapping);
             }
         } else if (OperationCode == QuerySecurityDescriptor) {
-            // This is a get operation.  The SecurityInformation parameter determines what part of the SecurityDescriptor is going to be returned from the ObjectsSecurityDescriptor.
+            // This is a get operation. 
+            // The SecurityInformation parameter determines what part of the SecurityDescriptor is going to be returned from the ObjectsSecurityDescriptor.
             CurrentThread = PsGetCurrentThread();
             KeEnterCriticalRegionThread(&CurrentThread->Tcb);
             ExAcquireResourceSharedLite(&IopSecurityResource, TRUE);
@@ -753,7 +782,10 @@ Return Value:
 
             ExReleaseResourceLite(&IopSecurityResource);
             KeLeaveCriticalRegionThread(&CurrentThread->Tcb);
-            status = SeQuerySecurityDescriptorInfo(SecurityInformation, SecurityDescriptor, CapturedLength, &oldSecurityDescriptor);
+            status = SeQuerySecurityDescriptorInfo(SecurityInformation,
+                                                   SecurityDescriptor,
+                                                   CapturedLength,
+                                                   &oldSecurityDescriptor);
             if (oldSecurityDescriptor != NULL) {
                 ObDereferenceSecurityDescriptor(oldSecurityDescriptor, 1);
             }
@@ -791,7 +823,10 @@ Return Value:
         if (fileObject->Flags & FO_SYNCHRONOUS_IO) {
             BOOLEAN interrupted;
             if (!IopAcquireFastLock(fileObject)) {
-                status = IopAcquireFileObjectLock(fileObject, requestorMode, (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0), &interrupted);
+                status = IopAcquireFileObjectLock(fileObject,
+                                                  requestorMode,
+                                                  (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0),
+                                                  &interrupted);
                 if (interrupted) {
                     ObDereferenceObject(fileObject);
                     return status;
@@ -883,7 +918,9 @@ Return Value:
                 // If the caller's buffer is too small, then indicate that this is the case and let him know what size buffer is required.
                 // Otherwise, attempt to return a null security descriptor.
                 try {
-                    status = SeAssignWorldSecurityDescriptor(SecurityDescriptor, CapturedLength, SecurityInformation);
+                    status = SeAssignWorldSecurityDescriptor(SecurityDescriptor,
+                                                             CapturedLength, 
+                                                             SecurityInformation);
                 } except(EXCEPTION_EXECUTE_HANDLER)
                 {
                     // An exception was incurred while attempting to access the caller's buffer.

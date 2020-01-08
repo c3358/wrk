@@ -15,26 +15,27 @@ Abstract:
 
 
 NTSTATUS NtLockVirtualMemory(__in HANDLE ProcessHandle,
-                             __inout PVOID *BaseAddress,
+                             __inout PVOID* BaseAddress,
                              __inout PSIZE_T RegionSize,
-                             __in ULONG MapType)
-    /*
-    Routine Description:
-        This function locks a region of pages within the working set list of a subject process.
-        The caller of this function must have PROCESS_VM_OPERATION access to the target process.
-        The caller must also have SeLockMemoryPrivilege.
-    Arguments:
-       ProcessHandle - Supplies an open handle to a process object.
-       BaseAddress - The base address of the region of pages to be locked.
-                     This value is rounded down to the next host page address boundary.
-       RegionSize - A pointer to a variable that will receive the actual size in bytes of the locked region of pages.
-                    The initial value of this argument is rounded up to the next host page size boundary.
-       MapType - A set of flags that describe the type of locking to perform.
-                 One of MAP_PROCESS or MAP_SYSTEM.
-    Return Value:
-        NTSTATUS.
-        STATUS_PRIVILEGE_NOT_HELD - The caller did not have sufficient privilege to perform the requested operation.
-    */
+                             __in ULONG MapType
+)
+/*
+Routine Description:
+    This function locks a region of pages within the working set list of a subject process.
+    The caller of this function must have PROCESS_VM_OPERATION access to the target process.
+    The caller must also have SeLockMemoryPrivilege.
+Arguments:
+   ProcessHandle - Supplies an open handle to a process object.
+   BaseAddress - The base address of the region of pages to be locked.
+                 This value is rounded down to the next host page address boundary.
+   RegionSize - A pointer to a variable that will receive the actual size in bytes of the locked region of pages.
+                The initial value of this argument is rounded up to the next host page size boundary.
+   MapType - A set of flags that describe the type of locking to perform.
+             One of MAP_PROCESS or MAP_SYSTEM.
+Return Value:
+    NTSTATUS.
+    STATUS_PRIVILEGE_NOT_HELD - The caller did not have sufficient privilege to perform the requested operation.
+*/
 {
     PVOID Va;
     PVOID StartingVa;
@@ -116,7 +117,7 @@ NTSTATUS NtLockVirtualMemory(__in HANDLE ProcessHandle,
                                        PROCESS_VM_OPERATION,
                                        PsProcessType,
                                        PreviousMode,
-                                       (PVOID *)&TargetProcess,
+                                       (PVOID*)&TargetProcess,
                                        NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
@@ -235,7 +236,7 @@ NTSTATUS NtLockVirtualMemory(__in HANDLE ProcessHandle,
 
     try {
         while (Va <= EndingAddress) {
-            *(volatile ULONG *)Va;
+            *(volatile ULONG*)Va;
             Va = (PVOID)((PCHAR)Va + PAGE_SIZE);
         }
     }
@@ -273,7 +274,7 @@ NTSTATUS NtLockVirtualMemory(__in HANDLE ProcessHandle,
 
             // Page in the PDE and make the PTE valid.
             try {
-                *(volatile ULONG *)Va;
+                *(volatile ULONG*)Va;
             }
             except(EXCEPTION_EXECUTE_HANDLER)
             {
@@ -379,28 +380,29 @@ ErrorReturn1:
 
 
 NTSTATUS NtUnlockVirtualMemory(__in HANDLE ProcessHandle,
-                               __inout PVOID *BaseAddress,
+                               __inout PVOID* BaseAddress,
                                __inout PSIZE_T RegionSize,
-                               __in ULONG MapType)
-    /*
-    Routine Description:
-        This function unlocks a region of pages within the working set list of a subject process.
+                               __in ULONG MapType
+)
+/*
+Routine Description:
+    This function unlocks a region of pages within the working set list of a subject process.
 
-        As a side effect, any pages which are not locked and are in the process's working set are removed from the process's working set.
-        This allows NtUnlockVirtualMemory to remove a range of pages from the working set.
+    As a side effect, any pages which are not locked and are in the process's working set are removed from the process's working set.
+    This allows NtUnlockVirtualMemory to remove a range of pages from the working set.
 
-        The caller of this function must have PROCESS_VM_OPERATION access to the target process.
+    The caller of this function must have PROCESS_VM_OPERATION access to the target process.
 
-        The caller must also have SeLockMemoryPrivilege for MAP_SYSTEM.
-    Arguments:
-       ProcessHandle - Supplies an open handle to a process object.
-       BaseAddress - The base address of the region of pages to be unlocked.
-                     This value is rounded down to the next host page address boundary.
-       RegionSize - A pointer to a variable that will receive the actual size in bytes of the unlocked region of pages.
-                    The initial value of this argument is rounded up to the next host page size boundary.
-       MapType - A set of flags that describe the type of unlocking to perform.
-                 One of MAP_PROCESS or MAP_SYSTEM.
-    */
+    The caller must also have SeLockMemoryPrivilege for MAP_SYSTEM.
+Arguments:
+   ProcessHandle - Supplies an open handle to a process object.
+   BaseAddress - The base address of the region of pages to be unlocked.
+                 This value is rounded down to the next host page address boundary.
+   RegionSize - A pointer to a variable that will receive the actual size in bytes of the unlocked region of pages.
+                The initial value of this argument is rounded up to the next host page size boundary.
+   MapType - A set of flags that describe the type of unlocking to perform.
+             One of MAP_PROCESS or MAP_SYSTEM.
+*/
 {
     PVOID Va;
     PVOID EndingAddress;
@@ -469,7 +471,7 @@ NTSTATUS NtUnlockVirtualMemory(__in HANDLE ProcessHandle,
                                        PROCESS_VM_OPERATION,
                                        PsProcessType,
                                        PreviousMode,
-                                       (PVOID *)&TargetProcess,
+                                       (PVOID*)&TargetProcess,
                                        NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;

@@ -14,7 +14,8 @@ Abstract:
 
     A prefix table is a list of prefix trees, where each tree contains
     the prefixes corresponding to a particular name length (i.e., all prefixes of length 1 are stored in one tree, prefixes of length 2 are stored in another tree, and so forth).
-    A prefixes name length is the number of separate names that appear in the string, and not the number of characters in the string (e.g., Length("\alpha\beta") = 2).
+    A prefixes name length is the number of separate names that appear in the string, 
+    and not the number of characters in the string (e.g., Length("\alpha\beta") = 2).
 
     The elements of each tree are ordered lexicalgraphically (case blind) using a splay tree data structure.
     If two or more prefixes are identical except for case then one of the corresponding table entries is actually in the tree,
@@ -35,7 +36,9 @@ typedef enum _COMPARISON
 CLONG ComputeNameLength(IN PSTRING Name);
 COMPARISON CompareNamesCaseSensitive(IN PSTRING Prefix, IN PSTRING Name);
 CLONG ComputeUnicodeNameLength(IN PUNICODE_STRING Name);
-COMPARISON CompareUnicodeStrings(IN PUNICODE_STRING Prefix, IN PUNICODE_STRING Name, IN ULONG CaseInsensitiveIndex);
+COMPARISON CompareUnicodeStrings(IN PUNICODE_STRING Prefix,
+                                 IN PUNICODE_STRING Name, 
+                                 IN ULONG CaseInsensitiveIndex);
 
 #if defined(ALLOC_PRAGMA)
 #pragma alloc_text(PAGE,ComputeNameLength)
@@ -76,7 +79,10 @@ Arguments:
 }
 
 
-BOOLEAN PfxInsertPrefix(IN PPREFIX_TABLE PrefixTable, IN PSTRING Prefix, IN PPREFIX_TABLE_ENTRY PrefixTableEntry)
+BOOLEAN PfxInsertPrefix(IN PPREFIX_TABLE PrefixTable, 
+                        IN PSTRING Prefix,
+                        IN PPREFIX_TABLE_ENTRY PrefixTableEntry
+)
 /*
 Routine Description:
     This routine inserts a new prefix into the specified prefix table
@@ -150,7 +156,8 @@ Return Value:
             }
         } else {
             //  The tree prefix is either less than or a proper prefix of the new string.
-            //  We treat both cases a less than when we do insert.  So we want to go down the right subtree, first check to see if we have a right subtree
+            //  We treat both cases a less than when we do insert.  
+            //  So we want to go down the right subtree, first check to see if we have a right subtree
             if (RtlRightChild(&Node->Links) == NULL) {
                 //  These isn't a right child so we insert ourselves as the new right child
                 PrefixTableEntry->NodeTypeCode = RTL_NTC_INTERNAL;
@@ -165,7 +172,8 @@ Return Value:
     }
 
     //  Now that we've inserted the new node we can splay the tree.
-    //  To do this we need to remember how we find this tree in the root tree list, set the root to be an internal, splay, the tree, and then setup the new root node.
+    //  To do this we need to remember how we find this tree in the root tree list,
+    //  set the root to be an internal, splay, the tree, and then setup the new root node.
     //  Note: we cannot splay the prefix table entry because it might be a case match node so we only splay
     //  the Node variable, which for case match insertions is the internal node for the case match and for non-case match insertions the Node variable is the parent node.
 
@@ -222,7 +230,8 @@ Arguments:
 
         //  Now see if the tree is deleted
         if (Links == NULL) {
-            //  The tree is now empty so remove this tree from the tree list, by first finding the previous tree that references us
+            //  The tree is now empty so remove this tree from the tree list, 
+            //  by first finding the previous tree that references us
             PreviousTree = Root->NextPrefixTree;
             while (PreviousTree->NextPrefixTree != Root) {
                 PreviousTree = PreviousTree->NextPrefixTree;
@@ -238,7 +247,8 @@ Arguments:
             //  Get a pointer to the new root
             NewRoot = CONTAINING_RECORD(Links, PREFIX_TABLE_ENTRY, Links);
 
-            //  We changed root so we better need to make the new root part of the prefix data structure, by first finding the previous tree that references us
+            //  We changed root so we better need to make the new root part of the prefix data structure,
+            //  by first finding the previous tree that references us
             PreviousTree = Root->NextPrefixTree;
             while (PreviousTree->NextPrefixTree != Root) {
                 PreviousTree = PreviousTree->NextPrefixTree;
@@ -322,7 +332,8 @@ Return Value:
                 //  We found it.
 
                 //  Now that we've located the node we can splay the tree.
-                //  To do this we need to remember how we find this tree in the root tree list, set the root to be an internal, splay, the tree, and then setup the new root node.
+                //  To do this we need to remember how we find this tree in the root tree list,
+                //  set the root to be an internal, splay, the tree, and then setup the new root node.
                 if (Node->NodeTypeCode == RTL_NTC_INTERNAL) {
                     //  Save a pointer to the next tree, we already have the previous tree
                     NextTree = CurrentTree->NextPrefixTree;
@@ -406,7 +417,8 @@ Returns Value:
 COMPARISON CompareNamesCaseSensitive(IN PSTRING Prefix, IN PSTRING Name)
 /*
 Routine Description:
-    This routine takes a prefix string and a full name string and determines if the prefix string is a proper prefix of the name string (case sensitive)
+    This routine takes a prefix string and a full name string and 
+    determines if the prefix string is a proper prefix of the name string (case sensitive)
 Arguments:
     Prefix - Supplies the input prefix string
     Name - Supplies the full name input string
@@ -532,7 +544,10 @@ Arguments:
 }
 
 
-BOOLEAN RtlInsertUnicodePrefix(IN PUNICODE_PREFIX_TABLE PrefixTable, IN PUNICODE_STRING Prefix, IN PUNICODE_PREFIX_TABLE_ENTRY PrefixTableEntry)
+BOOLEAN RtlInsertUnicodePrefix(IN PUNICODE_PREFIX_TABLE PrefixTable, 
+                               IN PUNICODE_STRING Prefix,
+                               IN PUNICODE_PREFIX_TABLE_ENTRY PrefixTableEntry
+)
 /*
 Routine Description:
     This routine inserts a new unicode prefix into the specified prefix table
@@ -654,7 +669,8 @@ Return Value:
     }
 
     //  Now that we've inserted the new node we can splay the tree.
-    //  To do this we need to remember how we find this tree in the root tree list, set the root to be an internal, splay, the tree, and then setup the new root node.
+    //  To do this we need to remember how we find this tree in the root tree list,
+    //  set the root to be an internal, splay, the tree, and then setup the new root node.
     //  Note: we cannot splay the prefix table entry because it might be a case match node so we only splay
     //  the Node variable, which for case match insertions is the internal node for the case match and for non-case match insertions the Node variable is the parent node.
 
@@ -788,7 +804,8 @@ Arguments:
             //  Get a pointer to the new root
             NewRoot = CONTAINING_RECORD(Links, UNICODE_PREFIX_TABLE_ENTRY, Links);
 
-            //  We changed root so we better need to make the new root part of the prefix data structure, by first finding the previous tree that references us
+            //  We changed root so we better need to make the new root part of the prefix data structure,
+            //  by first finding the previous tree that references us
             PreviousTree = Root->NextPrefixTree;
             while (PreviousTree->NextPrefixTree != Root) {
                 PreviousTree = PreviousTree->NextPrefixTree;
@@ -813,7 +830,10 @@ Arguments:
 }
 
 
-PUNICODE_PREFIX_TABLE_ENTRY RtlFindUnicodePrefix(IN PUNICODE_PREFIX_TABLE PrefixTable, IN PUNICODE_STRING FullName, IN ULONG CaseInsensitiveIndex)
+PUNICODE_PREFIX_TABLE_ENTRY RtlFindUnicodePrefix(IN PUNICODE_PREFIX_TABLE PrefixTable,
+                                                 IN PUNICODE_STRING FullName,
+                                                 IN ULONG CaseInsensitiveIndex
+)
 /*
 Routine Description:
     This routine finds if a full name has a prefix in a prefix table.
@@ -875,7 +895,8 @@ Return Value:
                     //  The caller wants case insensitive so we'll return the first one we found
 
                     //  Now that we've located the node we can splay the tree.
-                    //  To do this we need to remember how we find this tree in the root tree list, set the root to be an internal, splay, the tree, and then setup the new root node.
+                    //  To do this we need to remember how we find this tree in the root tree list, 
+                    //  set the root to be an internal, splay, the tree, and then setup the new root node.
                     if (Node->NodeTypeCode == RTL_NTC_UNICODE_INTERNAL) {
                         //  Save a pointer to the next tree, we already have the previous tree
                         NextTree = CurrentTree->NextPrefixTree;
@@ -913,7 +934,8 @@ Return Value:
                 } while (Next != Node);
 
                 //  We found a case blind prefix but the caller wants
-                //  case sensitive and we weren't able to find one of those so we need to go on to the next tree, by breaking out of the inner while-loop
+                //  case sensitive and we weren't able to find one of those so we need to go on to the next tree, 
+                //  by breaking out of the inner while-loop
                 break;
             }
         }
@@ -1062,12 +1084,16 @@ Return Value:
 
     RTL_PAGED_CODE();
 
-    //  Save the length of the prefix and name string, this should allow the compiler to not need to reload the length through a pointer every time we need their values
+    //  Save the length of the prefix and name string, 
+    //  this should allow the compiler to not need to reload the length through a pointer every time we need their values
     PrefixLength = (ULONG)Prefix->Length / 2;
     NameLength = (ULONG)Name->Length / 2;
 
     //  Special case the situation where the prefix string is simply "\" and the name starts with an "\"
-    if ((PrefixLength == 1) && (Prefix->Buffer[0] == UnicodeBackSlash) && (NameLength > 1) && (Name->Buffer[0] == UnicodeBackSlash)) {
+    if ((PrefixLength == 1) && 
+        (Prefix->Buffer[0] == UnicodeBackSlash) &&
+        (NameLength > 1) && 
+        (Name->Buffer[0] == UnicodeBackSlash)) {
         return IsPrefix;
     }
 
@@ -1090,8 +1116,8 @@ Return Value:
 
     //  If we didn't break out of the above loop, do the CaseInsensitive compare.
     if (i == CaseInsensitiveIndex) {
-        WCHAR *s1 = &Prefix->Buffer[i];
-        WCHAR *s2 = &Name->Buffer[i];
+        WCHAR* s1 = &Prefix->Buffer[i];
+        WCHAR* s2 = &Name->Buffer[i];
         for (; i < MinLength; i += 1) {
             PrefixChar = *s1++;
             NameChar = *s2++;
@@ -1107,7 +1133,8 @@ Return Value:
 
     //  If we broke out of the above loop because of a mismatch, determine the result of the comparison.
     if (i < MinLength) {
-        //  We also need to treat "\" as less than all other characters, so if the char is a "\" we'll drop it down to a value of zero.
+        //  We also need to treat "\" as less than all other characters, 
+        //  so if the char is a "\" we'll drop it down to a value of zero.
         if (PrefixChar == UnicodeBackSlash) {
             return IsLessThan;
         }

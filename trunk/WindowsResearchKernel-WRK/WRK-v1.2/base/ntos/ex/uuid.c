@@ -134,10 +134,19 @@ Return Value:
     KeyValueInformation = (PKEY_VALUE_PARTIAL_INFORMATION)KeyValueBuffer;
     RtlInitUnicodeString(&KeyPath, RPC_SEQUENCE_NUMBER_PATH);
     RtlInitUnicodeString(&KeyName, RPC_SEQUENCE_NUMBER_NAME);
-    InitializeObjectAttributes(&ObjectAttributes, &KeyPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+    InitializeObjectAttributes(&ObjectAttributes, 
+                               &KeyPath,
+                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 
+                               NULL, 
+                               NULL);
     Status = ZwOpenKey(&Key, GENERIC_READ, &ObjectAttributes);
     if (NT_SUCCESS(Status)) {
-        Status = ZwQueryValueKey(Key, &KeyName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+        Status = ZwQueryValueKey(Key,
+                                 &KeyName,
+                                 KeyValuePartialInformation,
+                                 KeyValueInformation,
+                                 sizeof(KeyValueBuffer),
+                                 &ResultLength);
         ZwClose(Key);
     }
 
@@ -175,7 +184,11 @@ Return Value:
 
     RtlInitUnicodeString(&KeyPath, RPC_SEQUENCE_NUMBER_PATH);
     RtlInitUnicodeString(&KeyName, RPC_SEQUENCE_NUMBER_NAME);
-    InitializeObjectAttributes(&ObjectAttributes, &KeyPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
+    InitializeObjectAttributes(&ObjectAttributes,
+                               &KeyPath, 
+                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, 
+                               NULL, 
+                               NULL);
     Status = ZwOpenKey(&Key, GENERIC_READ | GENERIC_WRITE, &ObjectAttributes);
     if (NT_SUCCESS(Status)) {
         Status = ZwSetValueKey(Key, &KeyName, 0, REG_DWORD, &Sequence, sizeof(ULONG));
@@ -269,7 +282,7 @@ Return Value:
             KdPrintEx((DPFLTR_SYSTEM_ID, DPFLTR_WARNING_LEVEL, "Uuid: Generating first sequence number.\n"));
 
             PerfCounter = KeQueryPerformanceCounter(&PerfFrequency);
-            ExpUuidSequenceNumber ^= (ULONG)((ULONG_PTR)& Status) ^ PerfCounter.LowPart ^ PerfCounter.HighPart ^ (ULONG)((ULONG_PTR)Sequence);
+            ExpUuidSequenceNumber ^= (ULONG)((ULONG_PTR)&Status) ^ PerfCounter.LowPart ^ PerfCounter.HighPart ^ (ULONG)((ULONG_PTR)Sequence);
         } else {
             ExpUuidSequenceNumber++;// We increment the sequence number on every boot.
         }
@@ -390,7 +403,11 @@ Return Value:
 }
 
 
-NTSTATUS NtAllocateUuids(__out PULARGE_INTEGER Time, __out PULONG Range, __out PULONG Sequence, __out PCHAR Seed)
+NTSTATUS NtAllocateUuids(__out PULARGE_INTEGER Time, 
+                         __out PULONG Range,
+                         __out PULONG Sequence,
+                         __out PCHAR Seed
+)
 /*
 Routine Description:
     This function reserves a range of time for the caller(s) to use for handing out Uuids.
@@ -414,7 +431,6 @@ Return Value:
 {
     KPROCESSOR_MODE PreviousMode;
     NTSTATUS Status;
-
     LARGE_INTEGER OutputTime;
     ULONG OutputRange;
     ULONG OutputSequence;
@@ -518,7 +534,7 @@ Return Value:
         * (ULONGLONG)(60 * 60 * 24)       // days
         * (ULONGLONG)(17 + 30 + 31 + 365 * 18 + 5); // # of days
     ASSERT(Range);
-    Values->ClockSeqHiAndReserved = UUID_RESERVED | (((UCHAR)(Sequence >> 8)) & (UCHAR)UUID_CLOCK_SEQ_HI_MASK);
+    Values->ClockSeqHiAndReserved = UUID_RESERVED | (((UCHAR)(Sequence >> 8))& (UCHAR)UUID_CLOCK_SEQ_HI_MASK);
     Values->ClockSeqLow = (UCHAR)(Sequence & 0x00FF);
 
     // We'll modify the Time value so that it indicates the end of the range rather than the beginning of it.
@@ -555,8 +571,8 @@ Return Value:
         Time = ExpUuidCachedValues.Time;// Get the highest value in the cache (though it may not be available).
 
         // Copy the static info into the UUID.  We can't do this later because the clock sequence could be updated by another thread.
-        *(PULONG)& UuidGen->ClockSeqHiAndReserved = *(PULONG)& ExpUuidCachedValues.ClockSeqHiAndReserved;
-        *(PULONG)& UuidGen->NodeId[2] = *(PULONG)& ExpUuidCachedValues.NodeId[2];
+        *(PULONG)&UuidGen->ClockSeqHiAndReserved = *(PULONG)&ExpUuidCachedValues.ClockSeqHiAndReserved;
+        *(PULONG)&UuidGen->NodeId[2] = *(PULONG)&ExpUuidCachedValues.NodeId[2];
 
         // See what we need to subtract from Time to get a valid GUID.
         Delta = InterlockedDecrement(&ExpUuidCachedValues.AllocatedCount);
@@ -606,7 +622,7 @@ Return Value:
     // Finish filling in the UUID.
     UuidGen->TimeLow = (ULONG)Time;
     UuidGen->TimeMid = (USHORT)(Time >> 32);
-    UuidGen->TimeHiAndVersion = (USHORT)(((USHORT)(Time >> (32 + 16)) & UUID_TIME_HIGH_MASK) | UUID_VERSION);
+    UuidGen->TimeHiAndVersion = (USHORT)(((USHORT)(Time >> (32 + 16))& UUID_TIME_HIGH_MASK) | UUID_VERSION);
     ASSERT(Status == STATUS_SUCCESS);
     if (ExpUuidCacheValid == CACHE_LOCAL_ONLY) {
         Status = RPC_NT_UUID_LOCAL_ONLY;

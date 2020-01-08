@@ -7,10 +7,10 @@
 
 #define TERSE
 
-char *TRACE_fmt = "TRACE: %s(): line %4d in %s\n";
-char *STRACE_fmt = "TRACE: %s(): line %4d in %s <%s> [%08x %08x %08x %08x]\n";
+char* TRACE_fmt = "TRACE: %s(): line %4d in %s\n";
+char* STRACE_fmt = "TRACE: %s(): line %4d in %s <%s> [%08x %08x %08x %08x]\n";
 
-char *portaltypestrings[] = {
+char* portaltypestrings[] = {
     "emulationcall", // 0
     "servicecall",   // 1
     "interrupt",     // 2
@@ -21,7 +21,7 @@ char *portaltypestrings[] = {
 
 #define PORTALTYPESTRING(t) (((t) < ASIZEOF(portaltypestrings))? portaltypestrings[(t)] : "<unknown>")
 
-char *EMULStrings[] = {
+char* EMULStrings[] = {
     "Noop",           //  0
     "MapMemory",      //  1
     "MapIO",          //  2
@@ -43,7 +43,7 @@ char *EMULStrings[] = {
 };
 
 
-void dump_Portal(Portal *p, int     emultype, char   *msg)
+void dump_Portal(Portal* p, int     emultype, char* msg)
 {
     if (p == NULL) {
         printf("dump_Portal(NULL): %s\n", msg);
@@ -66,7 +66,7 @@ void dump_Portal(Portal *p, int     emultype, char   *msg)
            p->reserved,
            p->ctx,
            p->mode,
-           p->irql, 
+           p->irql,
            p->protmask,
            p->handler,
            p->arg);
@@ -90,11 +90,11 @@ void dump_Portal(Portal *p, int     emultype, char   *msg)
 }
 
 
-void dump_Domain(Domain *p, char   *msg)
+void dump_Domain(Domain* p, char* msg)
 {
-    EXCEPTION_MESSAGE *xm;
-    EXCEPTION_RECORD  *xr;
-    NTThreadDescr     *td;
+    EXCEPTION_MESSAGE* xm;
+    EXCEPTION_RECORD* xr;
+    NTThreadDescr* td;
     int i;
 
     if (p == NULL) {
@@ -116,15 +116,15 @@ void dump_Domain(Domain *p, char   *msg)
                    (ULONG)td->hash.value,
                    td->ntcputhread,
                    td->cpu,
-                   (td->trappednotinterrupted ? 'T' : 'F'), 
+                   (td->trappednotinterrupted ? 'T' : 'F'),
                    td->interrupteip, //td->ntstackpointer,
                    xm->hdr.MessageId,
                    xm->hdr.u2.s2.Type,
-                   xm->hdr.ClientId.UniqueProcess, 
+                   xm->hdr.ClientId.UniqueProcess,
                    xm->hdr.ClientId.UniqueThread,
                    xm->ReturnedStatus,
                    xr->ExceptionCode,
-                   xr->ExceptionAddress, 
+                   xr->ExceptionAddress,
                    xr->ExceptionInformation[0],
                    xr->ExceptionInformation[1]);
         }
@@ -133,7 +133,7 @@ void dump_Domain(Domain *p, char   *msg)
 }
 
 
-void dump_Space(Space  *p, char   *msg)
+void dump_Space(Space* p, char* msg)
 {
     int i, n;
 
@@ -156,7 +156,7 @@ void dump_Space(Space  *p, char   *msg)
     printf("\n");
 }
 
-char *pcbcalltypestrings[] = {
+char* pcbcalltypestrings[] = {
     "unknowncall",     // 0,    // emulation calls don't use PCBs
     "servicetra",      // 1,
     "interruptcall",   // 2,
@@ -168,7 +168,7 @@ char *pcbcalltypestrings[] = {
 #define PCBCALLTYPESTRING(t) (((t) < ASIZEOF(pcbcalltypestrings))? pcbcalltypestrings[(t)] : "<unknown>")
 
 
-void dump_PCB(PCB   *p, char  *msg)
+void dump_PCB(PCB* p, char* msg)
 {
 #ifdef TERSE
     printf("PCB <%x>  [%s]  [%8x] => %08x Hash\n", p, msg, (ULONG)p->hash.value, p->hash.link);
@@ -203,7 +203,7 @@ void dump_PCB(PCB   *p, char  *msg)
 }
 
 
-void out_vector(char   *tname, Portal *p[], int     nentries)
+void out_vector(char* tname, Portal* p[], int     nentries)
 {
     int i, maxvalid;
 
@@ -229,13 +229,13 @@ void out_vector(char   *tname, Portal *p[], int     nentries)
 }
 
 
-void dump_Trapvector(Trapvector *t, char       *msg)
+void dump_Trapvector(Trapvector* t, char* msg)
 {
     struct copy_of_private_VADNode_from_trap_c
     {
         ULONG       VirtualPageBase;
         ULONG       VirtualPageLimit;
-        Portal     *Portal;
+        Portal* Portal;
     } *ptr;
 
     if (t == NULL) {
@@ -251,7 +251,9 @@ void dump_Trapvector(Trapvector *t, char       *msg)
     out_vector("exceptions:", t->exceptions, NTRAP_EXCEPTIONS);
     out_vector("faults:", t->faults, NTRAP_FAULTS);
 
-    for (ptr = RtlEnumerateGenericTableAvl(&t->vadtree, TRUE); ptr != NULL; ptr = RtlEnumerateGenericTableAvl(&t->vadtree, FALSE)) {
+    for (ptr = RtlEnumerateGenericTableAvl(&t->vadtree, TRUE);
+         ptr != NULL; 
+         ptr = RtlEnumerateGenericTableAvl(&t->vadtree, FALSE)) {
         printf("  %08x->%08x:  %4x\n",
                ptr->VirtualPageBase,
                ptr->VirtualPageLimit,
@@ -260,10 +262,17 @@ void dump_Trapvector(Trapvector *t, char       *msg)
 }
 
 
-void dump_CONTEXT(CONTEXT *p, char    *msg)
+void dump_CONTEXT(CONTEXT* p, char* msg)
 {
 #ifdef TERSE
-    printf("CONTEXT <%x> %s: ctxflags=%x segs Cs/Ss=%x/%x Ds=%x\n", p, msg, p->ContextFlags, p->SegCs, p->SegSs, p->SegDs);
+    printf("CONTEXT <%x> %s: ctxflags=%x segs Cs/Ss=%x/%x Ds=%x\n", 
+           p, 
+           msg,
+           p->ContextFlags,
+           p->SegCs,
+           p->SegSs,
+           p->SegDs);
+
     printf("  Ebx=%x  Ecx=%X  Edx=%x  Edi=%x  Esi=%x  Eax=%x  Eip=%x Ebp/Esp=%x/%x EF=%x\n",
            p->Ebx,
            p->Ecx,
@@ -272,7 +281,7 @@ void dump_CONTEXT(CONTEXT *p, char    *msg)
            p->Esi,
            p->Eax,
            p->Eip,
-           p->Ebp, 
+           p->Ebp,
            p->Esp,
            p->EFlags);
 #else
@@ -303,7 +312,7 @@ void dump_CONTEXT(CONTEXT *p, char    *msg)
 }
 
 
-void dump_data(PCHAR p, ULONG n, char *msg)
+void dump_data(PCHAR p, ULONG n, char* msg)
 {
     ULONG i, x;
 
@@ -327,7 +336,7 @@ void dump_data(PCHAR p, ULONG n, char *msg)
 #define DUMP_DATA(base, offset, count) dump_data( (offset) + (PCHAR)(base), (count), "DATA");
 
 
-char *CPUStateStrings[] = {
+char* CPUStateStrings[] = {
     "Uninitialized",    // 0,
     "Running",          // 1,
     "Halted"            // 2,
@@ -336,11 +345,11 @@ char *CPUStateStrings[] = {
 #define CPUSTATESTRING(t) (((t) < ASIZEOF(CPUStateStrings))? CPUStateStrings[(t)] : "<unknown>")
 
 
-void dump_CPUHardware(CPUHardware *p, char        *msg)
+void dump_CPUHardware(CPUHardware* p, char* msg)
 {
 #ifdef TERSE
     printf("CPUHardware <%x>  [%s]  cpustate=%x <%s>  ctx/mode/irql=%x/%x/%x chain=%x intq=%x pend=%x\n",
-           p, 
+           p,
            msg,
            p->cpustate,
            CPUSTATESTRING(p->cpustate),
@@ -370,7 +379,7 @@ void dump_CPUHardware(CPUHardware *p, char        *msg)
 }
 
 
-void dump_PORT_MESSAGE(PPORT_MESSAGE p, char         *msg)
+void dump_PORT_MESSAGE(PPORT_MESSAGE p, char* msg)
 {
     printf("PORT_MESSAGE <%x>  [%s]\n", p, msg);
     printf("  %8x Length\n", p->u1.Length);
@@ -385,12 +394,16 @@ void dump_PORT_MESSAGE(PPORT_MESSAGE p, char         *msg)
 }
 
 
-void dump_EXCEPTION_MESSAGE(EXCEPTION_MESSAGE *p, char              *msg)
+void dump_EXCEPTION_MESSAGE(EXCEPTION_MESSAGE* p, char* msg)
 {
-    EXCEPTION_RECORD  *x = &p->ExceptionRecord;
+    EXCEPTION_RECORD* x = &p->ExceptionRecord;
 
 #ifdef TERSE
-    printf("  xrec: code/addr=%x  info=%x/%x\n", x->ExceptionCode, x->ExceptionAddress, x->ExceptionInformation[0], x->ExceptionInformation[1]);
+    printf("  xrec: code/addr=%x  info=%x/%x\n",
+           x->ExceptionCode, 
+           x->ExceptionAddress, 
+           x->ExceptionInformation[0],
+           x->ExceptionInformation[1]);
 #else
     dump_PORT_MESSAGE(&p->hdr, msg);
     printf("  %8x ApiNumber\n", p->ApiNumber);
@@ -418,14 +431,14 @@ void dump_EXCEPTION_MESSAGE(EXCEPTION_MESSAGE *p, char              *msg)
 #define NTSPACE_MAPTABENTRIES (1 << NTSPACE_MIDBITS)
 
 
-void dump_Rootmap(ULONG ctx, char *msg)
+void dump_Rootmap(ULONG ctx, char* msg)
 {
-    Space     *space;
+    Space* space;
     ULONG      vdir, vpage;
     ULONG_PTR  virtualpage;
 
-    Mapping  **rootmap;
-    Mapping  *dmap, *pmap;
+    Mapping** rootmap;
+    Mapping* dmap, * pmap;
 
     printf("Rootmap for ctx %x: %x\n", ctx, msg);
 
@@ -456,7 +469,12 @@ void dump_Rootmap(ULONG ctx, char *msg)
                 pmap = dmap + vpage;
                 if (pmap && (pmap->physpage || pmap->readmask || pmap->writemask)) {
                     virtualpage = vdir * NTSPACE_MAPTABENTRIES + vpage;
-                    printf("MAP <%x>:  %08x -> %08x  [R: %08x  W: %08x]\n", pmap, virtualpage, pmap->physpage, pmap->readmask, pmap->writemask);
+                    printf("MAP <%x>:  %08x -> %08x  [R: %08x  W: %08x]\n",
+                           pmap, 
+                           virtualpage,
+                           pmap->physpage,
+                           pmap->readmask,
+                           pmap->writemask);
                 }
             }
         }
@@ -464,7 +482,7 @@ void dump_Rootmap(ULONG ctx, char *msg)
 }
 
 
-void dump_ProcessVirtualRegions(HANDLE process, ULONG_PTR start, ULONG_PTR limit, char *msg)
+void dump_ProcessVirtualRegions(HANDLE process, ULONG_PTR start, ULONG_PTR limit, char* msg)
 {
     MEMORY_BASIC_INFORMATION32 m;
     NTSTATUS s;
@@ -506,7 +524,7 @@ void dump_ProcessVirtualRegions(HANDLE process, ULONG_PTR start, ULONG_PTR limit
 }
 
 
-char *spacebreakhelp =
+char* spacebreakhelp =
 "\nCommands:\n"
 "\tg - go (continue)\n"
 "\t! - launch ntsd debugger on OZ\n"
@@ -529,23 +547,23 @@ BOOLEAN spacebreak_disabled = 0;
 
 void
 spacebreak(
-    char        *why,
-    CLIENT_ID   *pcid,
-    char        *fcn,
-    char        *file,
+    char* why,
+    CLIENT_ID* pcid,
+    char* fcn,
+    char* file,
     int          line
 )
 {
     BOOLEAN  continueflag;
     char     buf[128];
-    char    *cmdline;
+    char* cmdline;
     char  cmdchar;
     char  optchar;
     ulong idparam0;
     ulong idparam1;
     ulong idparam2;
 
-    int system(const char *command);
+    int system(const char* command);
 
     fflush(stdout);
 
@@ -555,7 +573,10 @@ spacebreak(
     fprintf(stderr, "SPACEBREAK: %s() at %d in %s: %s\n", fcn, line, file, why);
 
     if (pcid)
-        fprintf(stderr, "To start debugger on BasicOZ:  (thread %d), process:  ntsd -p %d\n", pcid->UniqueThread, pcid->UniqueProcess);
+        fprintf(stderr, 
+                "To start debugger on BasicOZ:  (thread %d), process:  ntsd -p %d\n", 
+                pcid->UniqueThread, 
+                pcid->UniqueProcess);
 
     continueflag = 0;
     while (!continueflag) {
@@ -623,7 +644,10 @@ spacebreak(
                     ulong i;
                     for (i = 0; i < MAXMODES; i++)
                         if (spaces[idparam0]->domains[i])
-                            printf("ctx %3x mode %2x ntprocess handle %x\n", idparam0, i, spaces[idparam0]->domains[i]->ntprocess);
+                            printf("ctx %3x mode %2x ntprocess handle %x\n",
+                                   idparam0,
+                                   i, 
+                                   spaces[idparam0]->domains[i]->ntprocess);
                 } else
                     printf("Bad id\n");
                 break;
@@ -631,7 +655,7 @@ spacebreak(
             {
                 ULONG_PTR start;
                 ULONG_PTR limit;
-                char     *msg;
+                char* msg;
                 switch (idparam1) {
                 case 0:
                     start = PAGE2ADDR(spaceparams.vpage_base);
@@ -658,9 +682,21 @@ spacebreak(
 
                 s = NtReadVirtualMemory((HANDLE)idparam0, (PVOID)idparam1, (PVOID)b, sizeof(b), &readsize);
                 if (NT_SUCCESS(s) && readsize == sizeof(b))
-                    fprintf(stderr, "  <process %08x> %08x:  %08x %08x %08x %08x\n", idparam0, idparam1, b[0], b[1], b[2], b[3]);
+                    fprintf(stderr, 
+                            "  <process %08x> %08x:  %08x %08x %08x %08x\n",
+                            idparam0,
+                            idparam1,
+                            b[0],
+                            b[1], 
+                            b[2],
+                            b[3]);
                 else
-                    fprintf(stderr, "  %08x:  pr: NtReadVirtualMemory(process %08x at %08x) size %x\n", s, idparam0, idparam1, readsize);
+                    fprintf(stderr,
+                            "  %08x:  pr: NtReadVirtualMemory(process %08x at %08x) size %x\n",
+                            s, 
+                            idparam0,
+                            idparam1,
+                            readsize);
                 break;
             }
             case 'w':
@@ -671,14 +707,18 @@ spacebreak(
 
                 s = NtReadVirtualMemory((HANDLE)idparam0, (PVOID)idparam1, &b, sizeof(b), &iosize);
                 if (!NT_SUCCESS(s) || iosize != sizeof(b)) {
-                    fprintf(stderr, "  %08x:  pr: NtReadVirtualMemory(process %08x at %08x) size %x\n", s, idparam0, idparam1, iosize);
+                    fprintf(stderr, 
+                            "  %08x:  pr: NtReadVirtualMemory(process %08x at %08x) size %x\n",
+                            s, idparam0, idparam1, iosize);
                     break;
                 }
                 s = NtWriteVirtualMemory((HANDLE)idparam0, (PVOID)idparam1, (PVOID)&idparam2, sizeof(b), &iosize);
                 if (!NT_SUCCESS(s) || iosize != sizeof(b)) {
-                    fprintf(stderr, "  %08x:  pr: NtWriteVirtualMemory(process %08x at %08x) size %x\n", s, idparam0, idparam1, iosize);
+                    fprintf(stderr, "  %08x:  pr: NtWriteVirtualMemory(process %08x at %08x) size %x\n",
+                            s, idparam0, idparam1, iosize);
                 } else {
-                    fprintf(stderr, "  <process %08x> %08x:  %08x -> %08x\n", idparam0, idparam1, b, idparam2);
+                    fprintf(stderr, "  <process %08x> %08x:  %08x -> %08x\n",
+                            idparam0, idparam1, b, idparam2);
                 }
                 break;
             }
@@ -704,7 +744,7 @@ spacebreak(
             case 'x':
             {
                 CONTEXT        ntcontext;
-                NTThreadDescr *ntthreaddescr;
+                NTThreadDescr* ntthreaddescr;
                 NTSTATUS       s;
 
                 if (idparam1 == 1) {

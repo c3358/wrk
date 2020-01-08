@@ -56,10 +56,6 @@ NTSTATUS PspLdtInitialize(VOID)
 /*
 Routine Description:
     This routine initializes the LDT support for the x86
-Arguments:
-    None
-Return Value:
-    NTSTATUS.
 */
 {
     KeInitializeMutex(&LdtMutex, 0);
@@ -70,18 +66,17 @@ Return Value:
 NTSTATUS PspQueryLdtInformation(IN PEPROCESS Process,
                                 OUT PPROCESS_LDT_INFORMATION LdtInformation,
                                 IN ULONG LdtInformationLength,
-                                OUT PULONG ReturnLength)
-    /*
-    Routine Description:
-        This function performs the work for the LDT portion of the query process information function.
-        It copies the contents of the LDT for the specified process into the user's buffer, up to the length of the buffer.
-    Arguments:
-        Process -- Supplies a pointer to the process to return LDT info for
-        LdtInformation -- Supplies a pointer to the buffer
-        ReturnLength -- Returns the number of bytes put into the buffer
-    Return Value:
-        NTSTATUS.
-    */
+                                OUT PULONG ReturnLength
+)
+/*
+Routine Description:
+    This function performs the work for the LDT portion of the query process information function.
+    It copies the contents of the LDT for the specified process into the user's buffer, up to the length of the buffer.
+Arguments:
+    Process -- Supplies a pointer to the process to return LDT info for
+    LdtInformation -- Supplies a pointer to the buffer
+    ReturnLength -- Returns the number of bytes put into the buffer
+*/
 {
     ULONG CopyLength, CopyEnd;
     NTSTATUS Status;
@@ -92,8 +87,7 @@ NTSTATUS PspQueryLdtInformation(IN PEPROCESS Process,
 
     PAGED_CODE();
 
-    // Verify the parameters
-    if (LdtInformationLength < sizeof(PROCESS_LDT_INFORMATION)) {
+    if (LdtInformationLength < sizeof(PROCESS_LDT_INFORMATION)) {// Verify the parameters
         return STATUS_INFO_LENGTH_MISMATCH;
     }
 
@@ -113,16 +107,13 @@ NTSTATUS PspQueryLdtInformation(IN PEPROCESS Process,
         return STATUS_INFO_LENGTH_MISMATCH;
     }
 
-    // An LDT entry is a processor structure, and must be 8 bytes long
-    ASSERT((sizeof(LDT_ENTRY) == 8));
+    ASSERT((sizeof(LDT_ENTRY) == 8));// An LDT entry is a processor structure, and must be 8 bytes long
 
-    // The length of the structure must be an even number of LDT entries
-    if (Length % sizeof(LDT_ENTRY)) {
+    if (Length % sizeof(LDT_ENTRY)) {// The length of the structure must be an even number of LDT entries
         return STATUS_INVALID_LDT_SIZE;
     }
 
-    // The information to get from the LDT must start on an LDT entry boundary.
-    if (Start % sizeof(LDT_ENTRY)) {
+    if (Start % sizeof(LDT_ENTRY)) {// The information to get from the LDT must start on an LDT entry boundary.
         return STATUS_INVALID_LDT_OFFSET;
     }
 
@@ -151,8 +142,7 @@ NTSTATUS PspQueryLdtInformation(IN PEPROCESS Process,
         CopyLength = CopyEnd - Start;
 
         try {
-            // Set the length field to the actual length of the LDT
-            LdtInformation->Length = ProcessLdtInfo->Size;
+            LdtInformation->Length = ProcessLdtInfo->Size;// Set the length field to the actual length of the LDT
 
             // Copy the contents of the LDT into the user's buffer
             if (CopyLength) {
@@ -164,8 +154,7 @@ NTSTATUS PspQueryLdtInformation(IN PEPROCESS Process,
             ASSERT((MutexStatus == 0));
             return GetExceptionCode();
         }
-    } else {
-        // There is no LDT
+    } else {// There is no LDT        
         CopyLength = 0;
         try {
             LdtInformation->Length = 0;
@@ -206,8 +195,6 @@ Routine Description:
 Arguments:
     Process -- Supplies a pointer to the process whose LDT is to be sized
     LdtSize -- Supplies a pointer to the size information
-Return Value:
-    NTSTATUS.
 */
 {
     ULONG OldSize = 0, NewSize;
@@ -220,8 +207,7 @@ Return Value:
 
     PAGED_CODE();
 
-    // Verify the parameters
-    if (LdtSizeLength != sizeof(PROCESS_LDT_SIZE)) {
+    if (LdtSizeLength != sizeof(PROCESS_LDT_SIZE)) {// Verify the parameters
         return STATUS_INFO_LENGTH_MISMATCH;
     }
 
@@ -236,8 +222,7 @@ Return Value:
 
     ASSERT((sizeof(LDT_ENTRY) == 8));
 
-    // The LDT must always be an integral number of LDT_ENTRIES
-    if (Length % sizeof(LDT_ENTRY)) {
+    if (Length % sizeof(LDT_ENTRY)) {// The LDT must always be an integral number of LDT_ENTRIES
         return STATUS_INVALID_LDT_SIZE;
     }
 
@@ -255,8 +240,7 @@ Return Value:
         return STATUS_NO_LDT;
     }
 
-    // This function cannot be used to grow the LDT
-    if (Length > ProcessLdtInfo->Size) {
+    if (Length > ProcessLdtInfo->Size) {// This function cannot be used to grow the LDT
         MutexState = KeReleaseMutex(&LdtMutex, FALSE);
         ASSERT((MutexState == 0));
         return STATUS_INVALID_LDT_SIZE;
@@ -266,8 +250,7 @@ Return Value:
     // of LDT in the if statement below, but there is one case where we don't
     Ldt = ProcessLdtInfo->Ldt;
 
-    // Adjust the size of the LDT
-    ProcessLdtInfo->Size = Length;
+    ProcessLdtInfo->Size = Length;// Adjust the size of the LDT
 
     // Free some of the LDT memory if conditions allow
     if (Length == 0) {
@@ -301,8 +284,7 @@ Return Value:
     MutexState = KeReleaseMutex(&LdtMutex, FALSE);
     ASSERT((MutexState == 0));
 
-    // If we resized the LDT, free the old one and reduce the quota charge
-    if (OldLdt) {
+    if (OldLdt) {// If we resized the LDT, free the old one and reduce the quota charge
         ExFreePool(OldLdt);
         PsReturnProcessNonPagedPoolQuota(Process, OldSize - NewSize);
     }
@@ -311,7 +293,10 @@ Return Value:
 }
 
 
-NTSTATUS PspSetLdtInformation(IN PEPROCESS Process, IN PPROCESS_LDT_INFORMATION LdtInformation, IN ULONG LdtInformationLength)
+NTSTATUS PspSetLdtInformation(IN PEPROCESS Process,
+                              IN PPROCESS_LDT_INFORMATION LdtInformation,
+                              IN ULONG LdtInformationLength
+)
 /*
 Routine Description:
     This function alters the ldt for a specified process.
@@ -343,7 +328,9 @@ Arguments:
     }
 
     Status = STATUS_SUCCESS;
-    LdtInfo = ExAllocatePoolWithQuotaTag(NonPagedPool | POOL_QUOTA_FAIL_INSTEAD_OF_RAISE, LdtInformationLength, 'dLsP');
+    LdtInfo = ExAllocatePoolWithQuotaTag(NonPagedPool | POOL_QUOTA_FAIL_INSTEAD_OF_RAISE,
+                                         LdtInformationLength,
+                                         'dLsP');
     if (LdtInfo == NULL) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -389,7 +376,9 @@ Arguments:
     }
 
     // Verify all of the descriptors.
-    for (CurrentDescriptor = LdtInfo->LdtEntries; (PCHAR)CurrentDescriptor < (PCHAR)LdtInfo->LdtEntries + LdtInfo->Length; CurrentDescriptor++) {
+    for (CurrentDescriptor = LdtInfo->LdtEntries;
+        (PCHAR)CurrentDescriptor < (PCHAR)LdtInfo->LdtEntries + LdtInfo->Length;
+         CurrentDescriptor++) {
         if (!PspIsDescriptorValid(CurrentDescriptor)) {
             ExFreePool(LdtInfo);
             return STATUS_INVALID_LDT_DESCRIPTOR;
@@ -572,7 +561,6 @@ Routine Description:
             This rules out all gates, etc
         Not conforming
     DPL must be 3
-
 Arguments:
     Descriptor -- Supplies a pointer to the descriptor to check
 Return Value:
@@ -614,14 +602,12 @@ Return Value:
             return FALSE;
         }
 
-        // Don't let the reserved field be set.
-        if (Descriptor->HighWord.Bits.Reserved_0 != 0) {
+        if (Descriptor->HighWord.Bits.Reserved_0 != 0) {// Don't let the reserved field be set.
             return FALSE;
         }
     }
 
-    // if Dpl is not 3
-    if (Descriptor->HighWord.Bits.Dpl != 3) {
+    if (Descriptor->HighWord.Bits.Dpl != 3) {// if Dpl is not 3
         return FALSE;
     }
 
@@ -640,7 +626,11 @@ Return Value:
 }
 
 
-NTSTATUS PspQueryDescriptorThread(PETHREAD Thread, PVOID ThreadInformation, ULONG ThreadInformationLength, PULONG ReturnLength)
+NTSTATUS PspQueryDescriptorThread(PETHREAD Thread,
+                                  PVOID ThreadInformation,
+                                  ULONG ThreadInformationLength,
+                                  PULONG ReturnLength
+)
 /*
 Routine Description:
     This function retrieves a descriptor table entry for the specified thread.
@@ -661,8 +651,7 @@ Arguments:
 
     ASSERT(sizeof(KGDTENTRY) == sizeof(LDT_ENTRY));
 
-    // Verify parameters
-    if (ThreadInformationLength != sizeof(DESCRIPTOR_TABLE_ENTRY)) {
+    if (ThreadInformationLength != sizeof(DESCRIPTOR_TABLE_ENTRY)) {// Verify parameters
         return STATUS_INFO_LENGTH_MISMATCH;
     }
 
@@ -684,7 +673,7 @@ Arguments:
         try {
             Ke386GetGdtEntryThread(&Thread->Tcb,
                                    DescriptorEntry.Selector & 0xFFFFFFF8,
-                                   (PKGDTENTRY) &(((PDESCRIPTOR_TABLE_ENTRY)ThreadInformation)->Descriptor));
+                                   (PKGDTENTRY) & (((PDESCRIPTOR_TABLE_ENTRY)ThreadInformation)->Descriptor));
             if (ARGUMENT_PRESENT(ReturnLength)) {
                 *ReturnLength = sizeof(LDT_ENTRY);
             }
@@ -703,13 +692,11 @@ Arguments:
         }
 
         if (Process->LdtInformation == NULL) {
-            // If there is no LDT
-            Status = STATUS_NO_LDT;
+            Status = STATUS_NO_LDT;// If there is no LDT
         } else if ((DescriptorEntry.Selector & 0xFFFFFFF8) >= ((PLDTINFORMATION)(Process->LdtInformation))->Size) {
             // Else If the selector is outside the table
             Status = STATUS_ACCESS_VIOLATION;
-        } else try {
-            // Else return the contents of the descriptor
+        } else try {// Else return the contents of the descriptor
             RtlCopyMemory(&(((PDESCRIPTOR_TABLE_ENTRY)ThreadInformation)->Descriptor),
                 (PCHAR)(((PLDTINFORMATION)(Process->LdtInformation))->Ldt) + (DescriptorEntry.Selector & 0xFFFFFFF8),
                           sizeof(LDT_ENTRY));
@@ -736,8 +723,6 @@ Routine Description:
     This routine frees the nonpaged pool associated with a process' LDT, if it has one.
 Arguments:
     Process -- Supplies a pointer to the process
-Return Value:
-    None
 */
 {
     PLDTINFORMATION LdtInformation;
@@ -760,22 +745,21 @@ NTSTATUS PsSetLdtEntries(IN ULONG Selector0,
                          IN ULONG Entry0Hi,
                          IN ULONG Selector1,
                          IN ULONG Entry1Low,
-                         IN ULONG Entry1Hi)
-    /*
-    Routine Description:
-        This routine sets up to two selectors in the current process's LDT.
-        The LDT will be grown as necessary.
-        A selector value of 0 indicates that the specified selector was not passed (allowing the setting of a single selector).
-    Arguments:
-        Selector0 -- Supplies the number of the first descriptor to set
-        Entry0Low -- Supplies the low 32 bits of the descriptor
-        Entry0Hi -- Supplies the high 32 bits of the descriptor
-        Selector1 -- Supplies the number of the first descriptor to set
-        Entry1Low -- Supplies the low 32 bits of the descriptor
-        Entry1Hi -- Supplies the high 32 bits of the descriptor
-    Return Value:
-        NTSTATUS.
-    */
+                         IN ULONG Entry1Hi
+)
+/*
+Routine Description:
+    This routine sets up to two selectors in the current process's LDT.
+    The LDT will be grown as necessary.
+    A selector value of 0 indicates that the specified selector was not passed (allowing the setting of a single selector).
+Arguments:
+    Selector0 -- Supplies the number of the first descriptor to set
+    Entry0Low -- Supplies the low 32 bits of the descriptor
+    Entry0Hi -- Supplies the high 32 bits of the descriptor
+    Selector1 -- Supplies the number of the first descriptor to set
+    Entry1Low -- Supplies the low 32 bits of the descriptor
+    Entry1Hi -- Supplies the high 32 bits of the descriptor
+*/
 {
     ULONG LdtSize, AllocatedSize;
     NTSTATUS Status;
@@ -791,7 +775,6 @@ NTSTATUS PsSetLdtEntries(IN ULONG Selector0,
     // Verify the selectors.  We do not allow selectors that point into Kernel space, system selectors, or conforming code selectors
 
     // Verify the selectors
-
     if ((Selector0 & 0xFFFF0000) || (Selector1 & 0xFFFF0000)) {
         return STATUS_INVALID_LDT_DESCRIPTOR;
     }
@@ -879,8 +862,7 @@ NTSTATUS PsSetLdtEntries(IN ULONG Selector0,
                 *((PLDT_ENTRY)&ProcessLdtInformation->Ldt[Selector1 / sizeof(LDT_ENTRY)]) = Descriptor[Selector1Index];
             }
 
-            // Set the LDT for the process
-            ProcessLdtInformation->Size = LdtSize;
+            ProcessLdtInformation->Size = LdtSize;// Set the LDT for the process
 
             Ke386SetLdtProcess(&(Process->Pcb), ProcessLdtInformation->Ldt, ProcessLdtInformation->Size);
 
@@ -970,22 +952,21 @@ NTSTATUS NtSetLdtEntries(__in ULONG Selector0,
                          __in ULONG Entry0Hi,
                          __in ULONG Selector1,
                          __in ULONG Entry1Low,
-                         __in ULONG Entry1Hi)
-    /*
-    Routine Description:
-        This routine sets up to two selectors in the current process's LDT.
-        The LDT will be grown as necessary.
-        A selector value of 0 indicates that the specified selector was not passed (allowing the setting of a single selector).
-    Arguments:
-        Selector0 -- Supplies the number of the first descriptor to set
-        Entry0Low -- Supplies the low 32 bits of the descriptor
-        Entry0Hi -- Supplies the high 32 bits of the descriptor
-        Selector1 -- Supplies the number of the first descriptor to set
-        Entry1Low -- Supplies the low 32 bits of the descriptor
-        Entry1Hi -- Supplies the high 32 bits of the descriptor
-    Return Value:
-        NTSTATUS.
-    */
+                         __in ULONG Entry1Hi
+)
+/*
+Routine Description:
+    This routine sets up to two selectors in the current process's LDT.
+    The LDT will be grown as necessary.
+    A selector value of 0 indicates that the specified selector was not passed (allowing the setting of a single selector).
+Arguments:
+    Selector0 -- Supplies the number of the first descriptor to set
+    Entry0Low -- Supplies the low 32 bits of the descriptor
+    Entry0Hi -- Supplies the high 32 bits of the descriptor
+    Selector1 -- Supplies the number of the first descriptor to set
+    Entry1Low -- Supplies the low 32 bits of the descriptor
+    Entry1Hi -- Supplies the high 32 bits of the descriptor
+*/
 {
     return PsSetLdtEntries(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
 }
@@ -1002,8 +983,6 @@ Arguments:
     LdtInformation - Supplies a pointer to a record that contains the information to set.
         This pointer has already been probed, but since it is a usermode pointer, accesses must be guarded by try-except.
     LdtInformationLength - Supplies the length of the record that contains the information to set.
-Return Value:
-    NTSTATUS.
 */
 {
     PEPROCESS Process = PsGetCurrentProcess();
@@ -1026,7 +1005,9 @@ Return Value:
     }
 
     // Allocate a local buffer to capture the ldt information to
-    LdtInfo = ExAllocatePoolWithQuotaTag(NonPagedPool | POOL_QUOTA_FAIL_INSTEAD_OF_RAISE, LdtInformationLength, 'ldmV');
+    LdtInfo = ExAllocatePoolWithQuotaTag(NonPagedPool | POOL_QUOTA_FAIL_INSTEAD_OF_RAISE,
+                                         LdtInformationLength,
+                                         'ldmV');
     if (LdtInfo == NULL) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -1081,7 +1062,9 @@ Return Value:
     }
 
     // Verify all of the descriptors.
-    for (CurrentDescriptor = LdtInfo->LdtEntries; (PCHAR)CurrentDescriptor < (PCHAR)LdtInfo->LdtEntries + LdtInfo->Length; CurrentDescriptor += 1) {
+    for (CurrentDescriptor = LdtInfo->LdtEntries;
+        (PCHAR)CurrentDescriptor < (PCHAR)LdtInfo->LdtEntries + LdtInfo->Length;
+         CurrentDescriptor += 1) {
         if (!PspIsDescriptorValid(CurrentDescriptor)) {
             ExFreePool(LdtInfo);
             return STATUS_INVALID_LDT_DESCRIPTOR;

@@ -70,7 +70,7 @@ typedef struct _PTE_TRACKER
     };
     PVOID CallingAddress;
     PVOID CallersCaller;
-} PTE_TRACKER, *PPTE_TRACKER;
+} PTE_TRACKER, * PPTE_TRACKER;
 
 typedef struct _SYSPTES_HEADER
 {
@@ -78,7 +78,7 @@ typedef struct _SYSPTES_HEADER
     PFN_NUMBER Count;
     PFN_NUMBER NumberOfEntries;
     PFN_NUMBER NumberOfEntriesPeak;
-} SYSPTES_HEADER, *PSYSPTES_HEADER;
+} SYSPTES_HEADER, * PSYSPTES_HEADER;
 
 ULONG MmTrackPtes = 0;
 BOOLEAN MiTrackPtesAborted = FALSE;
@@ -195,7 +195,7 @@ typedef enum _MI_LOCK_USED_FOR_PROBE
     LOCK_TYPE_AWE = 1,      // This must come first (code depends on it).
     LOCK_TYPE_WS = 2,
     LOCK_TYPE_PFN = 3
-} MI_LOCK_USED_FOR_PROBE, *PMI_LOCK_USED_FOR_PROBE;
+} MI_LOCK_USED_FOR_PROBE, * PMI_LOCK_USED_FOR_PROBE;
 
 
 VOID MmProbeAndLockPages(__inout PMDL MemoryDescriptorList,
@@ -272,7 +272,7 @@ Top:
 
     if ((AccessMode != KernelMode) && ((EndVa > (PVOID)MM_USER_PROBE_ADDRESS) || (Va >= EndVa))) {
 #pragma prefast(suppress: 2000, "SAL 1.2 needed for accurate MDL struct annotation.")
-        *Page = MM_EMPTY_LIST;
+        * Page = MM_EMPTY_LIST;
         MI_INSTRUMENT_PROBE_RAISES(0);
         ExRaiseStatus(STATUS_ACCESS_VIOLATION);
     }
@@ -298,7 +298,7 @@ Top:
                 // Lookup the element and save the result.
                 SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot,
                                                   MI_VA_TO_VPN(StartVa),
-                                                  (PMMADDRESS_NODE *)&PhysicalView);
+                                                  (PMMADDRESS_NODE*)&PhysicalView);
                 if ((SearchResult == TableFoundNode) &&
                     ((PVOID)StartVa >= MI_VPN_TO_VA(PhysicalView->StartingVpn)) &&
                     ((PVOID)((PCHAR)EndVa - 1) <= MI_VPN_TO_VA_ENDING(PhysicalView->EndingVpn))) {
@@ -416,7 +416,7 @@ DefaultProbeAndLock:
             do {
                 *Page = MM_EMPTY_LIST;
                 // Make sure the page is resident.
-                *(volatile CHAR *)Va;
+                *(volatile CHAR*)Va;
                 if ((Operation != IoReadAccess) && (Va <= MM_HIGHEST_USER_ADDRESS)) {
                     ProbeForWriteChar((PCHAR)Va);// Probe for write access as well.
                 }
@@ -703,7 +703,7 @@ DefaultProbeAndLock:
                 // This process has a \Device\PhysicalMemory VAD so it must be checked to see if the current address resides in it.
                 SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot,
                                                   MI_VA_TO_VPN(Va),
-                                                  (PMMADDRESS_NODE *)&PhysicalView);
+                                                  (PMMADDRESS_NODE*)&PhysicalView);
                 if ((SearchResult == TableFoundNode) && (PhysicalView->VadType == VadDevicePhysicalMemory)) {
                     ASSERT((ULONG)PhysicalView->Vad->u.VadFlags.VadType == (ULONG)PhysicalView->VadType);
                     // The VA lies within a device physical memory VAD.
@@ -767,7 +767,7 @@ DefaultProbeAndLock:
                 }
 
                 Va = MiGetVirtualAddressMappedByPte(PointerPte);
-                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE *)&PhysicalView);
+                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE*)&PhysicalView);
                 if ((SearchResult == TableFoundNode) &&
                     ((PhysicalView->VadType == VadRotatePhysical) || (PhysicalView->VadType == VadDevicePhysicalMemory))) {
                     ASSERT((ULONG)PhysicalView->Vad->u.VadFlags.VadType == (ULONG)PhysicalView->VadType);
@@ -1324,7 +1324,7 @@ Top:
         // Even systems without 64 bit pointers are required to zero the upper 32 bits of the segment address so use alignment rather than the buffer pointer.
         Va = Ptr64ToPtr(SegmentArray->Buffer);
 #pragma prefast(suppress: 2000, "SAL 1.2 needed for accurate MDL struct annotation.")
-        *Page = MM_EMPTY_LIST;
+        * Page = MM_EMPTY_LIST;
         if (Va <= MM_HIGHEST_USER_ADDRESS) {
             ASSERT(LockType != LOCK_TYPE_PFN);
             ASSERT(CurrentProcess == PsGetCurrentProcess());
@@ -1346,7 +1346,7 @@ Top:
                     NOTHING;
                 } else {
                     // Lookup the element and save the result.
-                    SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE *)&PhysicalView);
+                    SearchResult = MiFindNodeOrParent(&AweInfo->AweVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE*)&PhysicalView);
                     if ((SearchResult == TableFoundNode) &&
                         ((PVOID)Va >= MI_VPN_TO_VA(PhysicalView->StartingVpn)) &&
                         ((PVOID)Va <= MI_VPN_TO_VA_ENDING(PhysicalView->EndingVpn))) {
@@ -1683,7 +1683,7 @@ Top:
             PfnHeldToo = FALSE;
             if ((CurrentProcess != NULL) && (CurrentProcess->PhysicalVadRoot != NULL)) {
                 // This process has a \Device\PhysicalMemory VAD so it must be checked to see if the current address resides in it.
-                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE *)&PhysicalView);
+                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE*)&PhysicalView);
                 if ((SearchResult == TableFoundNode) && (PhysicalView->VadType == VadDevicePhysicalMemory)) {
                     ASSERT((ULONG)PhysicalView->Vad->u.VadFlags.VadType == (ULONG)PhysicalView->VadType);
 
@@ -1744,7 +1744,7 @@ Top:
                 }
 
                 Va = MiGetVirtualAddressMappedByPte(PointerPte);
-                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE *)&PhysicalView);
+                SearchResult = MiFindNodeOrParent(CurrentProcess->PhysicalVadRoot, MI_VA_TO_VPN(Va), (PMMADDRESS_NODE*)&PhysicalView);
                 if ((SearchResult == TableFoundNode) &&
                     ((PhysicalView->VadType == VadRotatePhysical) || (PhysicalView->VadType == VadDevicePhysicalMemory))) {
                     ASSERT((ULONG)PhysicalView->Vad->u.VadFlags.VadType == (ULONG)PhysicalView->VadType);
@@ -2142,7 +2142,7 @@ Environment:
     PSLIST_ENTRY SingleListEntry;
     PMI_PFN_DEREFERENCE_CHUNK DerefMdl;
     PSLIST_HEADER PfnDereferenceSListHead;
-    PSLIST_ENTRY *PfnDeferredList;
+    PSLIST_ENTRY* PfnDeferredList;
 
     ASSERT((MemoryDescriptorList->MdlFlags & MDL_PAGES_LOCKED) != 0);
     ASSERT((MemoryDescriptorList->MdlFlags & MDL_SOURCE_IS_NONPAGED_POOL) == 0);
@@ -2556,7 +2556,7 @@ Environment:
     PSLIST_ENTRY VeryLastEntry;
     PMI_PFN_DEREFERENCE_CHUNK DerefMdl;
     PSLIST_HEADER PfnDereferenceSListHead;
-    PSLIST_ENTRY *PfnDeferredList;
+    PSLIST_ENTRY* PfnDeferredList;
 #if defined(MI_MULTINODE)
     PKNODE Node;
 #endif
@@ -2742,7 +2742,7 @@ Environment:
         PageFrameIndex = MI_CONVERT_PHYSICAL_TO_PFN(VirtualAddress);
         do {
 #pragma prefast(suppress: 2000, "SAL 1.2 needed for accurate MDL struct annotation.")
-            *Page = PageFrameIndex;
+            * Page = PageFrameIndex;
             Page += 1;
             PageFrameIndex += 1;
         } while (Page < EndPage);
@@ -2935,7 +2935,7 @@ Environment:
                                  0x4,
                                  (ULONG_PTR)Tracker,
                                  (ULONG_PTR)Tracker->Page,
-                                 (ULONG_PTR) *(PPFN_NUMBER)(MemoryDescriptorList + 1));
+                                 (ULONG_PTR) * (PPFN_NUMBER)(MemoryDescriptorList + 1));
                 }
 
                 if (Tracker->StartVa != MemoryDescriptorList->StartVa) {// Map and unmap don't match up.
@@ -4450,7 +4450,7 @@ Environment:
 
     // Lookup the element and save the result.
     ASSERT(Process->PhysicalVadRoot != NULL);
-    SearchResult = MiFindNodeOrParent(Process->PhysicalVadRoot, Vad->StartingVpn, (PMMADDRESS_NODE *)&PhysicalView);
+    SearchResult = MiFindNodeOrParent(Process->PhysicalVadRoot, Vad->StartingVpn, (PMMADDRESS_NODE*)&PhysicalView);
     ASSERT(SearchResult == TableFoundNode);
     ASSERT(PhysicalView->Vad == Vad);
     MiRemoveNode((PMMADDRESS_NODE)PhysicalView, Process->PhysicalVadRoot);
@@ -4492,7 +4492,7 @@ Environment:
 
     // Lookup the element and save the result.
     ASSERT(Process->PhysicalVadRoot != NULL);
-    SearchResult = MiFindNodeOrParent(Process->PhysicalVadRoot, OldVad->StartingVpn, (PMMADDRESS_NODE *)&PhysicalView);
+    SearchResult = MiFindNodeOrParent(Process->PhysicalVadRoot, OldVad->StartingVpn, (PMMADDRESS_NODE*)&PhysicalView);
     ASSERT(SearchResult == TableFoundNode);
     ASSERT(PhysicalView->Vad == OldVad);
     PhysicalView->Vad = NewVad;
@@ -4995,7 +4995,7 @@ Environment:
     PFN_NUMBER NumberOfPages;
 
     MiLargeVaStart = (PVOID)-1;
-    RtlInitializeBitMap(&MiLargeVaBitMap, MiLargeVaInUse, (ULONG) sizeof(MiLargeVaInUse) * 8);
+    RtlInitializeBitMap(&MiLargeVaBitMap, MiLargeVaInUse, (ULONG)sizeof(MiLargeVaInUse) * 8);
     ASSERT(MmNonPagedPoolEnd != NULL);
     KeInitializeSpinLock(&MiLargePageLock);
 
@@ -7838,7 +7838,7 @@ Environment:
         ExFreePool(Mdl);
         return NULL;
     }
-    *(PMDL *)PointerPte = Mdl;
+    *(PMDL*)PointerPte = Mdl;
     PointerPte += 1;
     BaseAddress = (PVOID)MiGetVirtualAddressMappedByPte(PointerPte);
     Page = (PPFN_NUMBER)(Mdl + 1);
@@ -7899,7 +7899,7 @@ Environment:
 
     NumberOfPages = BYTES_TO_PAGES(NumberOfBytes);
     PointerPte = MiGetPteAddress(BaseAddress);
-    Mdl = *(PMDL *)(PointerPte - 1);
+    Mdl = *(PMDL*)(PointerPte - 1);
 
 #if DBG
     StartingAddress = (PVOID)((PCHAR)Mdl->StartVa + Mdl->ByteOffset);
@@ -8580,7 +8580,7 @@ Environment:
 }
 
 
-NTSTATUS MmGetSectionRange(IN PVOID AddressWithinSection, OUT PVOID *StartingSectionAddress, OUT PULONG SizeofSection)
+NTSTATUS MmGetSectionRange(IN PVOID AddressWithinSection, OUT PVOID* StartingSectionAddress, OUT PULONG SizeofSection)
 {
     ULONG Span;
     PKTHREAD CurrentThread;
@@ -9017,7 +9017,7 @@ Environment:
     UNREFERENCED_PARAMETER(ReadWriteBank);
 
     // Reference the specified process handle for VM_OPERATION access.
-    Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, KernelMode, (PVOID *)&Process, NULL);
+    Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, KernelMode, (PVOID*)&Process, NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }

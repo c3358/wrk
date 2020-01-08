@@ -2365,86 +2365,86 @@ NTKERNELAPI VOID KiCpuId (IN ULONG Function, IN ULONG Index, OUT PCPU_INFO CpuIn
 // Define Intel specific performance event selection/control/counter registers.
 #define MSR_LAST_BRANCH     0x1d9       // last branch control
 #define MSR_BPU_COUNTER0    0x300       // performance counter registers
-#define MSR_BPU_COUNTER1    0x301       //
-#define MSR_BPU_COUNTER2    0x302       //
-#define MSR_BPU_COUNTER3    0x303       //
-#define MSR_MS_COUNTER0     0x304       //
-#define MSR_MS_COUNTER1     0x305       //
-#define MSR_MS_COUNTER2     0x306       //
-#define MSR_MS_COUNTER3     0x307       //
-#define MSR_FLAME_COUNTER0  0x308       //
-#define MSR_FLAME_COUNTER1  0x309       //
-#define MSR_FLAME_COUNTER2  0x30a       //
-#define MSR_FLAME_COUNTER3  0x30b       //
-#define MSR_IQ_COUNTER0     0x30c       //
-#define MSR_IQ_COUNTER1     0x30d       //
-#define MSR_IQ_COUNTER2     0x30e       //
-#define MSR_IQ_COUNTER3     0x30f       //
-#define MSR_IQ_COUNTER4     0x310       //
-#define MSR_IQ_COUNTER5     0x311       //
+#define MSR_BPU_COUNTER1    0x301
+#define MSR_BPU_COUNTER2    0x302
+#define MSR_BPU_COUNTER3    0x303
+#define MSR_MS_COUNTER0     0x304
+#define MSR_MS_COUNTER1     0x305
+#define MSR_MS_COUNTER2     0x306
+#define MSR_MS_COUNTER3     0x307
+#define MSR_FLAME_COUNTER0  0x308
+#define MSR_FLAME_COUNTER1  0x309
+#define MSR_FLAME_COUNTER2  0x30a
+#define MSR_FLAME_COUNTER3  0x30b
+#define MSR_IQ_COUNTER0     0x30c
+#define MSR_IQ_COUNTER1     0x30d
+#define MSR_IQ_COUNTER2     0x30e
+#define MSR_IQ_COUNTER3     0x30f
+#define MSR_IQ_COUNTER4     0x310
+#define MSR_IQ_COUNTER5     0x311
 #define MSR_BPU_CCCR0       0x360       // counter configuration control registers
-#define MSR_BPU_CCCR1       0x361       //
-#define MSR_BPU_CCCR2       0x362       //
-#define MSR_BPU_CCCR3       0x363       //
-#define MSR_MS_CCCR0        0x364       //
-#define MSR_MS_CCCR1        0x365       //
-#define MSR_MS_CCCR2        0x366       //
-#define MSR_MS_CCCR3        0x367       //
-#define MSR_FLAME_CCCR0     0x368       //
-#define MSR_FLAME_CCCR1     0x369       //
-#define MSR_FLAME_CCCR2     0x36a       //
-#define MSR_FLAME_CCCR3     0x36b       //
-#define MSR_IQ_CCCR0        0x36c       //
-#define MSR_IQ_CCCR1        0x36d       //
-#define MSR_IQ_CCCR2        0x36e       //
-#define MSR_IQ_CCCR3        0x36f       //
-#define MSR_IQ_CCCR4        0x370       //
-#define MSR_IQ_CCCR5        0x371       //
+#define MSR_BPU_CCCR1       0x361
+#define MSR_BPU_CCCR2       0x362
+#define MSR_BPU_CCCR3       0x363
+#define MSR_MS_CCCR0        0x364
+#define MSR_MS_CCCR1        0x365
+#define MSR_MS_CCCR2        0x366
+#define MSR_MS_CCCR3        0x367
+#define MSR_FLAME_CCCR0     0x368
+#define MSR_FLAME_CCCR1     0x369
+#define MSR_FLAME_CCCR2     0x36a
+#define MSR_FLAME_CCCR3     0x36b
+#define MSR_IQ_CCCR0        0x36c
+#define MSR_IQ_CCCR1        0x36d
+#define MSR_IQ_CCCR2        0x36e
+#define MSR_IQ_CCCR3        0x36f
+#define MSR_IQ_CCCR4        0x370
+#define MSR_IQ_CCCR5        0x371
 #define MSR_BSU_ESCR0       0x3a0       // event selection control registers
-#define MSR_BSU_ESCR1       0x3a1       //
-#define MSR_FSB_ESCR0       0x3a2       //
-#define MSR_FSB_ESCR1       0x3a3       //
-#define MSR_FIRM_ESCR0      0x3a4       //
-#define MSR_FIRM_ESCR1      0x3a5       //
-#define MSR_FLAME_ESCR0     0x3a6       //
-#define MSR_FLAME_ESCR1     0x3a7       //
-#define MSR_DAC_ESCR0       0x3a8       //
-#define MSR_DAC_ESCR1       0x3a9       //
-#define MSR_MOB_ESCR0       0x3aa       //
-#define MSR_MOB_ESCR1       0x3ab       //
-#define MSR_PMH_ESCR0       0x3ac       //
-#define MSR_PMH_ESCR1       0x3ad       //
-#define MSR_SAAT_ESCR0      0x3ae       //
-#define MSR_SAAT_ESCR1      0x3af       //
-#define MSR_U2L_ESCR0       0x3b0       //
-#define MSR_U2L_ESCR1       0x3b1       //
-#define MSR_BPU_ESCR0       0x3b2       //
-#define MSR_BPU_ESCR1       0x3b3       //
-#define MSR_IS_ESCR0        0x3b4       //
-#define MSR_IS_ESCR1        0x3b5       //
-#define MSR_ITLB_ESCR0      0x3b6       //
-#define MSR_ITLB_ESCR1      0x3b7       //
-#define MSR_CRU_ESCR0       0x3b8       //
-#define MSR_CRU_ESCR1       0x3b9       //
-#define MSR_IQ_ESCR0        0x3ba       //
-#define MSR_IQ_ESCR1        0x3bb       //
-#define MSR_RAT_ESCR0       0x3bc       //
-#define MSR_RAT_ESCR1       0x3bd       //
-#define MSR_SSU_ESCR0       0x3be       //
-#define MSR_MS_ESCR0        0x3c0       //
-#define MSR_MS_ESCR1        0x3c1       //
-#define MSR_TBPU_ESCR0      0x3c2       //
-#define MSR_TBPU_ESCR1      0x3c3       //
-#define MSR_TC_ESCR0        0x3c4       //
-#define MSR_TC_ESCR1        0x3c5       //
-#define MSR_IX_ESCR0        0x3c8       //
-#define MSR_IX_ESCR1        0x3c9       //
-#define MSR_ALF_ESCR0       0x3ca       //
-#define MSR_ALF_ESCR1       0x3cb       //
-#define MSR_CRU_ESCR2       0x3cc       //
-#define MSR_CRU_ESCR3       0x3cd       //
-#define MSR_CRU_ESCR4       0x3e0       //
-#define MSR_CRU_ESCR5       0x3e1       //
+#define MSR_BSU_ESCR1       0x3a1
+#define MSR_FSB_ESCR0       0x3a2
+#define MSR_FSB_ESCR1       0x3a3
+#define MSR_FIRM_ESCR0      0x3a4
+#define MSR_FIRM_ESCR1      0x3a5
+#define MSR_FLAME_ESCR0     0x3a6
+#define MSR_FLAME_ESCR1     0x3a7
+#define MSR_DAC_ESCR0       0x3a8
+#define MSR_DAC_ESCR1       0x3a9
+#define MSR_MOB_ESCR0       0x3aa
+#define MSR_MOB_ESCR1       0x3ab
+#define MSR_PMH_ESCR0       0x3ac
+#define MSR_PMH_ESCR1       0x3ad
+#define MSR_SAAT_ESCR0      0x3ae
+#define MSR_SAAT_ESCR1      0x3af
+#define MSR_U2L_ESCR0       0x3b0
+#define MSR_U2L_ESCR1       0x3b1
+#define MSR_BPU_ESCR0       0x3b2
+#define MSR_BPU_ESCR1       0x3b3
+#define MSR_IS_ESCR0        0x3b4
+#define MSR_IS_ESCR1        0x3b5
+#define MSR_ITLB_ESCR0      0x3b6
+#define MSR_ITLB_ESCR1      0x3b7
+#define MSR_CRU_ESCR0       0x3b8
+#define MSR_CRU_ESCR1       0x3b9
+#define MSR_IQ_ESCR0        0x3ba
+#define MSR_IQ_ESCR1        0x3bb
+#define MSR_RAT_ESCR0       0x3bc
+#define MSR_RAT_ESCR1       0x3bd
+#define MSR_SSU_ESCR0       0x3be
+#define MSR_MS_ESCR0        0x3c0
+#define MSR_MS_ESCR1        0x3c1
+#define MSR_TBPU_ESCR0      0x3c2
+#define MSR_TBPU_ESCR1      0x3c3
+#define MSR_TC_ESCR0        0x3c4
+#define MSR_TC_ESCR1        0x3c5
+#define MSR_IX_ESCR0        0x3c8
+#define MSR_IX_ESCR1        0x3c9
+#define MSR_ALF_ESCR0       0x3ca
+#define MSR_ALF_ESCR1       0x3cb
+#define MSR_CRU_ESCR2       0x3cc
+#define MSR_CRU_ESCR3       0x3cd
+#define MSR_CRU_ESCR4       0x3e0
+#define MSR_CRU_ESCR5       0x3e1
 
 
 // Flags within MSR_EFER.

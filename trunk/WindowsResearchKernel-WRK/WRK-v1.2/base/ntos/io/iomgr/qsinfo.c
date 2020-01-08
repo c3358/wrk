@@ -65,12 +65,12 @@ Return Value:
 }
 
 
-NTSTATUS NtQueryInformationFile(
-    __in HANDLE FileHandle,
+NTSTATUS NtQueryInformationFile(__in HANDLE FileHandle,
     __out PIO_STATUS_BLOCK IoStatusBlock,
     __out_bcount(Length) PVOID FileInformation,
     __in ULONG Length,
-    __in FILE_INFORMATION_CLASS FileInformationClass)
+    __in FILE_INFORMATION_CLASS FileInformationClass
+)
     /*
     Routine Description:
         This service returns the requested information about a specified file.
@@ -106,7 +106,8 @@ NTSTATUS NtQueryInformationFile(
     requestorMode = KeGetPreviousModeByThread(&CurrentThread->Tcb);
     if (requestorMode != KernelMode) {
         // Ensure that the FileInformationClass parameter is legal for querying information about the file.
-        if ((ULONG)FileInformationClass >= FileMaximumInformation || !IopQueryOperationLength[FileInformationClass]) {
+        if ((ULONG)FileInformationClass >= FileMaximumInformation || 
+            !IopQueryOperationLength[FileInformationClass]) {
             return STATUS_INVALID_INFO_CLASS;
         }
 
@@ -153,7 +154,12 @@ NTSTATUS NtQueryInformationFile(
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, IopQueryOperationAccess[FileInformationClass], IoFileObjectType, requestorMode, (PVOID *)&fileObject, &handleInformation);
+    status = ObReferenceObjectByHandle(FileHandle,
+                                       IopQueryOperationAccess[FileInformationClass],
+                                       IoFileObjectType, 
+                                       requestorMode,
+                                       (PVOID*)&fileObject,
+                                       &handleInformation);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -174,7 +180,10 @@ NTSTATUS NtQueryInformationFile(
     if (fileObject->Flags & FO_SYNCHRONOUS_IO) {
         BOOLEAN interrupted;
         if (!IopAcquireFastLock(fileObject)) {
-            status = IopAcquireFileObjectLock(fileObject, requestorMode, (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0), &interrupted);
+            status = IopAcquireFileObjectLock(fileObject,
+                                              requestorMode,
+                                              (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0), 
+                                              &interrupted);
             if (interrupted) {
                 ObDereferenceObject(fileObject);
                 return status;
@@ -248,9 +257,11 @@ NTSTATUS NtQueryInformationFile(
                 }
             }
 
-            // If the results of the preceding statement block is true, then the fast query call succeeded, so simply cleanup and return.
+            // If the results of the preceding statement block is true, 
+            // then the fast query call succeeded, so simply cleanup and return.
             if (queryResult) {
-                // Note that once again, the event in the file object has not yet been set reset, so it need not be set to the Signaled state, so simply cleanup and return.
+                // Note that once again, the event in the file object has not yet been set reset,
+                // so it need not be set to the Signaled state, so simply cleanup and return.
                 IopReleaseFileObjectLock(fileObject);
                 ObDereferenceObject(fileObject);
                 return status;
@@ -259,7 +270,8 @@ NTSTATUS NtQueryInformationFile(
         synchronousIo = TRUE;
     } else {
         // This is a synchronous API being invoked for a file that is opened for asynchronous I/O.
-        // This means that this system service is to synchronize the completion of the operation before returning to the caller.  A local event is used to do this.
+        // This means that this system service is to synchronize the completion of the operation before returning to the caller. 
+        // A local event is used to do this.
         event = ExAllocatePool(NonPagedPool, sizeof(KEVENT));
         if (event == NULL) {
             ObDereferenceObject(fileObject);
@@ -383,7 +395,11 @@ NTSTATUS NtQueryInformationFile(
     // If the file object is to be waited on, wait for the operation to complete and obtain the final status from the file object itself.
     if (status == STATUS_PENDING) {
         if (synchronousIo) {
-            status = KeWaitForSingleObject(&fileObject->Event, Executive, requestorMode, (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0), (PLARGE_INTEGER)NULL);
+            status = KeWaitForSingleObject(&fileObject->Event,
+                                           Executive, 
+                                           requestorMode, 
+                                           (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0), 
+                                           (PLARGE_INTEGER)NULL);
             if (status == STATUS_ALERTED || status == STATUS_USER_APC) {
                 // The wait request has ended either because the thread was alerted or an APC was queued to this thread, because of thread rundown or CTRL/C processing.
                 // In either case, try to bail out of this I/O request carefully so that the IRP completes before this routine exists so that synchronization with the file object will remain intact.
@@ -430,7 +446,7 @@ NTSTATUS NtQueryInformationFile(
 
         irp->UserIosb = IoStatusBlock;
         KeRaiseIrql(APC_LEVEL, &irql);
-        IopCompleteRequest(&irp->Tail.Apc, &normalRoutine, &normalContext, (PVOID *)&fileObject, &normalContext);
+        IopCompleteRequest(&irp->Tail.Apc, &normalRoutine, &normalContext, (PVOID*)&fileObject, &normalContext);
         KeLowerIrql(irql);
         if (synchronousIo) {
             IopReleaseFileObjectLock(fileObject);
@@ -441,27 +457,26 @@ NTSTATUS NtQueryInformationFile(
 }
 
 
-NTSTATUS NtSetInformationFile(
-    __in HANDLE FileHandle,
+NTSTATUS NtSetInformationFile(__in HANDLE FileHandle,
     __out PIO_STATUS_BLOCK IoStatusBlock,
     __in_bcount(Length) PVOID FileInformation,
     __in ULONG Length,
     __in FILE_INFORMATION_CLASS FileInformationClass
-    )
-    /*
-    Routine Description:
-        This service changes the provided information about a specified file.
-        The information that is changed is determined by the FileInformationClass that is specified.
-        The new information is taken from the FileInformation buffer.
-    Arguments:
-        FileHandle - Supplies a handle to the file whose information should be changed.
-        IoStatusBlock - Address of the caller's I/O status block.
-        FileInformation - Supplies a buffer containing the information which should be changed on the file.
-        Length - Supplies the length, in bytes, of the FileInformation buffer.
-        FileInformationClass - Specifies the type of information which should be changed about the file.
-    Return Value:
-        The status returned is the final completion status of the operation.
-    */
+)
+/*
+Routine Description:
+    This service changes the provided information about a specified file.
+    The information that is changed is determined by the FileInformationClass that is specified.
+    The new information is taken from the FileInformation buffer.
+Arguments:
+    FileHandle - Supplies a handle to the file whose information should be changed.
+    IoStatusBlock - Address of the caller's I/O status block.
+    FileInformation - Supplies a buffer containing the information which should be changed on the file.
+    Length - Supplies the length, in bytes, of the FileInformation buffer.
+    FileInformationClass - Specifies the type of information which should be changed about the file.
+Return Value:
+    The status returned is the final completion status of the operation.
+*/
 {
     PIRP irp;
     NTSTATUS status;
@@ -482,7 +497,8 @@ NTSTATUS NtSetInformationFile(
     requestorMode = KeGetPreviousModeByThread(&CurrentThread->Tcb);
     if (requestorMode != KernelMode) {
         // Ensure that the FileInformationClass parameter is legal for setting information about the file.
-        if ((ULONG)FileInformationClass >= FileMaximumInformation || !IopSetOperationLength[FileInformationClass]) {
+        if ((ULONG)FileInformationClass >= FileMaximumInformation || 
+            !IopSetOperationLength[FileInformationClass]) {
             return STATUS_INVALID_INFO_CLASS;
         }
 
@@ -533,7 +549,12 @@ NTSTATUS NtSetInformationFile(
 
     // There were no blatant errors so far, so reference the file object so the target device object can be found.
     // Note that if the handle does not refer to a file object, or if the caller does not have the required access to the file, then it will fail.
-    status = ObReferenceObjectByHandle(FileHandle, IopSetOperationAccess[FileInformationClass], IoFileObjectType, requestorMode, (PVOID *)&fileObject, NULL);
+    status = ObReferenceObjectByHandle(FileHandle,
+                                       IopSetOperationAccess[FileInformationClass], 
+                                       IoFileObjectType, 
+                                       requestorMode,
+                                       (PVOID*)&fileObject,
+                                       NULL);
     if (!NT_SUCCESS(status)) {
         return status;
     }
@@ -552,7 +573,10 @@ NTSTATUS NtSetInformationFile(
     if (fileObject->Flags & FO_SYNCHRONOUS_IO) {
         BOOLEAN interrupted;
         if (!IopAcquireFastLock(fileObject)) {
-            status = IopAcquireFileObjectLock(fileObject, requestorMode, (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0), &interrupted);
+            status = IopAcquireFileObjectLock(fileObject,
+                                              requestorMode,
+                                              (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0),
+                                              &interrupted);
             if (interrupted) {
                 ObDereferenceObject(fileObject);
                 return status;
@@ -579,8 +603,9 @@ NTSTATUS NtSetInformationFile(
                 return GetExceptionCode();
             }
 
-            if ((fileObject->Flags & FO_NO_INTERMEDIATE_BUFFERING && (deviceObject->SectorSize && (currentByteOffset.LowPart & (deviceObject->SectorSize - 1)))) || 
-            currentByteOffset.HighPart < 0) {
+            if ((fileObject->Flags & FO_NO_INTERMEDIATE_BUFFERING && 
+                (deviceObject->SectorSize && (currentByteOffset.LowPart & (deviceObject->SectorSize - 1)))) ||
+                currentByteOffset.HighPart < 0) {
                 status = STATUS_INVALID_PARAMETER;
             } else {
                 // Set the current file position information.
@@ -622,7 +647,12 @@ NTSTATUS NtSetInformationFile(
 
     // If a link is being tracked, handle this out-of-line.
     if (FileInformationClass == FileTrackingInformation) {
-        status = IopTrackLink(fileObject, &localIoStatus, FileInformation, Length, synchronousIo ? &fileObject->Event : event, requestorMode);
+        status = IopTrackLink(fileObject,
+                              &localIoStatus,
+                              FileInformation, 
+                              Length, 
+                              synchronousIo ? &fileObject->Event : event, 
+                              requestorMode);
         if (NT_SUCCESS(status)) {
             try {
                 IoStatusBlock->Information = 0;
@@ -689,7 +719,8 @@ NTSTATUS NtSetInformationFile(
                 FIELD_OFFSET(FILE_POSITION_INFORMATION, CurrentByteOffset)) == 0);
         if (((FileInformationClass == FileEndOfFileInformation) ||
             (FileInformationClass == FileAllocationInformation) ||
-             (FileInformationClass == FilePositionInformation)) && (((PFILE_POSITION_INFORMATION)systemBuffer)->CurrentByteOffset.HighPart < 0)) {
+             (FileInformationClass == FilePositionInformation)) && 
+             (((PFILE_POSITION_INFORMATION)systemBuffer)->CurrentByteOffset.HighPart < 0)) {
             ExRaiseStatus(STATUS_INVALID_PARAMETER);
         }
     } except(EXCEPTION_EXECUTE_HANDLER)
@@ -756,7 +787,9 @@ NTSTATUS NtSetInformationFile(
         // Complete the I/O operation.
         irp->IoStatus.Status = status;
         irp->IoStatus.Information = 0L;
-    } else if (FileInformationClass == FileRenameInformation || FileInformationClass == FileLinkInformation || FileInformationClass == FileMoveClusterInformation) {
+    } else if (FileInformationClass == FileRenameInformation || 
+               FileInformationClass == FileLinkInformation || 
+               FileInformationClass == FileMoveClusterInformation) {
         // Note that following code depends on the fact that the rename information, link information and copy-on-write information structures look exactly the same.
         PFILE_RENAME_INFORMATION renameBuffer = irp->AssociatedIrp.SystemBuffer;
 
@@ -771,7 +804,7 @@ NTSTATUS NtSetInformationFile(
         } else {
             // Copy the value of the replace BOOLEAN (or the ClusterCount field) from the caller's buffer to the I/O stack location parameter field where it is expected by file systems.
             if (FileInformationClass == FileMoveClusterInformation) {
-                irpSp->Parameters.SetFile.ClusterCount = ((FILE_MOVE_CLUSTER_INFORMATION *)renameBuffer)->ClusterCount;
+                irpSp->Parameters.SetFile.ClusterCount = ((FILE_MOVE_CLUSTER_INFORMATION*)renameBuffer)->ClusterCount;
             } else {
                 irpSp->Parameters.SetFile.ReplaceIfExists = renameBuffer->ReplaceIfExists;
             }
@@ -829,7 +862,12 @@ NTSTATUS NtSetInformationFile(
             status = STATUS_INVALID_PARAMETER;
         } else {
             // Attempt to reference the port object by its handle and convert it into a pointer to the port object itself.
-            status = ObReferenceObjectByHandle(completion->Port, IO_COMPLETION_MODIFY_STATE, IoCompletionObjectType, requestorMode, (PVOID *)&portObject, NULL);
+            status = ObReferenceObjectByHandle(completion->Port,
+                                               IO_COMPLETION_MODIFY_STATE, 
+                                               IoCompletionObjectType, 
+                                               requestorMode, 
+                                               (PVOID*)&portObject,
+                                               NULL);
             if (NT_SUCCESS(status)) {
                 // Allocate the memory to be associated w/this file object
                 context = ExAllocatePoolWithTag(PagedPool, sizeof(IO_COMPLETION_CONTEXT), 'cCoI');
@@ -865,7 +903,11 @@ NTSTATUS NtSetInformationFile(
     // If the file object is to be waited on, wait for the operation to complete and obtain the final status from the file object itself.
     if (status == STATUS_PENDING) {
         if (synchronousIo) {
-            status = KeWaitForSingleObject(&fileObject->Event, Executive, requestorMode, (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0), (PLARGE_INTEGER)NULL);
+            status = KeWaitForSingleObject(&fileObject->Event,
+                                           Executive,
+                                           requestorMode,
+                                           (BOOLEAN)((fileObject->Flags & FO_ALERTABLE_IO) != 0),
+                                           (PLARGE_INTEGER)NULL);
             if (status == STATUS_ALERTED || status == STATUS_USER_APC) {
                 // The wait request has ended either because the thread was alerted or an APC was queued to this thread, because of thread rundown or CTRL/C processing.
                 // In either case, 
@@ -914,7 +956,7 @@ NTSTATUS NtSetInformationFile(
 
         irp->UserIosb = IoStatusBlock;
         KeRaiseIrql(APC_LEVEL, &irql);
-        IopCompleteRequest(&irp->Tail.Apc, &normalRoutine, &normalContext, (PVOID *)&fileObject, &normalContext);
+        IopCompleteRequest(&irp->Tail.Apc, &normalRoutine, &normalContext, (PVOID*)&fileObject, &normalContext);
         KeLowerIrql(irql);
         if (synchronousIo) {
             IopReleaseFileObjectLock(fileObject);

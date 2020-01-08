@@ -17,7 +17,7 @@ void WmipWaitForIrpCompletion(PREGENTRY RegEntry);
 NTSTATUS WmipUpdateDS(PREGENTRY RegEntry);
 NTSTATUS WmipRegisterDS(PREGENTRY RegEntry);
 void WmipRemoveDS(PREGENTRY RegEntry);
-NTSTATUS WmipValidateWmiRegInfoString(PWMIREGINFO WmiRegInfo, ULONG BufferSize, ULONG Offset, PWCHAR *String);
+NTSTATUS WmipValidateWmiRegInfoString(PWMIREGINFO WmiRegInfo, ULONG BufferSize, ULONG Offset, PWCHAR* String);
 NTSTATUS WmipRegisterOrUpdateDS(PREGENTRY RegEntry, BOOLEAN Update);
 void WmipRegistrationWorker(PVOID Context);
 NTSTATUS WmipQueueRegWork(REGOPERATION RegOperation, PREGENTRY RegEntry);
@@ -150,7 +150,8 @@ Return Value:
 BOOLEAN WmipDoUnreferenceRegEntry(PREGENTRY RegEntry)
 /*
 Routine Description:
-    Remove a reference on a REGENTRY. If the last reference is removed then mark the RegEntry as available and put it on the free list;
+    Remove a reference on a REGENTRY. 
+    If the last reference is removed then mark the RegEntry as available and put it on the free list;
 Arguments:
     RegEntry is pointer to entry to free
 Return Value:
@@ -211,7 +212,10 @@ Return Value:
 
     if (RegEntry->IrpCount != 0) {
         // CONSIDER: If irp is marked pending do we need to cancel it ???
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: Waiting for %x to complete all irps\n", RegEntry->DeviceObject));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                          DPFLTR_REGISTRATION_LEVEL,
+                          "WMI: Waiting for %x to complete all irps\n",
+                          RegEntry->DeviceObject));
 
         KeWaitForSingleObject(&RegEntry->Event, Executive, KernelMode, FALSE, (PLARGE_INTEGER)NULL);
         WmipAssert(RegEntry->IrpCount == 0);
@@ -241,7 +245,9 @@ Return Value:
     PAGED_CODE();
 
     WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL,
-                      "WMI: Registering device %p flags %x\n", DeviceObject, RegistrationFlag));
+                      "WMI: Registering device %p flags %x\n", 
+                      DeviceObject, 
+                      RegistrationFlag));
 
     WmipEnterSMCritSection();
     RegEntry = WmipFindRegEntryByDevice(DeviceObject, FALSE);
@@ -283,7 +289,9 @@ Return Value:
                 WmipLeaveSMCritSection();
 
                 WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL,
-                                  "WMI: Register allocated REGENTRY %p for %p\n", RegEntry, DeviceObject));
+                                  "WMI: Register allocated REGENTRY %p for %p\n",
+                                  RegEntry, 
+                                  DeviceObject));
 
                 // Go and get registration information from the driver
                 if (IsCallback) {
@@ -294,10 +302,15 @@ Return Value:
                         // Mark regentry as fully registered so now we can start accepting unregister calls
                         RegEntry->Flags &= ~REGENTRY_FLAG_REG_IN_PROGRESS;
                         WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL,
-                                          "WMI: WmipRegisterDS(%p) succeeded for callback %p\n", RegEntry, RegEntry->DeviceObject));
+                                          "WMI: WmipRegisterDS(%p) succeeded for callback %p\n",
+                                          RegEntry,
+                                          RegEntry->DeviceObject));
                     } else {
                         WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL,
-                                          "WMI: WmipRegisterDS(%p) failed %x for device %p\n", RegEntry, Status, RegEntry->DeviceObject));
+                                          "WMI: WmipRegisterDS(%p) failed %x for device %p\n",
+                                          RegEntry,
+                                          Status,
+                                          RegEntry->DeviceObject));
 
                         // Remove ref so regentry goes away
                         WmipUnreferenceRegEntry(RegEntry);
@@ -319,18 +332,24 @@ Return Value:
                 WmipLeaveSMCritSection();
                 Status = STATUS_INSUFFICIENT_RESOURCES;
                 WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL,
-                                  "WMI: Register could not alloc REGENTRY for %p\n", DeviceObject));
+                                  "WMI: Register could not alloc REGENTRY for %p\n",
+                                  DeviceObject));
             }
         } else {
             WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL,
-                              "WMI: Register could not ObRef %p status  %x\n", DeviceObject, Status));
+                              "WMI: Register could not ObRef %p status  %x\n", 
+                              DeviceObject, 
+                              Status));
             WmipLeaveSMCritSection();
         }
     } else {
         // A device object may only register once
         WmipLeaveSMCritSection();
         Status = STATUS_OBJECT_NAME_EXISTS;
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: Device Object %x attempting to register twice\n", DeviceObject));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                          DPFLTR_REGISTRATION_LEVEL, 
+                          "WMI: Device Object %x attempting to register twice\n", 
+                          DeviceObject));
         WmipUnreferenceRegEntry(RegEntry);
     }
 
@@ -382,7 +401,10 @@ Return Value:
         Status = STATUS_SUCCESS;
     } else {
         WmipLeaveSMCritSection();
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipDeregisterDevice called with invalid Device Object %x\n", DeviceObject));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                          DPFLTR_REGISTRATION_LEVEL,
+                          "WMI: WmipDeregisterDevice called with invalid Device Object %x\n", 
+                          DeviceObject));
         Status = STATUS_INVALID_PARAMETER;
     }
 
@@ -564,7 +586,11 @@ Return Value:
 }
 
 
-void WmipTranslatePDOInstanceNames(IN OUT PIRP Irp, IN UCHAR MinorFunction, IN ULONG MaxBufferSize, IN OUT PREGENTRY RegEntry)
+void WmipTranslatePDOInstanceNames(IN OUT PIRP Irp, 
+                                   IN UCHAR MinorFunction,
+                                   IN ULONG MaxBufferSize,
+                                   IN OUT PREGENTRY RegEntry
+)
 /*
 Routine Description:
     This routine will check all REGGUID structures being returned from the
@@ -613,7 +639,8 @@ Return Value:
             WmiRegGuid = &WmiRegInfo->WmiRegGuid[i];
 
             // If data provider already registers this guid then it overrides any default mapping done here.
-            if ((IsEqualGUID(&WmiRegGuid->Guid, &WmipDataProviderPnpidGuid)) || (IsEqualGUID(&WmiRegGuid->Guid, &WmipDataProviderPnPIdInstanceNamesGuid))) {
+            if ((IsEqualGUID(&WmiRegGuid->Guid, &WmipDataProviderPnpidGuid)) || 
+                (IsEqualGUID(&WmiRegGuid->Guid, &WmipDataProviderPnPIdInstanceNamesGuid))) {
                 AllowPnPIdMap = FALSE;
 
                 // If we had remembered any PDO that is slated to be used for PnPID mapping then make sure to deref it
@@ -786,7 +813,7 @@ Return Value:
 }
 
 
-NTSTATUS WmipValidateWmiRegInfoString(PWMIREGINFO WmiRegInfo, ULONG BufferSize, ULONG Offset, PWCHAR *String)
+NTSTATUS WmipValidateWmiRegInfoString(PWMIREGINFO WmiRegInfo, ULONG BufferSize, ULONG Offset, PWCHAR* String)
 {
     PWCHAR s;
 
@@ -813,8 +840,7 @@ NTSTATUS WmipValidateWmiRegInfoString(PWMIREGINFO WmiRegInfo, ULONG BufferSize, 
 }
 
 
-NTSTATUS WmipProcessWmiRegInfo(
-    IN PREGENTRY RegEntry,
+NTSTATUS WmipProcessWmiRegInfo(IN PREGENTRY RegEntry,
     IN PWMIREGINFO WmiRegInfo,
     IN ULONG BufferSize,
     IN PWMIGUIDOBJECT RequestObject,
@@ -880,18 +906,32 @@ Return Value:
             Status = WmipUpdateDataSource(RegEntry, WmiRegInfo, BufferSize);
 #if DBG
             if (!NT_SUCCESS(Status)) {
-                WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipUpdateDataSourceFailed %x for RegEntry %p\n", Status, RegEntry));
+                WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                                  DPFLTR_REGISTRATION_LEVEL,
+                                  "WMI: WmipUpdateDataSourceFailed %x for RegEntry %p\n",
+                                  Status, 
+                                  RegEntry));
             }
 #endif
         } else {
-            Status = WmipAddDataSource(RegEntry, WmiRegInfo, BufferSize, RegPath, ResourceName, RequestObject, IsUserMode);
+            Status = WmipAddDataSource(RegEntry,
+                                       WmiRegInfo,
+                                       BufferSize, 
+                                       RegPath,
+                                       ResourceName,
+                                       RequestObject, 
+                                       IsUserMode);
         }
 
         if (NT_SUCCESS(Status)) {
             // if at least one of the registrations was added successfully then the final status is success
             FinalStatus = STATUS_SUCCESS;
         } else {
-            WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipAddDataSourceFailed %x for RegEntry %p\n", Status, RegEntry));
+            WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                              DPFLTR_REGISTRATION_LEVEL,
+                              "WMI: WmipAddDataSourceFailed %x for RegEntry %p\n", 
+                              Status, 
+                              RegEntry));
         }
 
         Linkage = WmiRegInfo->NextWmiRegInfo;
@@ -1009,7 +1049,10 @@ void WmipRegistrationWorker(PVOID Context)
 
     UNREFERENCED_PARAMETER(Context);
 
-    WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: Registration Worker active, WmipRegWorkItemCount %d\n", WmipRegWorkItemCount));
+    WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                      DPFLTR_REGISTRATION_LEVEL,
+                      "WMI: Registration Worker active, WmipRegWorkItemCount %d\n",
+                      WmipRegWorkItemCount));
 
     WmipAssert(WmipRegWorkItemCount > 0);
 
@@ -1025,7 +1068,12 @@ void WmipRegistrationWorker(PVOID Context)
 
         RegEntry = RegWork->RegEntry;
 
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: RegWorker %p for RegEntry %p active, RegOperation %d\n", RegWork, RegEntry, RegWork->RegOperation));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                          DPFLTR_REGISTRATION_LEVEL,
+                          "WMI: RegWorker %p for RegEntry %p active, RegOperation %d\n", 
+                          RegWork, 
+                          RegEntry,
+                          RegWork->RegOperation));
 
         switch (RegWork->RegOperation) {
         case RegisterSingleDriver:
@@ -1034,9 +1082,18 @@ void WmipRegistrationWorker(PVOID Context)
             if (NT_SUCCESS(Status)) {
                 // Mark regentry as fully registered so now we can start accepting unregister calls
                 RegEntry->Flags &= ~REGENTRY_FLAG_REG_IN_PROGRESS;
-                WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipRegisterDS(%p) succeeded for device %p\n", RegEntry, RegEntry->DeviceObject));
+                WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                                  DPFLTR_REGISTRATION_LEVEL,
+                                  "WMI: WmipRegisterDS(%p) succeeded for device %p\n",
+                                  RegEntry, 
+                                  RegEntry->DeviceObject));
             } else {
-                WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipRegisterDS(%p) failed %x for device %p\n", RegEntry, Status, RegEntry->DeviceObject));
+                WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                                  DPFLTR_REGISTRATION_LEVEL,
+                                  "WMI: WmipRegisterDS(%p) failed %x for device %p\n",
+                                  RegEntry, 
+                                  Status,
+                                  RegEntry->DeviceObject));
                 // CONSIDER: Do we remove regentry ??
             }
 
@@ -1048,9 +1105,18 @@ void WmipRegistrationWorker(PVOID Context)
         {
             Status = WmipUpdateDS(RegEntry);
             if (!NT_SUCCESS(Status)) {
-                WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipUpdateDS(%p) failed %x for device %p\n", RegEntry, Status, RegEntry->DeviceObject));
+                WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                                  DPFLTR_REGISTRATION_LEVEL, 
+                                  "WMI: WmipUpdateDS(%p) failed %x for device %p\n",
+                                  RegEntry,
+                                  Status, 
+                                  RegEntry->DeviceObject));
             } else {
-                WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipUpdateDS(%p) succeeded for device %p\n", RegEntry, RegEntry->DeviceObject));
+                WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                                  DPFLTR_REGISTRATION_LEVEL,
+                                  "WMI: WmipUpdateDS(%p) succeeded for device %p\n",
+                                  RegEntry, 
+                                  RegEntry->DeviceObject));
             }
 
             // Remove ref when work item was queued
@@ -1068,7 +1134,10 @@ void WmipRegistrationWorker(PVOID Context)
     } while (RegWorkCount != 0);
 
     IoControlPnpDeviceActionQueue(FALSE);
-    WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: RegWork completed WmipRegWorkItemCount %d\n", WmipRegWorkItemCount));
+    WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                      DPFLTR_REGISTRATION_LEVEL,
+                      "WMI: RegWork completed WmipRegWorkItemCount %d\n", 
+                      WmipRegWorkItemCount));
 }
 
 
@@ -1079,7 +1148,11 @@ NTSTATUS WmipQueueRegWork(REGOPERATION RegOperation, PREGENTRY RegEntry)
 
     PAGED_CODE();
 
-    WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: WmipQueueRegWork RegEntry %p REGOPERATION %x\n", RegEntry, RegOperation));
+    WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                      DPFLTR_REGISTRATION_LEVEL, 
+                      "WMI: WmipQueueRegWork RegEntry %p REGOPERATION %x\n",
+                      RegEntry, 
+                      RegOperation));
 
     RegWork = (PREGISTRATIONWORKITEM)WmipAlloc(sizeof(REGISTRATIONWORKITEM));
     if (RegWork != NULL) {
@@ -1092,21 +1165,34 @@ NTSTATUS WmipQueueRegWork(REGOPERATION RegOperation, PREGENTRY RegEntry)
         InsertTailList(&WmipRegWorkList, &RegWork->ListEntry);
         WmipLeaveSMCritSection();
 
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: REGWORK %p for RegEntry %p inserted in list\n", RegWork, RegEntry));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                          DPFLTR_REGISTRATION_LEVEL, 
+                          "WMI: REGWORK %p for RegEntry %p inserted in list\n",
+                          RegWork, 
+                          RegEntry));
         if (InterlockedIncrement(&WmipRegWorkItemCount) == 1) {
             // If the list is transitioning from empty to non empty then we need to fire up the worker thread to process
             ExQueueWorkItem(&WmipRegWorkQueue, DelayedWorkQueue);
-            WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: ReQorkQueue %p kicked off WmipRegWorkItemCount %d\n",
-                              WmipRegWorkQueue, WmipRegWorkItemCount));
+            WmipDebugPrintEx((DPFLTR_WMICORE_ID, 
+                              DPFLTR_REGISTRATION_LEVEL, 
+                              "WMI: ReQorkQueue %p kicked off WmipRegWorkItemCount %d\n",
+                              WmipRegWorkQueue, 
+                              WmipRegWorkItemCount));
         } else {
-            WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: ReQorkQueue %p already active WmipRegWorkItemCount %d\n",
-                              WmipRegWorkQueue, WmipRegWorkItemCount));
+            WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                              DPFLTR_REGISTRATION_LEVEL,
+                              "WMI: ReQorkQueue %p already active WmipRegWorkItemCount %d\n",
+                              WmipRegWorkQueue,
+                              WmipRegWorkItemCount));
         }
         Status = STATUS_SUCCESS;
 
         // RegWork will be freed by the work item processing
     } else {
-        WmipDebugPrintEx((DPFLTR_WMICORE_ID, DPFLTR_REGISTRATION_LEVEL, "WMI: Couldn not alloc REGWORK for RegEntry %p\n", RegEntry));
+        WmipDebugPrintEx((DPFLTR_WMICORE_ID,
+                          DPFLTR_REGISTRATION_LEVEL,
+                          "WMI: Couldn not alloc REGWORK for RegEntry %p\n",
+                          RegEntry));
         Status = STATUS_INSUFFICIENT_RESOURCES;
     }
 
