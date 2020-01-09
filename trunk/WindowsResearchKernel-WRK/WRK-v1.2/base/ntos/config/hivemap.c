@@ -6,15 +6,13 @@ If you do not agree to the terms, do not use the code.
 
 Module Name:
     hivemap.c
-
 Abstract:
     This module implements HvpBuildMap - used to build the initial map for a hive
-
 Revision History:
     Implementation of bin-size chunk loading of hives.
 */
 
-#include    "cmp.h"
+#include "cmp.h"
 
 #ifdef ALLOC_PRAGMA
 #pragma alloc_text(PAGE,HvpBuildMap)
@@ -28,17 +26,16 @@ Revision History:
 #pragma alloc_text(PAGE,HvpGetBinMemAlloc)
 #endif
 
-extern struct
-{
-    PHHIVE      Hive;
-    ULONG       Status;
-    ULONG       Space;
+extern struct {
+    PHHIVE Hive;
+    ULONG Status;
+    ULONG Space;
     HCELL_INDEX MapPoint;
-    PHBIN       BinPoint;
+    PHBIN BinPoint;
 } HvCheckHiveDebug;
 
 
-NTSTATUS HvpBuildMapAndCopy(PHHIVE  Hive, PVOID   Image)
+NTSTATUS HvpBuildMapAndCopy(PHHIVE Hive, PVOID Image)
 /*
 Routine Description:
     Creates the map for the Stable storage of the hive, and inits the map for the volatile storage.
@@ -58,24 +55,24 @@ Return Value:
     FALSE - either hive is corrupt or no memory for map
 */
 {
-    PHBASE_BLOCK    BaseBlock;
-    ULONG           Length;
-    ULONG           MapSlots;
-    ULONG           Tables;
-    PHMAP_TABLE     t = NULL;
+    PHBASE_BLOCK BaseBlock;
+    ULONG Length;
+    ULONG MapSlots;
+    ULONG Tables;
+    PHMAP_TABLE t = NULL;
     PHMAP_DIRECTORY d = NULL;
-    PHBIN           Bin;
-    PHBIN           CurrentBin;
-    ULONG           Offset;
-    ULONG_PTR       Address;
-    PHMAP_ENTRY     Me;
-    NTSTATUS        Status;
-    PULONG          Vector;
+    PHBIN Bin;
+    PHBIN CurrentBin;
+    ULONG Offset;
+    ULONG_PTR Address;
+    PHMAP_ENTRY Me;
+    NTSTATUS Status;
+    PULONG Vector;
 
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "HvpBuildMap:\n"));
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "\tHive=%p", Hive));
 
-    // Compute size of data region to be mapped
+    //Compute size of data region to be mapped
     BaseBlock = Hive->BaseBlock;
     Length = BaseBlock->Length;
     if ((Length % HBLOCK_SIZE) != 0) {
@@ -91,10 +88,10 @@ Return Value:
 
     Hive->Storage[Stable].Length = Length;
 
-    // allocate dirty vector if one is not already present (from HvpRecoverData)
+    //allocate dirty vector if one is not already present (from HvpRecoverData)
     if (Hive->DirtyVector.Buffer == NULL) {
-        Vector = (PULONG)((Hive->Allocate)(ROUND_UP(Length / HSECTOR_SIZE / 8, sizeof(ULONG)), 
-                                           TRUE, 
+        Vector = (PULONG)((Hive->Allocate)(ROUND_UP(Length / HSECTOR_SIZE / 8, sizeof(ULONG)),
+                                           TRUE,
                                            CM_FIND_LEAK_TAG22));
         if (Vector == NULL) {
             Status = STATUS_NO_MEMORY;
@@ -105,9 +102,8 @@ Return Value:
         Hive->DirtyAlloc = ROUND_UP(Length / HSECTOR_SIZE / 8, sizeof(ULONG));
     }
 
-    // allocate and build structure for map
-    if (Tables == 0) {
-        // Just 1 table, no need for directory
+    //allocate and build structure for map
+    if (Tables == 0) {//Just 1 table, no need for directory
         t = (Hive->Allocate)(sizeof(HMAP_TABLE), FALSE, CM_FIND_LEAK_TAG23);
         if (t == NULL) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -116,17 +112,15 @@ Return Value:
         RtlZeroMemory(t, sizeof(HMAP_TABLE));
         Hive->Storage[Stable].Map = (PHMAP_DIRECTORY) & (Hive->Storage[Stable].SmallDir);
         Hive->Storage[Stable].SmallDir = t;
-    } else {
-        // Need directory and multiple tables
+    } else {//Need directory and multiple tables
         d = (PHMAP_DIRECTORY)(Hive->Allocate)(sizeof(HMAP_DIRECTORY), FALSE, CM_FIND_LEAK_TAG24);
         if (d == NULL) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             goto ErrorExit1;
         }
         RtlZeroMemory(d, sizeof(HMAP_DIRECTORY));
-
-        // Allocate tables and fill in dir
-        if (HvpAllocateMap(Hive, d, 0, Tables) == FALSE) {
+        
+        if (HvpAllocateMap(Hive, d, 0, Tables) == FALSE) {//Allocate tables and fill in dir
             Status = STATUS_INSUFFICIENT_RESOURCES;
             goto ErrorExit2;
         }
@@ -145,10 +139,9 @@ Return Value:
     Bin = (PHBIN)Image;
 
     while (Bin < (PHBIN)((PUCHAR)(Image)+Length)) {
-        if ((Bin->Size > (Length - Offset)) || 
-            (Bin->Signature != HBIN_SIGNATURE) || 
-            (Bin->FileOffset != Offset)) {
-            // Bin is bogus
+        if ((Bin->Size > (Length - Offset)) ||
+            (Bin->Signature != HBIN_SIGNATURE) ||
+            (Bin->FileOffset != Offset)) {//Bin is bogus
             Status = STATUS_REGISTRY_CORRUPT;
             goto ErrorExit2;
         }
@@ -160,7 +153,7 @@ Return Value:
         }
         RtlCopyMemory(CurrentBin, (PUCHAR)Image + Offset, Bin->Size);
 
-        // create map entries for each block/page in bin
+        //create map entries for each block/page in bin
         Address = (ULONG_PTR)CurrentBin;
         do {
             Me = HvpGetCellMap(Hive, Offset);
@@ -175,16 +168,13 @@ Return Value:
                 Me->MemAlloc = 0;
             }
 
-            Me->BinAddress |= HMAP_INPAGEDPOOL;
-            // we don't need to set this - just for debug purposes
-            ASSERT((Me->CmView = NULL) == NULL);
-
+            Me->BinAddress |= HMAP_INPAGEDPOOL;            
+            ASSERT((Me->CmView = NULL) == NULL);//we don't need to set this - just for debug purposes
             Address += HBLOCK_SIZE;
             Offset += HBLOCK_SIZE;
         } while (Address < ((ULONG_PTR)CurrentBin + CurrentBin->Size));
 
-        if (Hive->ReadOnly == FALSE) {
-            // add free cells in the bin to the appropriate free lists
+        if (Hive->ReadOnly == FALSE) {//add free cells in the bin to the appropriate free lists
             if (!HvpEnlistFreeCells(Hive, CurrentBin, CurrentBin->FileOffset)) {
                 Status = STATUS_REGISTRY_CORRUPT;
                 goto ErrorExit2;
@@ -197,8 +187,7 @@ Return Value:
     return STATUS_SUCCESS;
 
 ErrorExit2:
-    if (d != NULL) {
-        // directory was built and allocated, so clean it up
+    if (d != NULL) {//directory was built and allocated, so clean it up
         HvpFreeMap(Hive, d, 0, Tables);
         (Hive->Free)(d, sizeof(HMAP_DIRECTORY));
     }
@@ -208,7 +197,7 @@ ErrorExit1:
 }
 
 
-NTSTATUS HvpInitMap(PHHIVE  Hive)
+NTSTATUS HvpInitMap(PHHIVE Hive)
 /*
 Routine Description:
     Initialize the map for the Stable Volatile storage of the hive.
@@ -223,21 +212,21 @@ Return Value:
     STATUS_xxx - the erroneous status
 */
 {
-    PHBASE_BLOCK    BaseBlock;
-    ULONG           Length;
-    ULONG           MapSlots;
-    ULONG           Tables;
-    PHMAP_TABLE     t = NULL;
+    PHBASE_BLOCK BaseBlock;
+    ULONG Length;
+    ULONG MapSlots;
+    ULONG Tables;
+    PHMAP_TABLE t = NULL;
     PHMAP_DIRECTORY d = NULL;
-    NTSTATUS        Status;
-    PULONG          Vector = NULL;
+    NTSTATUS Status;
+    PULONG Vector = NULL;
 
 #if DBG
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "HvpInitMap:\n"));
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "\tHive=%p", Hive));
 #endif
 
-    // Compute size of data region to be mapped
+    //Compute size of data region to be mapped
     BaseBlock = Hive->BaseBlock;
     Length = BaseBlock->Length;
     if ((Length % HBLOCK_SIZE) != 0) {
@@ -253,10 +242,10 @@ Return Value:
 
     Hive->Storage[Stable].Length = Length;
 
-    // allocate dirty vector if one is not already present (from HvpRecoverData)
+    //allocate dirty vector if one is not already present (from HvpRecoverData)
     if (Hive->DirtyVector.Buffer == NULL) {
-        Vector = (PULONG)((Hive->Allocate)(ROUND_UP(Length / HSECTOR_SIZE / 8, sizeof(ULONG)), 
-                                           TRUE, 
+        Vector = (PULONG)((Hive->Allocate)(ROUND_UP(Length / HSECTOR_SIZE / 8, sizeof(ULONG)),
+                                           TRUE,
                                            CM_FIND_LEAK_TAG27));
         if (Vector == NULL) {
             Status = STATUS_NO_MEMORY;
@@ -267,9 +256,8 @@ Return Value:
         Hive->DirtyAlloc = ROUND_UP(Length / HSECTOR_SIZE / 8, sizeof(ULONG));
     }
 
-    // allocate and build structure for map
-    if (Tables == 0) {
-        // Just 1 table, no need for directory
+    //allocate and build structure for map
+    if (Tables == 0) {//Just 1 table, no need for directory
         t = (Hive->Allocate)(sizeof(HMAP_TABLE), FALSE, CM_FIND_LEAK_TAG26);
         if (t == NULL) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
@@ -278,17 +266,15 @@ Return Value:
         RtlZeroMemory(t, sizeof(HMAP_TABLE));
         Hive->Storage[Stable].Map = (PHMAP_DIRECTORY) & (Hive->Storage[Stable].SmallDir);
         Hive->Storage[Stable].SmallDir = t;
-    } else {
-        // Need directory and multiple tables
+    } else {//Need directory and multiple tables
         d = (PHMAP_DIRECTORY)(Hive->Allocate)(sizeof(HMAP_DIRECTORY), FALSE, CM_FIND_LEAK_TAG28);
         if (d == NULL) {
             Status = STATUS_INSUFFICIENT_RESOURCES;
             goto ErrorExit1;
         }
         RtlZeroMemory(d, sizeof(HMAP_DIRECTORY));
-
-        // Allocate tables and fill in dir
-        if (HvpAllocateMap(Hive, d, 0, Tables) == FALSE) {
+        
+        if (HvpAllocateMap(Hive, d, 0, Tables) == FALSE) {// Allocate tables and fill in dir
             Status = STATUS_INSUFFICIENT_RESOURCES;
             goto ErrorExit2;
         }
@@ -299,8 +285,7 @@ Return Value:
     return STATUS_SUCCESS;
 
 ErrorExit2:
-    if (d != NULL) {
-        // directory was built and allocated, so clean it up
+    if (d != NULL) {//directory was built and allocated, so clean it up
         HvpFreeMap(Hive, d, 0, Tables);
         (Hive->Free)(d, sizeof(HMAP_DIRECTORY));
     }
@@ -314,7 +299,7 @@ ErrorExit1:
 }
 
 
-NTSTATUS HvpEnlistBinInMap(PHHIVE  Hive, ULONG Length, PHBIN Bin, ULONG Offset, PVOID CmView OPTIONAL)
+NTSTATUS HvpEnlistBinInMap(PHHIVE Hive, ULONG Length, PHBIN Bin, ULONG Offset, PVOID CmView OPTIONAL)
 /*
 Routine Description:
     Creates map entries and enlist free cells for the specified bin
@@ -330,21 +315,21 @@ Return Value:
     STATUS_REGISTRY_RECOVERED - if we have fixed the bin on-the-fly (self heal feature).
 */
 {
-    NTSTATUS        Status = STATUS_SUCCESS;
-    ULONG           BinOffset;
-    ULONG_PTR       Address;
-    PHMAP_ENTRY     Me;
+    NTSTATUS Status = STATUS_SUCCESS;
+    ULONG BinOffset;
+    ULONG_PTR Address;
+    PHMAP_ENTRY Me;
 
 #if DBG
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "HvpEnlistBinInMap:\n"));
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "\tHive=%p\t Offset=%08lx", Hive, Offset));
-    CmKdPrintEx((DPFLTR_CONFIG_ID, CML_BIN_MAP, 
-                 "HvpEnlistBinInMap: BinAddress = 0x%p\t Size = 0x%lx\n", 
-                 Bin, 
+    CmKdPrintEx((DPFLTR_CONFIG_ID, CML_BIN_MAP,
+                 "HvpEnlistBinInMap: BinAddress = 0x%p\t Size = 0x%lx\n",
+                 Bin,
                  Bin->Size));
 #endif
 
-    // create map entries for each block/page in bin
+    //create map entries for each block/page in bin
     BinOffset = Offset;
     for (Address = (ULONG_PTR)Bin; Address < ((ULONG_PTR)Bin + Bin->Size); Address += HBLOCK_SIZE) {
         Me = HvpGetCellMap(Hive, Offset);
@@ -357,12 +342,10 @@ Return Value:
         } else {
             Me->MemAlloc = 0;
         }
-
-        // take care here
-        if (CmView == NULL) {
-            Me->BinAddress |= HMAP_INPAGEDPOOL;
-            // we don't need to set this - just for debug purposes
-            ASSERT((Me->CmView = NULL) == NULL);
+        
+        if (CmView == NULL) {//take care here
+            Me->BinAddress |= HMAP_INPAGEDPOOL;            
+            ASSERT((Me->CmView = NULL) == NULL);//we don't need to set this - just for debug purposes
         } else {
             Me->BinAddress |= HMAP_INVIEW;
         }
@@ -371,7 +354,7 @@ Return Value:
     }
 
     if (Hive->ReadOnly == FALSE) {
-        // add free cells in the bin to the appropriate free lists
+        //add free cells in the bin to the appropriate free lists
         if (!HvpEnlistFreeCells(Hive, Bin, BinOffset)) {
             HvCheckHiveDebug.Hive = Hive;
             HvCheckHiveDebug.Status = 0xA002;
@@ -386,16 +369,15 @@ Return Value:
             }
         }
     }
-
-    // logical consistency check
-    ASSERT(Offset == (BinOffset + Bin->Size));
+    
+    ASSERT(Offset == (BinOffset + Bin->Size));//logical consistency check
 
 ErrorExit:
     return Status;
 }
 
 
-NTSTATUS HvpBuildMap(PHHIVE  Hive, PVOID   Image)
+NTSTATUS HvpBuildMap(PHHIVE Hive, PVOID Image)
 /*
 Routine Description:
     Creates the map for the Stable storage of the hive, and inits the map for the volatile storage.
@@ -412,65 +394,57 @@ Return Value:
     FALSE - either hive is corrupt or no memory for map
 */
 {
-    PHBIN           Bin;
-    ULONG           Offset;
-    NTSTATUS        Status;
-    ULONG           Length;
+    PHBIN Bin;
+    ULONG Offset;
+    NTSTATUS Status;
+    ULONG Length;
 
 #if DBG
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "HvpBuildMap:\n"));
     CmKdPrintEx((DPFLTR_CONFIG_ID, CML_HIVE, "\tHive=%p", Hive));
 #endif
 
-    // Init the map
-    Status = HvpInitMap(Hive);
+    Status = HvpInitMap(Hive);//Init the map
     if (!NT_SUCCESS(Status)) {
-        // just return failure; HvpInitMap took care of cleanup
-        return Status;
+        return Status;//just return failure; HvpInitMap took care of cleanup
     }
 
-    // Fill in the map
+    //Fill in the map
     Offset = 0;
     Bin = (PHBIN)Image;
     Length = Hive->Storage[Stable].Length;
 
     while (Bin < (PHBIN)((PUCHAR)(Image)+Length)) {
-        // Check the validity of the bin header
-        if ((Bin->Size > Length) || 
-            (Bin->Size < HBLOCK_SIZE) || 
-            (Bin->Signature != HBIN_SIGNATURE) || 
-            (Bin->FileOffset != Offset)) {
-            // Bin is bogus
+        //Check the validity of the bin header
+        if ((Bin->Size > Length) ||
+            (Bin->Size < HBLOCK_SIZE) ||
+            (Bin->Signature != HBIN_SIGNATURE) ||
+            (Bin->FileOffset != Offset)) {//Bin is bogus
             HvCheckHiveDebug.Hive = Hive;
             HvCheckHiveDebug.Status = 0xA001;
             HvCheckHiveDebug.Space = Length;
             HvCheckHiveDebug.MapPoint = Offset;
             HvCheckHiveDebug.BinPoint = Bin;
 
-            // for the loader.
-            if (CmDoSelfHeal()) {
+            if (CmDoSelfHeal()) {//for the loader.
                 // put the correct signature, fileoffset and binsize in place;
                 // HvEnlistBinInMap will take care of the cells consistency.
                 Bin->Signature = HBIN_SIGNATURE;
                 Bin->FileOffset = Offset;
-                if (((Offset + Bin->Size) > Length) || 
-                    (Bin->Size < HBLOCK_SIZE) || 
-                    (Bin->Size % HBLOCK_SIZE)) {
+                if (((Offset + Bin->Size) > Length) || (Bin->Size < HBLOCK_SIZE) || (Bin->Size % HBLOCK_SIZE)) {
                     Bin->Size = HBLOCK_SIZE;
                 }
 
-                CmMarkSelfHeal(Hive);// signal back to the caller that we have altered the hive.
+                CmMarkSelfHeal(Hive);//signal back to the caller that we have altered the hive.
             } else {
                 Status = STATUS_REGISTRY_CORRUPT;
                 goto ErrorExit;
             }
         }
 
-        // enlist this bin
-        Status = HvpEnlistBinInMap(Hive, Length, Bin, Offset, NULL);
+        Status = HvpEnlistBinInMap(Hive, Length, Bin, Offset, NULL);//enlist this bin
 
-        // for the loader.
-        if (CmDoSelfHeal() && (Status == STATUS_REGISTRY_RECOVERED)) {
+        if (CmDoSelfHeal() && (Status == STATUS_REGISTRY_RECOVERED)) {//for the loader.
             CmMarkSelfHeal(Hive);
             Status = STATUS_SUCCESS;
         }
@@ -479,19 +453,19 @@ Return Value:
             goto ErrorExit;
         }
 
-        Offset += Bin->Size;// the next bin
+        Offset += Bin->Size;//the next bin
         Bin = (PHBIN)((ULONG_PTR)Bin + Bin->Size);
     }
 
     return STATUS_SUCCESS;
 
 ErrorExit:
-    HvpCleanMap(Hive);// Clean up the directory table
+    HvpCleanMap(Hive);//Clean up the directory table
     return Status;
 }
 
 
-BOOLEAN HvpEnlistFreeCells(PHHIVE  Hive, PHBIN   Bin, ULONG   BinOffset)
+BOOLEAN HvpEnlistFreeCells(PHHIVE Hive, PHBIN Bin, ULONG BinOffset)
 /*
 Routine Description:
     Scan through the cells in the bin, locating the free ones.
@@ -506,18 +480,17 @@ Return Value:
     TRUE - it worked
 */
 {
-    PHCELL          p;
-    ULONG           celloffset;
-    ULONG           size;
-    HCELL_INDEX     cellindex;
-    BOOLEAN         Result = TRUE;
+    PHCELL p;
+    ULONG celloffset;
+    ULONG size;
+    HCELL_INDEX cellindex;
+    BOOLEAN Result = TRUE;
 
     // Scan all the cells in the bin, total free and allocated, check for impossible pointers.
     celloffset = sizeof(HBIN);
     p = (PHCELL)((PUCHAR)Bin + sizeof(HBIN));
-    while (p < (PHCELL)((PUCHAR)Bin + Bin->Size)) {
-        // if free cell, check it out, add it to free list for hive
-        if (p->Size >= 0) {
+    while (p < (PHCELL)((PUCHAR)Bin + Bin->Size)) {        
+        if (p->Size >= 0) {// if free cell, check it out, add it to free list for hive
             size = (ULONG)p->Size;
             if ((size > Bin->Size) ||
                 ((PHCELL)(size + (PUCHAR)p) > (PHCELL)((PUCHAR)Bin + Bin->Size)) ||
@@ -550,15 +523,12 @@ Return Value:
                 ((size % HCELL_PAD(Hive)) != 0) ||
                 (size == 0)) {
                 Result = FALSE;
-                if (CmDoSelfHeal()) {
-                    // Self heal mode; we have no other way than to enlist this cell as a free cell
+                if (CmDoSelfHeal()) {//Self heal mode; we have no other way than to enlist this cell as a free cell
                     p->Size = (LONG)((PUCHAR)((PUCHAR)Bin + Bin->Size) - (PUCHAR)p);
                     RtlZeroMemory((PUCHAR)p + sizeof(ULONG), p->Size - sizeof(ULONG));
                     size = (ULONG)p->Size;
-
                     celloffset = (ULONG)((PUCHAR)p - (PUCHAR)Bin);
                     cellindex = BinOffset + celloffset;
-
                     HvpEnlistFreeCell(Hive, cellindex, size, Stable, FALSE);
                     CmMarkSelfHeal(Hive);
                 } else {
@@ -576,7 +546,7 @@ Exit:
 }
 
 
-VOID HvpCleanMap(PHHIVE  Hive)
+VOID HvpCleanMap(PHHIVE Hive)
 /*
 Routine Description:
     Cleans all the map allocations for the stable storage
@@ -584,16 +554,13 @@ Arguments:
     Hive - Pointer to hive control structure to build map for.
 */
 {
-    ULONG           Length;
-    ULONG           MapSlots;
-    ULONG           Tables;
+    ULONG Length;
+    ULONG MapSlots;
+    ULONG Tables;
     PHMAP_DIRECTORY d = NULL;
-
-    // Free DirtyVector if any.
-    if (Hive->DirtyVector.Buffer != NULL) {
-        (Hive->Free)(Hive->DirtyVector.Buffer, 
-                     ROUND_UP(Hive->Storage[Stable].Length / HSECTOR_SIZE / 8,
-                              sizeof(ULONG)));
+    
+    if (Hive->DirtyVector.Buffer != NULL) {// Free DirtyVector if any.
+        (Hive->Free)(Hive->DirtyVector.Buffer, ROUND_UP(Hive->Storage[Stable].Length / HSECTOR_SIZE / 8, sizeof(ULONG)));
         Hive->DirtyVector.Buffer = NULL;
         Hive->DirtyAlloc = 0;
     }
@@ -607,15 +574,13 @@ Arguments:
         Tables = 0;
     }
 
-    if (Hive->Storage[Stable].SmallDir == 0) {
-        // directory was built and allocated, so clean it up
+    if (Hive->Storage[Stable].SmallDir == 0) {//directory was built and allocated, so clean it up
         d = Hive->Storage[Stable].Map;
         if (d != NULL) {
             HvpFreeMap(Hive, d, 0, Tables);
             (Hive->Free)(d, sizeof(HMAP_DIRECTORY));
         }
-    } else {
-        // no directory, just a smalldir
+    } else {//no directory, just a smalldir
         (Hive->Free)(Hive->Storage[Stable].SmallDir, sizeof(HMAP_TABLE));
     }
 
@@ -636,7 +601,7 @@ Arguments:
     End - index of last map table pointer to clean up
 */
 {
-    ULONG   i;
+    ULONG i;
 
     if (Dir == NULL) {
         return;
@@ -672,7 +637,7 @@ Return Value:
     FALSE - insufficient memory
 */
 {
-    ULONG   i, j;
+    ULONG i, j;
     PHMAP_TABLE t;
 
     for (i = Start; i <= End; i++) {
@@ -681,13 +646,11 @@ Return Value:
         if (t == NULL) {
             return FALSE;
         }
-        // the zero memory stuff can be removed
-        RtlZeroMemory(t, sizeof(HMAP_TABLE));
+        
+        RtlZeroMemory(t, sizeof(HMAP_TABLE));// the zero memory stuff can be removed
         for (j = 0; j < HTABLE_SLOTS; j++) {
-            // Invalidate the entry
-            t->Table[j].BinAddress = 0;
-            // we don't need to set this - just for debug purposes
-            ASSERT((t->Table[j].CmView = NULL) == NULL);
+            t->Table[j].BinAddress = 0;// Invalidate the entry                
+            ASSERT((t->Table[j].CmView = NULL) == NULL);// we don't need to set this - just for debug purposes
         }
 
         Dir->Directory[i] = t;
@@ -710,12 +673,12 @@ Return Value:
     Pointer to the new BIN if we succeeded, NULL if we failed.
 */
 {
-    PHMAP_ENTRY     Map;
-    HCELL_INDEX     Cell;
+    PHMAP_ENTRY Map;
+    HCELL_INDEX Cell;
 
 #if DBG
-    ULONG           i;
-    PHMAP_ENTRY     Me;
+    ULONG i;
+    PHMAP_ENTRY Me;
 #endif
 
     PAGED_CODE();
@@ -727,9 +690,8 @@ Return Value:
     Map = HvpGetCellMap(Hive, Cell);
     VALIDATE_CELL_MAP(__LINE__, Map, Hive, Cell);
 
-#if DBG
-    // some validation code
-    for (i = 0; i < Bin->Size; i += HBLOCK_SIZE) {
+#if DBG    
+    for (i = 0; i < Bin->Size; i += HBLOCK_SIZE) {// some validation code
         Cell = Bin->FileOffset + i + (Type * HCELL_TYPE_MASK);
         Me = HvpGetCellMap(Hive, Cell);
         VALIDATE_CELL_MAP(__LINE__, Me, Hive, Cell);
