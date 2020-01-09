@@ -14,11 +14,7 @@ Abstract:
 #include "mi.h"
 
 
-NTSTATUS NtLockVirtualMemory(__in HANDLE ProcessHandle,
-                             __inout PVOID* BaseAddress,
-                             __inout PSIZE_T RegionSize,
-                             __in ULONG MapType
-)
+NTSTATUS NtLockVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID* BaseAddress, __inout PSIZE_T RegionSize, __in ULONG MapType)
 /*
 Routine Description:
     This function locks a region of pages within the working set list of a subject process.
@@ -113,12 +109,7 @@ Return Value:
     }
 
     // Reference the specified process.
-    Status = ObReferenceObjectByHandle(ProcessHandle,
-                                       PROCESS_VM_OPERATION,
-                                       PsProcessType,
-                                       PreviousMode,
-                                       (PVOID*)&TargetProcess,
-                                       NULL);
+    Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, PreviousMode, (PVOID*)&TargetProcess, NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -151,7 +142,6 @@ Return Value:
     LOCK_ADDRESS_SPACE(TargetProcess);
 
     // Make sure the address space was not deleted, if so, return an error.
-
     if (TargetProcess->Flags & PS_PROCESS_FLAGS_VM_DELETED) {
         Status = STATUS_PROCESS_IS_TERMINATING;
         goto ErrorReturn1;
@@ -379,11 +369,7 @@ ErrorReturn1:
 }
 
 
-NTSTATUS NtUnlockVirtualMemory(__in HANDLE ProcessHandle,
-                               __inout PVOID* BaseAddress,
-                               __inout PSIZE_T RegionSize,
-                               __in ULONG MapType
-)
+NTSTATUS NtUnlockVirtualMemory(__in HANDLE ProcessHandle, __inout PVOID* BaseAddress, __inout PSIZE_T RegionSize, __in ULONG MapType)
 /*
 Routine Description:
     This function unlocks a region of pages within the working set list of a subject process.
@@ -467,12 +453,7 @@ Arguments:
         return STATUS_INVALID_PARAMETER;
     }
 
-    Status = ObReferenceObjectByHandle(ProcessHandle,
-                                       PROCESS_VM_OPERATION,
-                                       PsProcessType,
-                                       PreviousMode,
-                                       (PVOID*)&TargetProcess,
-                                       NULL);
+    Status = ObReferenceObjectByHandle(ProcessHandle, PROCESS_VM_OPERATION, PsProcessType, PreviousMode, (PVOID*)&TargetProcess, NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
