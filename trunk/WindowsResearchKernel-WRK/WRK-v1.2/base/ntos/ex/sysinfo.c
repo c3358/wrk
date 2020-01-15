@@ -79,8 +79,15 @@ BOOLEAN ExpIsValidUILanguage(IN WCHAR* pLangId);
 NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR* ValueName, OUT LANGID* CurrentUserUILanguageId, IN BOOLEAN bCheckGP);
 NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR* ValueName, IN LANGID DefaultUILanguageId);
 NTSTATUS ExpGetUILanguagePolicy(IN HANDLE CurrentUserKey, OUT LANGID* PolicyUILanguageId);
-NTSTATUS ExpGetProcessInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG Length OPTIONAL, IN PULONG SessionId OPTIONAL, IN BOOLEAN ExtendedInformation);
-NTSTATUS ExGetSessionPoolTagInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG Length, IN PULONG SessionId);
+NTSTATUS ExpGetProcessInformation(OUT PVOID SystemInformation,
+                                  IN ULONG SystemInformationLength,
+                                  OUT PULONG Length OPTIONAL,
+                                  IN PULONG SessionId OPTIONAL,
+                                  IN BOOLEAN ExtendedInformation);
+NTSTATUS ExGetSessionPoolTagInformation(OUT PVOID SystemInformation,
+                                        IN ULONG SystemInformationLength,
+                                        OUT PULONG Length,
+                                        IN PULONG SessionId);
 NTSTATUS ExpGetProcessorIdleInformation(OUT PVOID   SystemInformation, IN  ULONG   SystemInformationLength, OUT PULONG  Length);
 NTSTATUS ExpGetProcessorPowerInformation(OUT PVOID   SystemInformation, IN  ULONG   SystemInformationLength, OUT PULONG  Length);
 VOID ExpCopyProcessInfo(IN PSYSTEM_PROCESS_INFORMATION ProcessInfo, IN PEPROCESS Process, IN BOOLEAN ExtendedInformation);
@@ -95,15 +102,25 @@ NTSTATUS ExpGetHandleInformationEx(OUT PVOID SystemInformation, IN ULONG SystemI
 NTSTATUS ExpGetObjectInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG Length);
 NTSTATUS ExpGetInstemulInformation(OUT PSYSTEM_VDM_INSTEMUL_INFO Info);
 NTSTATUS ExGetPoolTagInfo(IN PVOID SystemInformation, IN ULONG SystemInformationLength, IN OUT PULONG ReturnLength OPTIONAL);
-NTSTATUS ExGetSessionPoolTagInfo(IN PVOID SystemInformation, IN ULONG SystemInformationLength, IN OUT PULONG ReturnedEntries, IN OUT PULONG ActualEntries);
+NTSTATUS ExGetSessionPoolTagInfo(IN PVOID SystemInformation,
+                                 IN ULONG SystemInformationLength,
+                                 IN OUT PULONG ReturnedEntries,
+                                 IN OUT PULONG ActualEntries);
 NTSTATUS ExGetBigPoolInfo(IN PVOID SystemInformation, IN ULONG SystemInformationLength, IN OUT PULONG ReturnLength OPTIONAL);
-NTSTATUS ExpQueryModuleInformation(IN PLIST_ENTRY LoadOrderListHead, IN PLIST_ENTRY UserModeLoadOrderListHead, OUT PRTL_PROCESS_MODULES ModuleInformation,
-                                   IN ULONG ModuleInformationLength, OUT PULONG ReturnLength OPTIONAL);
+NTSTATUS ExpQueryModuleInformation(IN PLIST_ENTRY LoadOrderListHead,
+                                   IN PLIST_ENTRY UserModeLoadOrderListHead,
+                                   OUT PRTL_PROCESS_MODULES ModuleInformation,
+                                   IN ULONG ModuleInformationLength,
+                                   OUT PULONG ReturnLength OPTIONAL);
 NTSTATUS ExpQueryLegacyDriverInformation(IN PSYSTEM_LEGACY_DRIVER_INFORMATION LegacyInfo, IN PULONG Length);
 NTSTATUS ExpQueryNumaProcessorMap(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnedLength);
 NTSTATUS ExpQueryNumaAvailableMemory(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnedLength);
-NTSTATUS ExpGetSystemFirmwareTableInformation(IN OUT PVOID SystemFirmwareTableInformation, IN  KPROCESSOR_MODE PreviousMode, OUT PULONG ReturnLength OPTIONAL);
-NTSTATUS ExpRegisterFirmwareTableInformationHandler(IN OUT PVOID SystemInformation, IN ULONG SystemInformationLength, IN KPROCESSOR_MODE PreviousMode);
+NTSTATUS ExpGetSystemFirmwareTableInformation(IN OUT PVOID SystemFirmwareTableInformation,
+                                              IN  KPROCESSOR_MODE PreviousMode,
+                                              OUT PULONG ReturnLength OPTIONAL);
+NTSTATUS ExpRegisterFirmwareTableInformationHandler(IN OUT PVOID SystemInformation,
+                                                    IN ULONG SystemInformationLength,
+                                                    IN KPROCESSOR_MODE PreviousMode);
 
 #pragma alloc_text(PAGE, NtQueryDefaultLocale)
 #pragma alloc_text(PAGE, NtSetDefaultLocale)
@@ -143,7 +160,8 @@ Routine Description:
 */
 {
     NTSTATUS Status;
-    static OBJECT_ATTRIBUTES ObjectAttributes = RTL_CONSTANT_OBJECT_ATTRIBUTES(&KeyName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE);
+    static OBJECT_ATTRIBUTES ObjectAttributes = RTL_CONSTANT_OBJECT_ATTRIBUTES(&KeyName,
+                                                                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE);
     CHAR KeyValueBuffer[sizeof(KEY_VALUE_PARTIAL_INFORMATION) + sizeof(ULONG)];
     PKEY_VALUE_PARTIAL_INFORMATION KeyValueInformation;
     ULONG ResultLength;
@@ -152,7 +170,12 @@ Routine Description:
     Status = ZwOpenKey(&Key, GENERIC_READ, &ObjectAttributes);
     if (NT_SUCCESS(Status)) {
         KeyValueInformation = (PKEY_VALUE_PARTIAL_INFORMATION)KeyValueBuffer;
-        Status = ZwQueryValueKey(Key, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+        Status = ZwQueryValueKey(Key,
+                                 &KeyValueName,
+                                 KeyValuePartialInformation,
+                                 KeyValueInformation,
+                                 sizeof(KeyValueBuffer),
+                                 &ResultLength);
         if (NT_SUCCESS(Status)) {
             if ((KeyValueInformation->Type == REG_DWORD) && (KeyValueInformation->DataLength == sizeof(ULONG))) {
                 SharedUserData->ComPlusPackage = *(PULONG)KeyValueInformation->Data;
@@ -176,7 +199,8 @@ Arguments:
 */
 {
     NTSTATUS Status;
-    static OBJECT_ATTRIBUTES ObjectAttributes = RTL_CONSTANT_OBJECT_ATTRIBUTES(&KeyName, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE | OBJ_FORCE_ACCESS_CHECK);
+    static OBJECT_ATTRIBUTES ObjectAttributes = RTL_CONSTANT_OBJECT_ATTRIBUTES(&KeyName,
+                                                                               OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE | OBJ_FORCE_ACCESS_CHECK);
     ULONG Disposition;
     HANDLE Key;
 
@@ -264,7 +288,12 @@ NTSTATUS NtSetDefaultLocale(__in BOOLEAN UserProfile, __in LCID DefaultLocaleId)
     if (DefaultLocaleId == 0) {
         Status = ZwOpenKey(&Key, GENERIC_READ, &ObjectAttributes);
         if (NT_SUCCESS(Status)) {
-            Status = ZwQueryValueKey(Key, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+            Status = ZwQueryValueKey(Key,
+                                     &KeyValueName,
+                                     KeyValuePartialInformation,
+                                     KeyValueInformation,
+                                     sizeof(KeyValueBuffer),
+                                     &ResultLength);
             if (NT_SUCCESS(Status)) {
                 if (KeyValueInformation->Type == REG_SZ) {
                     s = (PWSTR)KeyValueInformation->Data;
@@ -415,9 +444,16 @@ NTSTATUS ExpGetUILanguagePolicy(IN HANDLE CurrentUserKey, OUT LANGID* PolicyUILa
     InitializeObjectAttributes(&ObjectAttributes, &KeyPath, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE), CurrentUserKey, NULL);
     Status = ZwOpenKey(&Key, GENERIC_READ, &ObjectAttributes);// Check if there is a Policy key
     if (NT_SUCCESS(Status)) {
-        Status = ZwQueryValueKey(Key, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+        Status = ZwQueryValueKey(Key,
+                                 &KeyValueName,
+                                 KeyValuePartialInformation,
+                                 KeyValueInformation,
+                                 sizeof(KeyValueBuffer),
+                                 &ResultLength);
         if (NT_SUCCESS(Status)) {
-            if ((KeyValueInformation->DataLength > 2) && (KeyValueInformation->Type == REG_SZ) && ExpIsValidUILanguage((PWSTR)KeyValueInformation->Data)) {
+            if ((KeyValueInformation->DataLength > 2) &&
+                (KeyValueInformation->Type == REG_SZ) &&
+                ExpIsValidUILanguage((PWSTR)KeyValueInformation->Data)) {
                 RtlInitUnicodeString(&KeyValueName, (PWSTR)KeyValueInformation->Data);
                 Status = RtlUnicodeStringToInteger(&KeyValueName, (ULONG)16, &Language);
                 if (NT_SUCCESS(Status)) {// Final check to make sure this is an MUI system
@@ -459,7 +495,11 @@ NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR* ValueName, IN LANGID CurrentUserU
 
     RtlInitUnicodeString(&KeyValueName, ValueName);
     RtlInitUnicodeString(&KeyPath, L"Control Panel\\Desktop");
-    InitializeObjectAttributes(&ObjectAttributes, &KeyPath, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE | OBJ_FORCE_ACCESS_CHECK), CurrentUserKey, NULL);
+    InitializeObjectAttributes(&ObjectAttributes,
+                               &KeyPath,
+                               (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE | OBJ_FORCE_ACCESS_CHECK),
+                               CurrentUserKey,
+                               NULL);
     Status = ExpValidateLocale(MAKELCID(CurrentUserUILanguage, SORT_DEFAULT));
     if (NT_SUCCESS(Status)) {
         Status = ZwOpenKey(&Key, GENERIC_WRITE, &ObjectAttributes);
@@ -489,7 +529,9 @@ NTSTATUS ExpSetCurrentUserUILanguage(IN WCHAR* ValueName, IN LANGID CurrentUserU
 }
 
 
-NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR* ValueName, OUT LANGID* CurrentUserUILanguageId, IN BOOLEAN bCheckGP)
+NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR* ValueName,
+                                     OUT LANGID* CurrentUserUILanguageId,
+                                     IN BOOLEAN bCheckGP)
 {
     NTSTATUS Status;
     OBJECT_ATTRIBUTES ObjectAttributes;
@@ -509,15 +551,25 @@ NTSTATUS ExpGetCurrentUserUILanguage(IN WCHAR* ValueName, OUT LANGID* CurrentUse
     }
     RtlInitUnicodeString(&KeyValueName, ValueName);
     RtlInitUnicodeString(&KeyPath, L"Control Panel\\Desktop");
-    InitializeObjectAttributes(&ObjectAttributes, &KeyPath, (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE | OBJ_FORCE_ACCESS_CHECK), CurrentUserKey, NULL);
+    InitializeObjectAttributes(&ObjectAttributes,
+                               &KeyPath,
+                               (OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE | OBJ_FORCE_ACCESS_CHECK),
+                               CurrentUserKey,
+                               NULL);
 
     // Let's check if there is a policy installed for the UI language, and if so, let's use it.
     if (!bCheckGP || !NT_SUCCESS(ExpGetUILanguagePolicy(CurrentUserKey, CurrentUserUILanguageId))) {
         Status = ZwOpenKey(&Key, GENERIC_READ, &ObjectAttributes);
         if (NT_SUCCESS(Status)) {
-            Status = ZwQueryValueKey(Key, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+            Status = ZwQueryValueKey(Key,
+                                     &KeyValueName,
+                                     KeyValuePartialInformation,
+                                     KeyValueInformation,
+                                     sizeof(KeyValueBuffer),
+                                     &ResultLength);
             if (NT_SUCCESS(Status)) {
-                if (KeyValueInformation->Type == REG_SZ && ExpIsValidUILanguage((PWSTR)KeyValueInformation->Data)) {
+                if (KeyValueInformation->Type == REG_SZ &&
+                    ExpIsValidUILanguage((PWSTR)KeyValueInformation->Data)) {
                     RtlInitUnicodeString(&UILanguage, (PWSTR)KeyValueInformation->Data);
                     Status = RtlUnicodeStringToInteger(&UILanguage, (ULONG)16, &Digit);
                     if (NT_SUCCESS(Status)) {
@@ -608,15 +660,32 @@ NTSTATUS ExpValidateLocale(IN LCID LocaleId)
 
     // Validate Locale : Lookup the Locale's Language group, and make sure it is there.
     KeyValueInformation = (PKEY_VALUE_PARTIAL_INFORMATION)KeyValueBuffer;
-    ReturnStatus = ZwQueryValueKey(LocaleKey, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+    ReturnStatus = ZwQueryValueKey(LocaleKey,
+                                   &KeyValueName,
+                                   KeyValuePartialInformation,
+                                   KeyValueInformation,
+                                   sizeof(KeyValueBuffer),
+                                   &ResultLength);
     if (!NT_SUCCESS(ReturnStatus)) {
-        ReturnStatus = ZwQueryValueKey(SortKey, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+        ReturnStatus = ZwQueryValueKey(SortKey,
+                                       &KeyValueName,
+                                       KeyValuePartialInformation,
+                                       KeyValueInformation,
+                                       sizeof(KeyValueBuffer),
+                                       &ResultLength);
     }
 
     if ((NT_SUCCESS(ReturnStatus)) && (KeyValueInformation->DataLength > 2)) {
         RtlInitUnicodeString(&KeyValueName, (PWSTR)KeyValueInformation->Data);
-        ReturnStatus = ZwQueryValueKey(LangGroupKey, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
-        if ((NT_SUCCESS(ReturnStatus)) && (KeyValueInformation->Type == REG_SZ) && (KeyValueInformation->DataLength > 2)) {
+        ReturnStatus = ZwQueryValueKey(LangGroupKey,
+                                       &KeyValueName,
+                                       KeyValuePartialInformation,
+                                       KeyValueInformation,
+                                       sizeof(KeyValueBuffer),
+                                       &ResultLength);
+        if ((NT_SUCCESS(ReturnStatus)) &&
+            (KeyValueInformation->Type == REG_SZ) &&
+            (KeyValueInformation->DataLength > 2)) {
             Ptr = (PWSTR)KeyValueInformation->Data;
             if (Ptr[0] == L'1' && Ptr[1] == UNICODE_NULL) {
                 Status = STATUS_SUCCESS;
@@ -641,7 +710,9 @@ Failed1:
 }
 
 
-NTSTATUS ExpQueryNumaProcessorMap(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnedLength)
+NTSTATUS ExpQueryNumaProcessorMap(OUT PVOID SystemInformation,
+                                  IN ULONG SystemInformationLength,
+                                  OUT PULONG ReturnedLength)
 {
     PSYSTEM_NUMA_INFORMATION Map;
     ULONG Length;
@@ -687,7 +758,9 @@ NTSTATUS ExpQueryNumaProcessorMap(OUT PVOID SystemInformation, IN ULONG SystemIn
 }
 
 
-NTSTATUS ExpQueryNumaAvailableMemory(OUT PVOID  SystemInformation, IN  ULONG  SystemInformationLength, OUT PULONG ReturnedLength)
+NTSTATUS ExpQueryNumaAvailableMemory(OUT PVOID  SystemInformation,
+                                     IN  ULONG  SystemInformationLength,
+                                     OUT PULONG ReturnedLength)
 {
     PSYSTEM_NUMA_INFORMATION Map;
     ULONG Length;
@@ -787,7 +860,8 @@ NTSTATUS ExpGetSystemEmulationBasicInformation(OUT PSYSTEM_BASIC_INFORMATION Bas
 
     try {
         BasicInfo->NumberOfProcessors = min(32, KeNumberProcessors);
-        BasicInfo->ActiveProcessorsAffinityMask = (ULONG_PTR)((KeActiveProcessors & 0xFFFFFFFF) | ((KeActiveProcessors & (((ULONG_PTR)0xFFFFFFFF) << 32)) >> 32));
+        BasicInfo->ActiveProcessorsAffinityMask = (ULONG_PTR)((KeActiveProcessors & 0xFFFFFFFF) |
+            ((KeActiveProcessors & (((ULONG_PTR)0xFFFFFFFF) << 32)) >> 32));
         BasicInfo->Reserved = 0;
         BasicInfo->TimerResolution = KeMaximumIncrement;
         BasicInfo->NumberOfPhysicalPages = (MmNumberOfPhysicalPages * (PAGE_SIZE >> PAGE_SHIFT_X86NT));
@@ -797,7 +871,8 @@ NTSTATUS ExpGetSystemEmulationBasicInformation(OUT PSYSTEM_BASIC_INFORMATION Bas
         BasicInfo->AllocationGranularity = MM_ALLOCATION_GRANULARITY;
         BasicInfo->MinimumUserModeAddress = 0x00000000000010000UI64;
 
-        // NOTE: MmGetMaxWowAddress return the highest usermode address boundary, thus we are subtracting one to get the maximum accessible usermode address
+        // NOTE: MmGetMaxWowAddress return the highest usermode address boundary, 
+        // thus we are subtracting one to get the maximum accessible usermode address
         BasicInfo->MaximumUserModeAddress = ((ULONG_PTR)MmGetMaxWowAddress() - 1);
     } except(EXCEPTION_EXECUTE_HANDLER)
     {
@@ -809,13 +884,18 @@ NTSTATUS ExpGetSystemEmulationBasicInformation(OUT PSYSTEM_BASIC_INFORMATION Bas
 #endif
 
 
-NTSTATUS NtQuerySystemInformation(__in SYSTEM_INFORMATION_CLASS SystemInformationClass, __out_bcount_opt(SystemInformationLength) PVOID SystemInformation, __in ULONG SystemInformationLength, __out_opt PULONG ReturnLength)
+NTSTATUS NtQuerySystemInformation(__in SYSTEM_INFORMATION_CLASS SystemInformationClass,
+                                  __out_bcount_opt(SystemInformationLength) PVOID SystemInformation,
+                                  __in ULONG SystemInformationLength,
+                                  __out_opt PULONG ReturnLength
+)
 /*
 Routine Description:
     This function queries information about the system.
 Arguments:
     SystemInformationClass - The system information class about which to retrieve information.
-    SystemInformation - A pointer to a buffer which receives the specified information.  The format and content of the buffer depend on the specified system information class.
+    SystemInformation - A pointer to a buffer which receives the specified information.
+                        The format and content of the buffer depend on the specified system information class.
 
         SystemInformation Format by Information Class:
 
@@ -904,7 +984,8 @@ Arguments:
                             Displayed as Model 'A'+xx, Pass yy
 
                     For PROCESSOR_ARCHITECTURE_PPC:
-                        xxyy - where xxyy is 16-bit processor revision number (low order 16 bits of Processor Version Register).  Displayed as a fixed point number xx.yy
+                        xxyy - where xxyy is 16-bit processor revision number (low order 16 bits of Processor Version Register).
+                        Displayed as a fixed point number xx.yy
 
                 USHORT Reserved - Always zero.
 
@@ -966,7 +1047,8 @@ Arguments:
                  ULONG SerialNumberLength - Specifies the length in characters of the Serial Number string (not including terminating NULL).
                  WCHAR DockId - Character buffer containing two null-terminated strings.
                                 The first string is a character representation of the dock ID number, starting at the beginning of the buffer.
-                                The second string is a character representation of the machine's serial number, starting at character offset SerialNumberOffset in the buffer.
+                                The second string is a character representation of the machine's serial number,
+                                starting at character offset SerialNumberOffset in the buffer.
         SystemPowerSettings - Data type is SYSTEM_POWER_SETTINGS
             SYSTEM_POWER_INFORMATION Structure
                 BOOLEAN SystemSuspendSupported - Supplies a BOOLEAN as to whether the system suspend is enabled or not.
@@ -979,13 +1061,17 @@ Arguments:
                 BOOLEAN SystemAcOrDc - Supplies a BOOLEAN as to whether or not the system is in AC mode.
                 BOOLEAN DisablePowerDown - If TRUE, signifies that all requests to PoRequestPowerChange for a SET_POWER-PowerDown irp are to be ignored.
                 LARGE_INTEGER SpindownDrives - If non-zero, signifies to the
-                    cache manager (or the IO subsystem) to optimize drive accesses based upon power saves, are that drives are to be spun down as appropriate.
+                    cache manager (or the IO subsystem) to optimize drive accesses based upon power saves,
+                    are that drives are to be spun down as appropriate.
                     The value represents to user's requested disk spin down timeout.
 
         SystemProcessorSpeedInformation - Data type is SYSTEM_PROCESSOR_SPEED_INFORMATION
             SYSTEM_PROCESSOR_SPEED_INFORMATION Structure (same as HalProcessorSpeedInformation)
-                ULONG MaximumProcessorSpeed - The maximum hertz the processor is capable of. This information is used by the UI to draw the appropriate scale. This field is read-only and cannot be set.
-                ULONG CurrentAvailableSpeed - The hertz for which the processor runs at when not idle. This field is read-only and cannot be set.
+                ULONG MaximumProcessorSpeed - The maximum hertz the processor is capable of.
+                                              This information is used by the UI to draw the appropriate scale.
+                                              This field is read-only and cannot be set.
+                ULONG CurrentAvailableSpeed - The hertz for which the processor runs at when not idle.
+                                              This field is read-only and cannot be set.
                 ULONG ConfiguredSpeedLimit - The hertz for which the processor is limited to due to the current configuration.
                 UCHAR PowerState
                     0 - Normal
@@ -1422,7 +1508,10 @@ Return Value:
                 return STATUS_INFO_LENGTH_MISMATCH;
             }
 
-            Status = MmMemoryUsage(SystemInformation, SystemInformationLength, (SystemInformationClass == SystemFullMemoryInformation) ? 0 : 1, &Length);
+            Status = MmMemoryUsage(SystemInformation,
+                                   SystemInformationLength,
+                                   (SystemInformationClass == SystemFullMemoryInformation) ? 0 : 1,
+                                   &Length);
             if (NT_SUCCESS(Status) && ARGUMENT_PRESENT(ReturnLength)) {
                 *ReturnLength = Length;
             }
@@ -1541,7 +1630,11 @@ Return Value:
             KeEnterCriticalRegion();
             ExAcquireResourceExclusiveLite(&PsLoadedModuleResource, TRUE);
             try {
-                Status = ExpQueryModuleInformation(&PsLoadedModuleList, &MmLoadedUserImageList, (PRTL_PROCESS_MODULES)SystemInformation, SystemInformationLength, ReturnLength);
+                Status = ExpQueryModuleInformation(&PsLoadedModuleList,
+                                                   &MmLoadedUserImageList,
+                                                   (PRTL_PROCESS_MODULES)SystemInformation,
+                                                   SystemInformationLength,
+                                                   ReturnLength);
             } except(EXCEPTION_EXECUTE_HANDLER)
             {
                 Status = GetExceptionCode();
@@ -1686,7 +1779,10 @@ Return Value:
                 return STATUS_DATATYPE_MISALIGNMENT;
             }
 
-            Status = ExGetSessionPoolTagInformation(SessionPoolTagInformation, SessionPoolTagInformationLength, &Length, &SessionId);
+            Status = ExGetSessionPoolTagInformation(SessionPoolTagInformation,
+                                                    SessionPoolTagInformationLength,
+                                                    &Length,
+                                                    &SessionId);
             if (ARGUMENT_PRESENT(ReturnLength)) {
                 *ReturnLength = Length;
             }
@@ -1930,7 +2026,11 @@ Return Value:
             Status = STATUS_INVALID_INFO_CLASS;
             break;
         case SystemPrefetcherInformation:
-            Status = CcPfQueryPrefetcherInformation(SystemInformationClass, SystemInformation, SystemInformationLength, PreviousMode, &Length);
+            Status = CcPfQueryPrefetcherInformation(SystemInformationClass,
+                                                    SystemInformation,
+                                                    SystemInformationLength,
+                                                    PreviousMode,
+                                                    &Length);
             if (ARGUMENT_PRESENT(ReturnLength)) {
                 *ReturnLength = Length;
             }
@@ -2000,7 +2100,9 @@ Return Value:
             PSYSTEM_WATCHDOG_TIMER_INFORMATION WdTimerInfo = (PSYSTEM_WATCHDOG_TIMER_INFORMATION)SystemInformation;
 
             // Caller must be kernel mode with the proper parameters
-            if (PreviousMode != KernelMode || SystemInformation == NULL || SystemInformationLength != sizeof(SYSTEM_WATCHDOG_TIMER_INFORMATION)) {
+            if (PreviousMode != KernelMode ||
+                SystemInformation == NULL ||
+                SystemInformationLength != sizeof(SYSTEM_WATCHDOG_TIMER_INFORMATION)) {
                 ExRaiseStatus(STATUS_INVALID_PARAMETER);
             }
 
@@ -2049,26 +2151,26 @@ Return Value:
 }
 
 
-NTSTATUS NTAPI NtSetSystemInformation(
-    __in SYSTEM_INFORMATION_CLASS SystemInformationClass,
-    __in_bcount_opt(SystemInformationLength) PVOID SystemInformation,
-    __in ULONG SystemInformationLength)
-    /*
-    Routine Description:
-        This function set information about the system.
-    Arguments:
-        SystemInformationClass - The system information class which is to be modified.
-        SystemInformation - A pointer to a buffer which contains the specified information.
-                            The format and content of the buffer depend on the specified system information class.
-        SystemInformationLength - Specifies the length in bytes of the system information buffer.
-    Return Value:
-        Returns one of the following status codes:
-            STATUS_SUCCESS - Normal, successful completion.
-            STATUS_ACCESS_VIOLATION - The specified system information buffer is not accessible.
-            STATUS_INVALID_INFO_CLASS - The SystemInformationClass parameter did not specify a valid value.
-            STATUS_INFO_LENGTH_MISMATCH - The value of the SystemInformationLength parameter did not match the length required for the information class requested by the SystemInformationClass parameter.
-            STATUS_PRIVILEGE_NOT_HELD is returned if the caller does not have the privilege to set the system time.
-    */
+NTSTATUS NTAPI NtSetSystemInformation(__in SYSTEM_INFORMATION_CLASS SystemInformationClass,
+                                      __in_bcount_opt(SystemInformationLength) PVOID SystemInformation,
+                                      __in ULONG SystemInformationLength
+)
+/*
+Routine Description:
+    This function set information about the system.
+Arguments:
+    SystemInformationClass - The system information class which is to be modified.
+    SystemInformation - A pointer to a buffer which contains the specified information.
+                        The format and content of the buffer depend on the specified system information class.
+    SystemInformationLength - Specifies the length in bytes of the system information buffer.
+Return Value:
+    Returns one of the following status codes:
+        STATUS_SUCCESS - Normal, successful completion.
+        STATUS_ACCESS_VIOLATION - The specified system information buffer is not accessible.
+        STATUS_INVALID_INFO_CLASS - The SystemInformationClass parameter did not specify a valid value.
+        STATUS_INFO_LENGTH_MISMATCH - The value of the SystemInformationLength parameter did not match the length required for the information class requested by the SystemInformationClass parameter.
+        STATUS_PRIVILEGE_NOT_HELD is returned if the caller does not have the privilege to set the system time.
+*/
 {
     BOOLEAN Enable;
     KPROCESSOR_MODE PreviousMode;
@@ -2260,13 +2362,13 @@ NTSTATUS NTAPI NtSetSystemInformation(
                 }
 
                 // Recursively call this kernel service forcing previous mode to kernel.
-                Status = ZwSetSystemInformation(SystemExtendServiceTableInformation, (PVOID)& Image, sizeof(Image));
+                Status = ZwSetSystemInformation(SystemExtendServiceTableInformation, (PVOID)&Image, sizeof(Image));
                 return Status;
             }
 
             // The previous mode is kernel - load the specified driver.
             Image = *(PUNICODE_STRING)SystemInformation;
-            Status = MmLoadSystemImage(&Image, NULL, NULL, MM_LOAD_IMAGE_IN_SESSION, &SectionPointer, (PVOID*)& ImageBaseAddress);
+            Status = MmLoadSystemImage(&Image, NULL, NULL, MM_LOAD_IMAGE_IN_SESSION, &SectionPointer, (PVOID*)&ImageBaseAddress);
             if (NT_SUCCESS(Status) == FALSE) {
                 return Status;
             }
@@ -2338,12 +2440,15 @@ NTSTATUS NTAPI NtSetSystemInformation(
             }
 
             Image = ((PSYSTEM_GDI_DRIVER_INFORMATION)SystemInformation)->DriverName;
-            Status = MmLoadSystemImage(&Image, NULL, NULL, LoadFlags, &SectionPointer, (PVOID*)& ImageBaseAddress);
+            Status = MmLoadSystemImage(&Image, NULL, NULL, LoadFlags, &SectionPointer, (PVOID*)&ImageBaseAddress);
             if ((NT_SUCCESS(Status))) {
                 PSYSTEM_GDI_DRIVER_INFORMATION GdiDriverInfo = (PSYSTEM_GDI_DRIVER_INFORMATION)SystemInformation;
                 ULONG Size;
 
-                GdiDriverInfo->ExportSectionPointer = RtlImageDirectoryEntryToData(ImageBaseAddress, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &Size);
+                GdiDriverInfo->ExportSectionPointer = RtlImageDirectoryEntryToData(ImageBaseAddress,
+                                                                                   TRUE,
+                                                                                   IMAGE_DIRECTORY_ENTRY_EXPORT,
+                                                                                   &Size);
 
                 // Capture the entry point.
                 NtHeaders = RtlImageNtHeader(ImageBaseAddress);
@@ -2372,15 +2477,20 @@ NTSTATUS NTAPI NtSetSystemInformation(
             } else {
                 // Obtain the callers flags and validate it - don't allow any reserved bits to be set or any conflicting bits to be set.
                 Flags = ((PSYSTEM_FILECACHE_INFORMATION)SystemInformation)->Flags;
-                if (Flags & ~(MM_WORKING_SET_MAX_HARD_ENABLE | MM_WORKING_SET_MAX_HARD_DISABLE | MM_WORKING_SET_MIN_HARD_ENABLE | MM_WORKING_SET_MIN_HARD_DISABLE)) {
+                if (Flags & ~(MM_WORKING_SET_MAX_HARD_ENABLE |
+                              MM_WORKING_SET_MAX_HARD_DISABLE |
+                              MM_WORKING_SET_MIN_HARD_ENABLE |
+                              MM_WORKING_SET_MIN_HARD_DISABLE)) {
                     return STATUS_INVALID_PARAMETER_2;
                 }
 
-                if ((Flags & (MM_WORKING_SET_MIN_HARD_ENABLE | MM_WORKING_SET_MIN_HARD_DISABLE)) == (MM_WORKING_SET_MIN_HARD_ENABLE | MM_WORKING_SET_MIN_HARD_DISABLE)) {
+                if ((Flags & (MM_WORKING_SET_MIN_HARD_ENABLE | MM_WORKING_SET_MIN_HARD_DISABLE)) ==
+                    (MM_WORKING_SET_MIN_HARD_ENABLE | MM_WORKING_SET_MIN_HARD_DISABLE)) {
                     return STATUS_INVALID_PARAMETER_2;
                 }
 
-                if ((Flags & (MM_WORKING_SET_MAX_HARD_ENABLE | MM_WORKING_SET_MAX_HARD_DISABLE)) == (MM_WORKING_SET_MAX_HARD_ENABLE | MM_WORKING_SET_MAX_HARD_DISABLE)) {
+                if ((Flags & (MM_WORKING_SET_MAX_HARD_ENABLE | MM_WORKING_SET_MAX_HARD_DISABLE)) ==
+                    (MM_WORKING_SET_MAX_HARD_ENABLE | MM_WORKING_SET_MAX_HARD_DISABLE)) {
                     return STATUS_INVALID_PARAMETER_2;
                 }
             }
@@ -2637,7 +2747,9 @@ NTSTATUS NTAPI NtSetSystemInformation(
             PSYSTEM_WATCHDOG_HANDLER_INFORMATION WdHandlerInfo = (PSYSTEM_WATCHDOG_HANDLER_INFORMATION)SystemInformation;
 
             // Caller must be kernel mode with the proper parameters
-            if (PreviousMode != KernelMode || SystemInformation == NULL || SystemInformationLength != sizeof(SYSTEM_WATCHDOG_HANDLER_INFORMATION)) {
+            if (PreviousMode != KernelMode ||
+                SystemInformation == NULL ||
+                SystemInformationLength != sizeof(SYSTEM_WATCHDOG_HANDLER_INFORMATION)) {
                 ExRaiseStatus(STATUS_INVALID_PARAMETER);
             }
 
@@ -2651,7 +2763,9 @@ NTSTATUS NTAPI NtSetSystemInformation(
             PSYSTEM_WATCHDOG_TIMER_INFORMATION WdTimerInfo = (PSYSTEM_WATCHDOG_TIMER_INFORMATION)SystemInformation;
 
             // Caller must be kernel mode with the proper parameters
-            if (PreviousMode != KernelMode || SystemInformation == NULL || SystemInformationLength != sizeof(SYSTEM_WATCHDOG_TIMER_INFORMATION)) {
+            if (PreviousMode != KernelMode ||
+                SystemInformation == NULL ||
+                SystemInformationLength != sizeof(SYSTEM_WATCHDOG_TIMER_INFORMATION)) {
                 ExRaiseStatus(STATUS_INVALID_PARAMETER);
             }
 
@@ -2697,13 +2811,12 @@ NTSTATUS NTAPI NtSetSystemInformation(
 }
 
 
-NTSTATUS ExLockUserBuffer(
-    __inout_bcount(Length) PVOID Buffer,
-    __in ULONG Length,
-    __in KPROCESSOR_MODE ProbeMode,
-    __in LOCK_OPERATION LockMode,
-    __deref_out PVOID* LockedBuffer,
-    __deref_out PVOID* LockVariable
+NTSTATUS ExLockUserBuffer(__inout_bcount(Length) PVOID Buffer,
+                          __in ULONG Length,
+                          __in KPROCESSOR_MODE ProbeMode,
+                          __in LOCK_OPERATION LockMode,
+                          __deref_out PVOID* LockedBuffer,
+                          __deref_out PVOID* LockVariable
 )
 /*
 Routine Description:
@@ -2768,12 +2881,11 @@ VOID ExUnlockUserBuffer(__inout PVOID LockVariable)
 }
 
 
-NTSTATUS ExpGetProcessInformation(
-    OUT PVOID SystemInformation,
-    IN ULONG SystemInformationLength,
-    OUT PULONG Length OPTIONAL,
-    IN PULONG SessionId OPTIONAL,
-    IN BOOLEAN ExtendedInformation
+NTSTATUS ExpGetProcessInformation(OUT PVOID SystemInformation,
+                                  IN ULONG SystemInformationLength,
+                                  OUT PULONG Length OPTIONAL,
+                                  IN PULONG SessionId OPTIONAL,
+                                  IN BOOLEAN ExtendedInformation
 )
 /*
 Routine Description:
@@ -2822,7 +2934,12 @@ Return Value:
     }
 
     if (SystemInformationLength > 0) {
-        status1 = ExLockUserBuffer(SystemInformation, SystemInformationLength, KeGetPreviousMode(), IoWriteAccess, &MappedAddress, &LockVariable);
+        status1 = ExLockUserBuffer(SystemInformation,
+                                   SystemInformationLength,
+                                   KeGetPreviousMode(),
+                                   IoWriteAccess,
+                                   &MappedAddress,
+                                   &LockVariable);
         if (!NT_SUCCESS(status1)) {
             return status1;
         }
@@ -2841,11 +2958,17 @@ Return Value:
     ProcessInfo = (PSYSTEM_PROCESS_INFORMATION)MappedAddress;
     try {
         // Do the idle process first then all the other processes.
-        for (Process = PsIdleProcess; Process != NULL; Process = PsGetNextProcess((Process == PsIdleProcess) ? NULL : Process)) {
-            // If the process is marked as exiting, the executive process has no active threads, the kernel process has no threads, and the kernel process has been signaled, then skip the process.
+        for (Process = PsIdleProcess;
+             Process != NULL;
+             Process = PsGetNextProcess((Process == PsIdleProcess) ? NULL : Process)) {
+            // If the process is marked as exiting, the executive process has no active threads,
+            // the kernel process has no threads, and the kernel process has been signaled, then skip the process.
 
             // N.B. It is safe to examine the kernel thread list without a lock since no list pointers are dereferenced.
-            if (((Process->Flags & PS_PROCESS_FLAGS_PROCESS_EXITING) != 0) && (Process->Pcb.Header.SignalState != 0) && (Process->ActiveThreads == 0) && (IsListEmpty(&Process->Pcb.ThreadListHead) == TRUE)) {
+            if (((Process->Flags & PS_PROCESS_FLAGS_PROCESS_EXITING) != 0) &&
+                (Process->Pcb.Header.SignalState != 0) &&
+                (Process->ActiveThreads == 0) &&
+                (IsListEmpty(&Process->Pcb.ThreadListHead) == TRUE)) {
                 continue;
             }
 
@@ -2969,7 +3092,7 @@ Return Value:
                         } else {
                             WCHAR c;
                             while (1) {
-                                c = (WCHAR)* Src++;
+                                c = (WCHAR)*Src++;
                                 *Dst++ = c;
                                 if (c == L'\0') {
                                     break;
@@ -2998,7 +3121,7 @@ Return Value:
         if (ARGUMENT_PRESENT(Length)) {
             *Length = TotalSize;
         }
-    } finally{
+    } finally {
         if ((Process != NULL) && (Process != PsIdleProcess)) {
             PsQuitNextProcess(Process);
         }
@@ -3012,7 +3135,11 @@ Return Value:
 }
 
 
-NTSTATUS ExGetSessionPoolTagInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG Length, IN PULONG SessionId OPTIONAL)
+NTSTATUS ExGetSessionPoolTagInformation(OUT PVOID SystemInformation,
+                                        IN ULONG SystemInformationLength,
+                                        OUT PULONG Length,
+                                        IN PULONG SessionId OPTIONAL
+)
 /*
 Routine Description:
     This function returns information about all the per-session pool tag information in the system.
@@ -3053,7 +3180,12 @@ Return Value:
     SessionPoolTagInfo = NULL;
 
     if (SystemInformationLength > 0) {
-        status1 = ExLockUserBuffer(SystemInformation, SystemInformationLength, KeGetPreviousMode(), IoWriteAccess, &MappedAddress, &LockVariable);
+        status1 = ExLockUserBuffer(SystemInformation,
+                                   SystemInformationLength,
+                                   KeGetPreviousMode(),
+                                   IoWriteAccess,
+                                   &MappedAddress,
+                                   &LockVariable);
         if (!NT_SUCCESS(status1)) {
             return status1;
         }
@@ -3063,7 +3195,9 @@ Return Value:
         LockVariable = NULL;
     }
 
-    for (OpaqueSession = MmGetNextSession(NULL); OpaqueSession != NULL; OpaqueSession = MmGetNextSession(OpaqueSession)) {
+    for (OpaqueSession = MmGetNextSession(NULL);
+         OpaqueSession != NULL;
+         OpaqueSession = MmGetNextSession(OpaqueSession)) {
         SessionPoolTagInfo = (PSYSTEM_SESSION_POOLTAG_INFORMATION)((PUCHAR)MappedAddress + TotalSize);
 
         // If a specific session was requested, only extract that one.
@@ -3079,7 +3213,10 @@ Return Value:
                     ExGetSessionPoolTagInfo(NULL, 0, &Count, &AbsoluteCount);// Get absolute size for this session, ignore status as we must return the one above.
                 } else {
                     // Get pool tagging information for each session.
-                    status = ExGetSessionPoolTagInfo(SessionPoolTagInfo->TagInfo, SystemInformationLength - TotalSize + sizeof(SYSTEM_POOLTAG), &Count, &AbsoluteCount);
+                    status = ExGetSessionPoolTagInfo(SessionPoolTagInfo->TagInfo,
+                                                     SystemInformationLength - TotalSize + sizeof(SYSTEM_POOLTAG),
+                                                     &Count,
+                                                     &AbsoluteCount);
                     SessionPoolTagInfo->SessionId = CurrentSessionId;
                     SessionPoolTagInfo->Count = Count;
 
@@ -3116,7 +3253,9 @@ Return Value:
 }
 
 
-NTSTATUS ExpGetProcessorPowerInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG Length)
+NTSTATUS ExpGetProcessorPowerInformation(OUT PVOID SystemInformation,
+                                         IN ULONG SystemInformationLength,
+                                         OUT PULONG Length)
 {
     KAFFINITY                           currentAffinity;
     KAFFINITY                           processors;
@@ -3208,7 +3347,9 @@ exit_revert_and_unlock:
 }
 
 
-NTSTATUS ExpGetProcessorIdleInformation(OUT PVOID SystemInformation, IN  ULONG SystemInformationLength, OUT PULONG Length)
+NTSTATUS ExpGetProcessorIdleInformation(OUT PVOID SystemInformation,
+                                        IN  ULONG SystemInformationLength,
+                                        OUT PULONG Length)
 {
     KAFFINITY                           currentAffinity;
     KAFFINITY                           processors;
@@ -3423,7 +3564,9 @@ NTSTATUS ExpGetInstemulInformation(OUT PSYSTEM_VDM_INSTEMUL_INFO Info)
 
 
 #if i386
-NTSTATUS ExpGetStackTraceInformation(OUT PVOID SystemInformation, IN ULONG SystemInformationLength, OUT PULONG ReturnLength OPTIONAL)
+NTSTATUS ExpGetStackTraceInformation(OUT PVOID SystemInformation,
+                                     IN ULONG SystemInformationLength,
+                                     OUT PULONG ReturnLength OPTIONAL)
 {
     NTSTATUS Status;
     PRTL_PROCESS_BACKTRACES BackTraceInformation;
@@ -3470,13 +3613,13 @@ NTSTATUS ExpGetStackTraceInformation(OUT PVOID SystemInformation, IN ULONG Syste
                 BackTraceInfo += 1;
             }
         }
-    } finally{
+    } finally {
         DataBase->DumpInProgress = FALSE;
     }
 
-        if (ARGUMENT_PRESENT(ReturnLength)) {
-            *ReturnLength = RequiredLength;
-        }
+    if (ARGUMENT_PRESENT(ReturnLength)) {
+        *ReturnLength = RequiredLength;
+    }
 
     return Status;
 }
@@ -3507,7 +3650,12 @@ Return Value:
 
     *Length = 0;
 
-    Status = ExLockUserBuffer(SystemInformation, SystemInformationLength, KeGetPreviousMode(), IoWriteAccess, &LockInfo, &LockVariable);
+    Status = ExLockUserBuffer(SystemInformation,
+                              SystemInformationLength,
+                              KeGetPreviousMode(),
+                              IoWriteAccess,
+                              &LockInfo,
+                              &LockVariable);
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
@@ -3516,7 +3664,7 @@ Return Value:
     MmLockPageableSectionByHandle(ExPageLockHandle);
     try {
         Status = ExQuerySystemLockInformation(LockInfo, SystemInformationLength, Length);
-    } finally{
+    } finally {
         ExUnlockUserBuffer(LockVariable);
         MmUnlockPageableImageSection(ExPageLockHandle);
     }
@@ -3698,7 +3846,12 @@ Return Value:
     PAGED_CODE();
 
     *Length = 0;
-    Status = ExLockUserBuffer(SystemInformation, SystemInformationLength, KeGetPreviousMode(), IoWriteAccess, &HandleInfo, &LockVariable);
+    Status = ExLockUserBuffer(SystemInformation,
+                              SystemInformationLength,
+                              KeGetPreviousMode(),
+                              IoWriteAccess,
+                              &HandleInfo,
+                              &LockVariable);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -3706,7 +3859,7 @@ Return Value:
     Status = STATUS_SUCCESS;
     try {
         Status = ObGetHandleInformation(HandleInfo, SystemInformationLength, Length);
-    } finally{
+    } finally {
         ExUnlockUserBuffer(LockVariable);
     }
 
@@ -3739,7 +3892,12 @@ Return Value:
     PAGED_CODE();
 
     *Length = 0;
-    Status = ExLockUserBuffer(SystemInformation, SystemInformationLength, KeGetPreviousMode(), IoWriteAccess, &HandleInfo, &LockVariable);
+    Status = ExLockUserBuffer(SystemInformation,
+                              SystemInformationLength,
+                              KeGetPreviousMode(),
+                              IoWriteAccess,
+                              &HandleInfo,
+                              &LockVariable);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
@@ -3747,7 +3905,7 @@ Return Value:
     Status = STATUS_SUCCESS;
     try {
         Status = ObGetHandleInformationEx(HandleInfo, SystemInformationLength, Length);
-    } finally{
+    } finally {
         ExUnlockUserBuffer(LockVariable);
     }
 
@@ -3780,7 +3938,12 @@ Return Value:
     PAGED_CODE();
 
     *Length = 0;
-    Status = ExLockUserBuffer(SystemInformation, SystemInformationLength, KeGetPreviousMode(), IoWriteAccess, &ObjectInfo, &LockVariable);
+    Status = ExLockUserBuffer(SystemInformation,
+                              SystemInformationLength,
+                              KeGetPreviousMode(),
+                              IoWriteAccess,
+                              &ObjectInfo,
+                              &LockVariable);
     if (!NT_SUCCESS(Status)) {
         return(Status);
     }
@@ -3789,7 +3952,7 @@ Return Value:
 
     try {
         Status = ObGetObjectInformation(SystemInformation, ObjectInfo, SystemInformationLength, Length);
-    } finally{
+    } finally {
         ExUnlockUserBuffer(LockVariable);
     }
 
@@ -3797,13 +3960,11 @@ Return Value:
 }
 
 
-NTSTATUS ExpQueryModuleInformation(
-    IN PLIST_ENTRY LoadOrderListHead,
-    IN PLIST_ENTRY UserModeLoadOrderListHead,
-    OUT PRTL_PROCESS_MODULES ModuleInformation,
-    IN ULONG ModuleInformationLength,
-    OUT PULONG ReturnLength OPTIONAL
-)
+NTSTATUS ExpQueryModuleInformation(IN PLIST_ENTRY LoadOrderListHead,
+                                   IN PLIST_ENTRY UserModeLoadOrderListHead,
+                                   OUT PRTL_PROCESS_MODULES ModuleInformation,
+                                   IN ULONG ModuleInformationLength,
+                                   OUT PULONG ReturnLength OPTIONAL)
 {
     NTSTATUS Status;
     ULONG RequiredLength;
@@ -3838,7 +3999,7 @@ NTSTATUS ExpQueryModuleInformation(
             Status = RtlUnicodeStringToAnsiString(&AnsiString, &LdrDataTableEntry->FullDllName, FALSE);
             if (NT_SUCCESS(Status) || (Status == STATUS_BUFFER_OVERFLOW)) {
                 s = AnsiString.Buffer + AnsiString.Length;
-                while (s > AnsiString.Buffer && *--s) {
+                while (s > AnsiString.Buffer&&* --s) {
                     if (*s == (UCHAR)OBJ_NAME_PATH_SEPARATOR) {
                         s += 1;
                         break;
@@ -3878,7 +4039,7 @@ NTSTATUS ExpQueryModuleInformation(
                 Status = RtlUnicodeStringToAnsiString(&AnsiString, &LdrDataTableEntry->FullDllName, FALSE);
                 if (NT_SUCCESS(Status) || (Status == STATUS_BUFFER_OVERFLOW)) {
                     s = AnsiString.Buffer + AnsiString.Length;
-                    while (s > AnsiString.Buffer && *--s) {
+                    while (s > AnsiString.Buffer&&* --s) {
                         if (*s == (UCHAR)OBJ_NAME_PATH_SEPARATOR) {
                             s += 1;
                             break;
@@ -3915,10 +4076,12 @@ BOOLEAN ExIsProcessorFeaturePresent(__in ULONG ProcessorFeature)
 {
     BOOLEAN rv;
 
-    // On AMD64 systems legacy floating point, MMX, and 3D-Now are not supported for 64-bit applications (i.e., the legacy floating point state is not saved and restored).
+    // On AMD64 systems legacy floating point, MMX, 
+    // and 3D-Now are not supported for 64-bit applications (i.e., the legacy floating point state is not saved and restored).
     // Therefore, FALSE is always returned for these features.
 #if defined(_AMD64_)
-    if ((ProcessorFeature == PF_MMX_INSTRUCTIONS_AVAILABLE) || (ProcessorFeature == PF_3DNOW_INSTRUCTIONS_AVAILABLE)) {
+    if ((ProcessorFeature == PF_MMX_INSTRUCTIONS_AVAILABLE) ||
+        (ProcessorFeature == PF_3DNOW_INSTRUCTIONS_AVAILABLE)) {
         return FALSE;
     }
 #endif
@@ -3965,7 +4128,7 @@ Arguments:
             LegacyInfo->VetoList.Buffer = (PWSTR)(LegacyInfo + 1);
             RtlCopyMemory(LegacyInfo + 1, String.Buffer, String.Length);
         }
-    } finally{
+    } finally {
         if (VetoList) {
             ExFreePool(VetoList);
         }
@@ -4042,7 +4205,12 @@ Return Value:
     InitializeObjectAttributes(&ObjectAttributes, &KeyPath, OBJ_CASE_INSENSITIVE | OBJ_KERNEL_HANDLE, NULL, NULL);
     if (NT_SUCCESS(ZwOpenKey(&hKey, GENERIC_READ, &ObjectAttributes))) {
         KeyValueInformation = (PKEY_VALUE_PARTIAL_INFORMATION)KeyValueBuffer;
-        Status = ZwQueryValueKey(hKey, &KeyValueName, KeyValuePartialInformation, KeyValueInformation, sizeof(KeyValueBuffer), &ResultLength);
+        Status = ZwQueryValueKey(hKey,
+                                 &KeyValueName,
+                                 KeyValuePartialInformation,
+                                 KeyValueInformation,
+                                 sizeof(KeyValueBuffer),
+                                 &ResultLength);
         if (NT_SUCCESS(Status)) {
             if (KeyValueInformation->Type == REG_SZ && *((PWSTR)(KeyValueInformation->Data)) == L'1') {
                 bRet = TRUE;
@@ -4056,7 +4224,10 @@ Return Value:
 }
 
 
-NTSTATUS ExpGetSystemFirmwareTableInformation(IN OUT PVOID SystemFirmwareTableInformation, IN  KPROCESSOR_MODE PreviousMode, OUT PULONG ReturnLength OPTIONAL)
+NTSTATUS ExpGetSystemFirmwareTableInformation(IN OUT PVOID SystemFirmwareTableInformation,
+                                              IN  KPROCESSOR_MODE PreviousMode,
+                                              OUT PULONG ReturnLength OPTIONAL
+)
 /*
 Description:
     Look for the requested Firmware Table provider. if it exists, pass the request on to it and return the result.
@@ -4168,13 +4339,17 @@ Return Value:
 }
 
 
-NTSTATUS ExpRegisterFirmwareTableInformationHandler(IN OUT PVOID SystemInformation, IN ULONG SystemInformationLength, IN KPROCESSOR_MODE PreviousMode)
+NTSTATUS ExpRegisterFirmwareTableInformationHandler(IN OUT PVOID SystemInformation,
+                                                    IN ULONG SystemInformationLength,
+                                                    IN KPROCESSOR_MODE PreviousMode
+)
 /*
 Description:
     This routine registers and unregisters firmware table providers.
 Parameters:
     SystemInformation       - points to the SYSTEM_FIRMWARE_TABLE_HANDLER structure.
-    SystemInformationLength - returns the number of bytes written on success. if the provided buffer was too small, it returns the required size.
+    SystemInformationLength - returns the number of bytes written on success.
+                              if the provided buffer was too small, it returns the required size.
     PreviousMode            - Previous mode (Kernel / User).
 Return Value:
     STATUS_SUCCESS                  - On success.

@@ -215,46 +215,30 @@ const LARGE_INTEGER Magic86400000 = {0xfa67b90e, 0xc6d750eb};
 //  Local support routine
 
 
-ULONG
-ElapsedDaysToYears(
-    IN ULONG ElapsedDays
-)
-
+ULONG ElapsedDaysToYears(IN ULONG ElapsedDays)
 /*
-
 Routine Description:
-
     This routine computes the number of total years contained in the indicated
     number of elapsed days.  The computation is to first compute the number of
     400 years and subtract that it, then do the 100 years and subtract that out,
     then do the number of 4 years and subtract that out.  Then what we have left
     is the number of days with in a normalized 4 year block.  Normalized being that
     the first three years are not leap years.
-
 Arguments:
-
     ElapsedDays - Supplies the number of days to use
-
 Return Value:
-
-    ULONG - Returns the number of whole years contained within the input number
-        of days.
-
+    ULONG - Returns the number of whole years contained within the input number of days.
 */
-
 {
     ULONG NumberOf400s;
     ULONG NumberOf100s;
     ULONG NumberOf4s;
     ULONG Years;
 
-
     //  A 400 year time block is 365*400 + 400/4 - 400/100 + 400/400 = 146097 days
     //  long.  So we simply compute the number of whole 400 year block and the
     //  the number days contained in those whole blocks, and subtract if from the
     //  elapsed day total
-
-
     NumberOf400s = ElapsedDays / 146097;
     ElapsedDays -= NumberOf400s * 146097;
 
@@ -263,15 +247,11 @@ Return Value:
     //  The computation for the number of 100 year blocks is biased by 3/4 days per
     //  100 years to account for the extra leap day thrown in on the last year
     //  of each 400 year block.
-
-
     NumberOf100s = (ElapsedDays * 100 + 75) / 3652425;
     ElapsedDays -= NumberOf100s * 36524;
 
 
     //  A 4 year time block is 365*4 + 4/4 = 1461 days long.
-
-
     NumberOf4s = ElapsedDays / 1461;
     ElapsedDays -= NumberOf4s * 1461;
 
@@ -280,8 +260,6 @@ Return Value:
     //  100 year blocks time 100, 4 year blocks times 4, and the number of elapsed
     //  whole years, taking into account the 3/4 day per year needed to handle the
     //  leap year.
-
-
     Years = (NumberOf400s * 400) +
         (NumberOf100s * 100) +
         (NumberOf4s * 4) +
@@ -367,83 +345,44 @@ Return Value:
 //  Internal Support routine
 
 
-static
-VOID
-TimeToDaysAndFraction(
-    IN PLARGE_INTEGER Time,
-    OUT PULONG ElapsedDays,
-    OUT PULONG Milliseconds
-)
-
+static VOID TimeToDaysAndFraction(IN PLARGE_INTEGER Time, OUT PULONG ElapsedDays, OUT PULONG Milliseconds)
 /*
-
 Routine Description:
-
     This routine converts an input 64-bit time value to the number
-    of total elapsed days and the number of milliseconds in the
-    partial day.
-
+    of total elapsed days and the number of milliseconds in the partial day.
 Arguments:
-
     Time - Supplies the input time to convert from
-
     ElapsedDays - Receives the number of elapsed days
-
     Milliseconds - Receives the number of milliseconds in the partial day
-
 Return Value:
-
     None
-
 */
-
 {
     LARGE_INTEGER TotalMilliseconds;
     LARGE_INTEGER Temp;
 
-
     //  Convert the input time to total milliseconds
-
-
     TotalMilliseconds = Convert100nsToMilliseconds(*(PLARGE_INTEGER)Time);
 
-
     //  Convert milliseconds to total days
-
-
     Temp = ConvertMillisecondsToDays(TotalMilliseconds);
 
-
-    //  Set the elapsed days from temp, we've divided it enough so that
-    //  the high part must be zero.
-
-
+    //  Set the elapsed days from temp, we've divided it enough so that the high part must be zero.
     *ElapsedDays = Temp.LowPart;
-
 
     //  Calculate the exact number of milliseconds in the elapsed days
     //  and subtract that from the total milliseconds to figure out
     //  the number of milliseconds left in the partial day
-
-
     Temp.QuadPart = ConvertDaysToMilliseconds(*ElapsedDays);
-
     Temp.QuadPart = TotalMilliseconds.QuadPart - Temp.QuadPart;
-
 
     //  Set the fraction part from temp, the total number of milliseconds in
     //  a day guarantees that the high part must be zero.
-
-
     *Milliseconds = Temp.LowPart;
 
-
     //  And return to our caller
-
-
     return;
 }
-
 
 
 //  Internal Support routine
@@ -456,162 +395,93 @@ DaysAndFractionToTime(
     IN ULONG Milliseconds,
     OUT PLARGE_INTEGER Time
 )
-
 /*
-
 Routine Description:
-
     This routine converts an input elapsed day count and partial time
     in milliseconds to a 64-bit time value.
-
 Arguments:
-
     ElapsedDays - Supplies the number of elapsed days
-
     Milliseconds - Supplies the number of milliseconds in the partial day
-
     Time - Receives the output time to value
-
 Return Value:
-
     None
-
 */
-
 {
     LARGE_INTEGER Temp;
     LARGE_INTEGER Temp2;
 
-
     //  Calculate the exact number of milliseconds in the elapsed days.
-
-
     Temp.QuadPart = ConvertDaysToMilliseconds(ElapsedDays);
 
-
     //  Convert milliseconds to a large integer
-
-
     Temp2.LowPart = Milliseconds;
     Temp2.HighPart = 0;
 
-
     //  add milliseconds to the whole day milliseconds
-
-
     Temp.QuadPart = Temp.QuadPart + Temp2.QuadPart;
 
-
     //  Finally convert the milliseconds to 100ns resolution
-
-
     *(PLARGE_INTEGER)Time = ConvertMillisecondsTo100ns(Temp);
 
-
     //  and return to our caller
-
-
     return;
 }
 
 
-VOID
-RtlTimeToTimeFields(
-    IN PLARGE_INTEGER Time,
-    OUT PTIME_FIELDS TimeFields
-)
-
+VOID RtlTimeToTimeFields(IN PLARGE_INTEGER Time, OUT PTIME_FIELDS TimeFields)
 /*
-
 Routine Description:
-
     This routine converts an input 64-bit LARGE_INTEGER variable to its corresponding
     time field record.  It will tell the caller the year, month, day, hour,
-    minute, second, millisecond, and weekday corresponding to the input time
-    variable.
-
+    minute, second, millisecond, and weekday corresponding to the input time variable.
 Arguments:
-
     Time - Supplies the time value to interpret
-
     TimeFields - Receives a value corresponding to Time
-
 Return Value:
-
     None
-
 */
-
 {
     ULONG Years;
     ULONG Month;
     ULONG Days;
-
     ULONG Hours;
     ULONG Minutes;
     ULONG Seconds;
     ULONG Milliseconds;
 
-
     //  First divide the input time 64 bit time variable into
     //  the number of whole days and part days (in milliseconds)
-
-
     TimeToDaysAndFraction(Time, &Days, &Milliseconds);
-
 
     //  Compute which weekday it is and save it away now in the output
     //  variable.  We add the weekday of the base day to bias our computation
     //  which means that if one day has elapsed then we the weekday we want
     //  is the Jan 2nd, 1601.
-
-
     TimeFields->Weekday = (CSHORT)((Days + WEEKDAY_OF_1601) % 7);
-
 
     //  Calculate the number of whole years contained in the elapsed days
     //  For example if Days = 500 then Years = 1
-
-
     Years = ElapsedDaysToYears(Days);
-
 
     //  And subtract the number of whole years from our elapsed days
     //  For example if Days = 500, Years = 1, and the new days is equal
     //  to 500 - 365 (normal year).
-
-
     Days = Days - ElapsedYearsToDays(Years);
 
-
     //  Now test whether the year we are working on (i.e., The year
-    //  after the total number of elapsed years) is a leap year
-    //  or not.
-
-
+    //  after the total number of elapsed years) is a leap year or not.
     if (IsLeapYear(Years + 1)) {
-
-
         //  The current year is a leap year, so figure out what month
         //  it is, and then subtract the number of days preceding the
         //  month from the days to figure out what day of the month it is
-
-
         Month = LeapYearDayToMonth[Days];
         Days = Days - LeapYearDaysPrecedingMonth[Month];
-
     } else {
-
-
         //  The current year is a normal year, so figure out the month
         //  and days as described above for the leap year case
-
-
         Month = NormalYearDayToMonth[Days];
         Days = Days - NormalYearDaysPrecedingMonth[Month];
-
     }
-
 
     //  Now we need to compute the elapsed hour, minute, second, milliseconds
     //  from the millisecond variable.  This variable currently contains
@@ -619,34 +489,19 @@ Return Value:
     //  fit into a whole day.  To compute the hour, minute, second part
     //  we will actually do the arithmetic backwards computing milliseconds
     //  seconds, minutes, and then hours.  We start by computing the
-    //  number of whole seconds left in the day, and then computing
-    //  the millisecond remainder.
-
-
+    //  number of whole seconds left in the day, and then computing the millisecond remainder.
     Seconds = Milliseconds / 1000;
     Milliseconds = Milliseconds % 1000;
 
-
-    //  Now we compute the number of whole minutes left in the day
-    //  and the number of remainder seconds
-
-
+    //  Now we compute the number of whole minutes left in the day and the number of remainder seconds
     Minutes = Seconds / 60;
     Seconds = Seconds % 60;
 
-
-    //  Now compute the number of whole hours left in the day
-    //  and the number of remainder minutes
-
-
+    //  Now compute the number of whole hours left in the day and the number of remainder minutes
     Hours = Minutes / 60;
     Minutes = Minutes % 60;
 
-
-    //  As our final step we put everything into the time fields
-    //  output variable
-
-
+    //  As our final step we put everything into the time fields output variable
     TimeFields->Year = (CSHORT)(Years + 1601);
     TimeFields->Month = (CSHORT)(Month + 1);
     TimeFields->Day = (CSHORT)(Days + 1);
@@ -655,12 +510,10 @@ Return Value:
     TimeFields->Second = (CSHORT)Seconds;
     TimeFields->Milliseconds = (CSHORT)Milliseconds;
 
-
     //  and return to our caller
-
-
     return;
 }
+
 
 BOOLEAN
 RtlCutoverTimeToSystemTime(
@@ -672,24 +525,13 @@ RtlCutoverTimeToSystemTime(
 {
     TIME_FIELDS CurrentTimeFields;
 
-
     // Get the current system time
-
-
     RtlTimeToTimeFields(CurrentSystemTime, &CurrentTimeFields);
 
-
-    // check for absolute time field. If the year is specified,
-    // the the time is an absolute time
-
-
+    // check for absolute time field. If the year is specified, the the time is an absolute time
     if (CutoverTime->Year) {
-
-
         // Convert this to a time value and make sure it
         // is greater than the current system time
-
-
         if (!RtlTimeFieldsToTime(CutoverTime, SystemTime)) {
             return FALSE;
         }
@@ -697,9 +539,9 @@ RtlCutoverTimeToSystemTime(
         if (SystemTime->QuadPart < CurrentSystemTime->QuadPart) {
             return FALSE;
         }
+        
         return TRUE;
     } else {
-
         TIME_FIELDS WorkingTimeField;
         TIME_FIELDS ScratchTimeField;
         LARGE_INTEGER ScratchTime;
@@ -716,11 +558,7 @@ RtlCutoverTimeToSystemTime(
         // the convention is the Day is 1-5 specifying 1st, 2nd... Last
         // day within the month. The day is WeekDay.
 
-
-
         // Compute the target month and year
-
-
         TargetWeekdayNumber = CutoverTime->Day;
         if (TargetWeekdayNumber > 5 || TargetWeekdayNumber == 0) {
             return FALSE;
@@ -752,37 +590,26 @@ RtlCutoverTimeToSystemTime(
         WorkingTimeField.Milliseconds = CutoverTime->Milliseconds;
         WorkingTimeField.Weekday = 0;
 
-
         // Convert to time and then back to time fields so we can determine
         // the weekday of day 1 on the month
-
-
         if (!RtlTimeFieldsToTime(&WorkingTimeField, &ScratchTime)) {
             return FALSE;
         }
         RtlTimeToTimeFields(&ScratchTime, &ScratchTimeField);
 
-
         // Compute bias to target weekday
-
         if (ScratchTimeField.Weekday > TargetWeekday) {
             WorkingTimeField.Day += (7 - (ScratchTimeField.Weekday - TargetWeekday));
         } else if (ScratchTimeField.Weekday < TargetWeekday) {
             WorkingTimeField.Day += (TargetWeekday - ScratchTimeField.Weekday);
         }
 
-
         // We are now at the first weekday that matches our target weekday
-
-
         BestWeekdayDate = WorkingTimeField.Day;
         WorkingWeekdayNumber = 1;
 
-
         // Keep going one week at a time until we either pass the
         // target weekday, or we match exactly
-
-
         while (WorkingWeekdayNumber < TargetWeekdayNumber) {
             WorkingTimeField.Day += 7;
             if (!RtlTimeFieldsToTime(&WorkingTimeField, &ScratchTime)) {
@@ -794,11 +621,8 @@ RtlCutoverTimeToSystemTime(
         }
         WorkingTimeField.Day = BestWeekdayDate;
 
-
         // If the months match, and the date is less than the current
         // date, then be have to go to next year.
-
-
         if (!RtlTimeFieldsToTime(&WorkingTimeField, &ScratchTime)) {
             return FALSE;
         }
@@ -809,7 +633,6 @@ RtlCutoverTimeToSystemTime(
                 goto try_next_year;
             }
             if (WorkingTimeField.Day == CurrentTimeFields.Day) {
-
                 if (ScratchTime.QuadPart < CurrentSystemTime->QuadPart) {
                     MonthMatches = FALSE;
                     TargetYear++;
@@ -824,32 +647,18 @@ RtlCutoverTimeToSystemTime(
 }
 
 
-BOOLEAN
-RtlTimeFieldsToTime(
-    IN PTIME_FIELDS TimeFields,
-    OUT PLARGE_INTEGER Time
-)
-
+BOOLEAN RtlTimeFieldsToTime(IN PTIME_FIELDS TimeFields, OUT PLARGE_INTEGER Time)
 /*
-
 Routine Description:
-
     This routine converts an input Time Field variable to a 64-bit NT time
     value.  It ignores the WeekDay of the time field.
-
 Arguments:
-
     TimeFields - Supplies the time field record to use
-
     Time - Receives the NT Time corresponding to TimeFields
-
 Return Value:
-
     BOOLEAN - TRUE if the Time Fields is well formed and within the
         range of time expressible by LARGE_INTEGER and FALSE otherwise.
-
 */
-
 {
     ULONG Year;
     ULONG Month;
@@ -858,19 +667,14 @@ Return Value:
     ULONG Minute;
     ULONG Second;
     ULONG Milliseconds;
-
     ULONG ElapsedDays;
     ULONG ElapsedMilliseconds;
-
 
     //  Load the time field elements into local variables.  This should
     //  ensure that the compiler will only load the input elements
     //  once, even if there are alias problems.  It will also make
     //  everything (except the year) zero based.  We cannot zero base the
-    //  year because then we can't recognize cases where we're given a year
-    //  before 1601.
-
-
+    //  year because then we can't recognize cases where we're given a year before 1601.
     Year = TimeFields->Year;
     Month = TimeFields->Month - 1;
     Day = TimeFields->Day - 1;
@@ -879,11 +683,8 @@ Return Value:
     Second = TimeFields->Second;
     Milliseconds = TimeFields->Milliseconds;
 
-
     //  Check that the time field input variable contains
     //  proper values.
-
-
 
     //  Year 30827 check: Time (in 100ns units) is stored in a
     //  64-bit integer, rooted at 1/1/1601.
@@ -898,7 +699,6 @@ Return Value:
     //  I'm guessing it's undesirable to support part of the
     //  year 30828.
 
-
     if ((TimeFields->Month < 1) ||
         (TimeFields->Day < 1) ||
         (Year < 1601) ||
@@ -909,79 +709,46 @@ Return Value:
         (Minute > 59) ||
         (Second > 59) ||
         (Milliseconds > 999)) {
-
         return FALSE;
-
     }
-
 
     //  Compute the total number of elapsed days represented by the
     //  input time field variable
-
-
     ElapsedDays = ElapsedYearsToDays(Year - 1601);
-
     if (IsLeapYear(Year - 1600)) {
-
         ElapsedDays += LeapYearDaysPrecedingMonth[Month];
-
     } else {
-
         ElapsedDays += NormalYearDaysPrecedingMonth[Month];
-
     }
 
     ElapsedDays += Day;
 
-
     //  Now compute the total number of milliseconds in the fractional
     //  part of the day
-
-
     ElapsedMilliseconds = (((Hour * 60) + Minute) * 60 + Second) * 1000 + Milliseconds;
-
 
     //  Given the elapsed days and milliseconds we can now build
     //  the output time variable
-
-
     DaysAndFractionToTime(ElapsedDays, ElapsedMilliseconds, Time);
 
-
     //  And return to our caller
-
-
     return TRUE;
 }
 
 
-VOID
-RtlTimeToElapsedTimeFields(
-    IN PLARGE_INTEGER Time,
-    OUT PTIME_FIELDS TimeFields
-)
-
+VOID RtlTimeToElapsedTimeFields(IN PLARGE_INTEGER Time, OUT PTIME_FIELDS TimeFields)
 /*
-
 Routine Description:
-
     This routine converts an input 64-bit LARGE_INTEGER variable to its corresponding
     time field record.  The input time is the elapsed time (difference
     between to times).  It will tell the caller the number of days, hour,
     minute, second, and milliseconds that the elapsed time represents.
-
 Arguments:
-
     Time - Supplies the time value to interpret
-
     TimeFields - Receives a value corresponding to Time
-
 Return Value:
-
     None
-
 */
-
 {
     ULONG Days;
     ULONG Hours;
@@ -989,13 +756,9 @@ Return Value:
     ULONG Seconds;
     ULONG Milliseconds;
 
-
     //  First divide the input time 64 bit time variable into
     //  the number of whole days and part days (in milliseconds)
-
-
     TimeToDaysAndFraction(Time, &Days, &Milliseconds);
-
 
     //  Now we need to compute the elapsed hour, minute, second, milliseconds
     //  from the millisecond variable.  This variable currently contains
@@ -1003,34 +766,20 @@ Return Value:
     //  fit into a whole day.  To compute the hour, minute, second part
     //  we will actually do the arithmetic backwards computing milliseconds
     //  seconds, minutes, and then hours.  We start by computing the
-    //  number of whole seconds left in the day, and then computing
-    //  the millisecond remainder.
-
-
+    //  number of whole seconds left in the day, and then computing the millisecond remainder.
     Seconds = Milliseconds / 1000;
     Milliseconds = Milliseconds % 1000;
 
-
     //  Now we compute the number of whole minutes left in the day
     //  and the number of remainder seconds
-
-
     Minutes = Seconds / 60;
     Seconds = Seconds % 60;
 
-
-    //  Now compute the number of whole hours left in the day
-    //  and the number of remainder minutes
-
-
+    //  Now compute the number of whole hours left in the day and the number of remainder minutes
     Hours = Minutes / 60;
     Minutes = Minutes % 60;
 
-
-    //  As our final step we put everything into the time fields
-    //  output variable
-
-
+    //  As our final step we put everything into the time fields output variable
     TimeFields->Year = 0;
     TimeFields->Month = 0;
     TimeFields->Day = (CSHORT)Days;
@@ -1039,343 +788,183 @@ Return Value:
     TimeFields->Second = (CSHORT)Seconds;
     TimeFields->Milliseconds = (CSHORT)Milliseconds;
 
-
     //  and return to our caller
-
-
     return;
 }
 
 
-BOOLEAN
-RtlTimeToSecondsSince1980(
-    IN PLARGE_INTEGER Time,
-    OUT PULONG ElapsedSeconds
-)
-
+BOOLEAN RtlTimeToSecondsSince1980(IN PLARGE_INTEGER Time, OUT PULONG ElapsedSeconds)
 /*
-
 Routine Description:
-
     This routine converts an input 64-bit NT Time variable to the
     number of seconds since the start of 1980.  The NT time must be
     within the range 1980 to around 2115.
-
 Arguments:
-
     Time - Supplies the Time to convert from
-
-    ElapsedSeconds - Receives the number of seconds since the start of 1980
-        denoted by Time
-
+    ElapsedSeconds - Receives the number of seconds since the start of 1980 denoted by Time
 Return Value:
-
-    BOOLEAN - TRUE if the input Time is within a range expressible by
-        ElapsedSeconds and FALSE otherwise
-
+    BOOLEAN - TRUE if the input Time is within a range expressible by ElapsedSeconds and FALSE otherwise
 */
-
 {
     LARGE_INTEGER Seconds;
 
-
     //  First convert time to seconds since 1601
-
-
     Seconds = Convert100nsToSeconds(*(PLARGE_INTEGER)Time);
 
-
     //  Then subtract the number of seconds from 1601 to 1980.
-
-
     Seconds.QuadPart = Seconds.QuadPart - SecondsToStartOf1980.QuadPart;
-
 
     //  If the results is negative then the date was before 1980 or if
     //  the results is greater than a ulong then its too far in the
     //  future so we return FALSE
-
-
     if (Seconds.HighPart != 0) {
-
         return FALSE;
-
     }
 
-
     //  Otherwise we have the answer
-
-
     *ElapsedSeconds = Seconds.LowPart;
 
-
     //  And return to our caller
-
-
     return TRUE;
 }
 
 
-VOID
-RtlSecondsSince1980ToTime(
-    IN ULONG ElapsedSeconds,
-    OUT PLARGE_INTEGER Time
-)
-
+VOID RtlSecondsSince1980ToTime(IN ULONG ElapsedSeconds, OUT PLARGE_INTEGER Time)
 /*
-
 Routine Description:
-
-    This routine converts the seconds since the start of 1980 to an
-    NT Time value.
-
+    This routine converts the seconds since the start of 1980 to an NT Time value.
 Arguments:
-
-    ElapsedSeconds - Supplies the number of seconds from the start of 1980
-        to convert from
-
+    ElapsedSeconds - Supplies the number of seconds from the start of 1980 to convert from
     Time - Receives the converted Time value
-
 Return Value:
-
     None
-
 */
-
 {
     LARGE_INTEGER Seconds;
 
-
     //  Move elapsed seconds to a large integer
-
-
     Seconds.LowPart = ElapsedSeconds;
     Seconds.HighPart = 0;
 
-
     //  convert number of seconds from 1980 to number of seconds from 1601
-
-
     Seconds.QuadPart = Seconds.QuadPart + SecondsToStartOf1980.QuadPart;
 
-
     //  Convert seconds to 100ns resolution
-
-
     *(PLARGE_INTEGER)Time = ConvertSecondsTo100ns(Seconds);
 
-
     //  and return to our caller
-
-
     return;
 }
 
 
-BOOLEAN
-RtlTimeToSecondsSince1970(
-    IN PLARGE_INTEGER Time,
-    OUT PULONG ElapsedSeconds
-)
-
+BOOLEAN RtlTimeToSecondsSince1970(IN PLARGE_INTEGER Time, OUT PULONG ElapsedSeconds)
 /*
-
 Routine Description:
-
     This routine converts an input 64-bit NT Time variable to the
     number of seconds since the start of 1970.  The NT time must be
     within the range 1970 to around 2105.
-
 Arguments:
-
     Time - Supplies the Time to convert from
-
-    ElapsedSeconds - Receives the number of seconds since the start of 1970
-        denoted by Time
-
+    ElapsedSeconds - Receives the number of seconds since the start of 1970 denoted by Time
 Return Value:
-
-    BOOLEAN - TRUE if the input time is within the range expressible by
-        ElapsedSeconds and FALSE otherwise
-
+    BOOLEAN - TRUE if the input time is within the range expressible by ElapsedSeconds and FALSE otherwise
 */
-
 {
     LARGE_INTEGER Seconds;
 
-
     //  First convert time to seconds since 1601
-
-
     Seconds = Convert100nsToSeconds(*(PLARGE_INTEGER)Time);
 
-
     //  Then subtract the number of seconds from 1601 to 1970.
-
-
     Seconds.QuadPart = Seconds.QuadPart - SecondsToStartOf1970.QuadPart;
-
 
     //  If the results is negative then the date was before 1970 or if
     //  the results is greater than a ulong then its too far in the
     //  future so we return FALSE
-
-
     if (Seconds.HighPart != 0) {
-
         return FALSE;
-
     }
 
-
     //  Otherwise we have the answer
-
-
     *ElapsedSeconds = Seconds.LowPart;
 
-
     //  And return to our caller
-
-
     return TRUE;
 }
 
 
-VOID
-RtlSecondsSince1970ToTime(
-    IN ULONG ElapsedSeconds,
-    OUT PLARGE_INTEGER Time
-)
-
+VOID RtlSecondsSince1970ToTime(IN ULONG ElapsedSeconds, OUT PLARGE_INTEGER Time)
 /*
-
 Routine Description:
-
-    This routine converts the seconds since the start of 1970 to an
-    NT Time value
-
+    This routine converts the seconds since the start of 1970 to an NT Time value
 Arguments:
-
-    ElapsedSeconds - Supplies the number of seconds from the start of 1970
-        to convert from
-
+    ElapsedSeconds - Supplies the number of seconds from the start of 1970 to convert from
     Time - Receives the converted Time value
-
 Return Value:
-
     None
-
 */
-
 {
     LARGE_INTEGER Seconds;
 
-
     //  Move elapsed seconds to a large integer
-
-
     Seconds.LowPart = ElapsedSeconds;
     Seconds.HighPart = 0;
 
-
     //  Convert number of seconds from 1970 to number of seconds from 1601
-
-
     Seconds.QuadPart = Seconds.QuadPart + SecondsToStartOf1970.QuadPart;
 
-
     //  Convert seconds to 100ns resolution
-
-
     *(PLARGE_INTEGER)Time = ConvertSecondsTo100ns(Seconds);
 
-
     //  return to our caller
-
-
     return;
 }
 
-NTSTATUS
-RtlSystemTimeToLocalTime(
-    IN PLARGE_INTEGER SystemTime,
-    OUT PLARGE_INTEGER LocalTime
-)
+
+NTSTATUS RtlSystemTimeToLocalTime(IN PLARGE_INTEGER SystemTime, OUT PLARGE_INTEGER LocalTime)
 {
     NTSTATUS Status;
     SYSTEM_TIMEOFDAY_INFORMATION TimeOfDay;
 
-    Status = ZwQuerySystemInformation(
-        SystemTimeOfDayInformation,
-        &TimeOfDay,
-        sizeof(TimeOfDay),
-        NULL
-    );
+    Status = ZwQuerySystemInformation(SystemTimeOfDayInformation, &TimeOfDay, sizeof(TimeOfDay), NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
 
-
     // LocalTime = SystemTime - TimeZoneBias
-
-
     LocalTime->QuadPart = SystemTime->QuadPart - TimeOfDay.TimeZoneBias.QuadPart;
 
     return STATUS_SUCCESS;
 }
 
-NTSTATUS
-RtlLocalTimeToSystemTime(
-    IN PLARGE_INTEGER LocalTime,
-    OUT PLARGE_INTEGER SystemTime
-)
-{
 
+NTSTATUS RtlLocalTimeToSystemTime(IN PLARGE_INTEGER LocalTime, OUT PLARGE_INTEGER SystemTime)
+{
     NTSTATUS Status;
     SYSTEM_TIMEOFDAY_INFORMATION TimeOfDay;
 
-    Status = ZwQuerySystemInformation(
-        SystemTimeOfDayInformation,
-        &TimeOfDay,
-        sizeof(TimeOfDay),
-        NULL
-    );
+    Status = ZwQuerySystemInformation(SystemTimeOfDayInformation, &TimeOfDay, sizeof(TimeOfDay), NULL);
     if (!NT_SUCCESS(Status)) {
         return Status;
     }
 
-
     // SystemTime = LocalTime + TimeZoneBias
-
-
     SystemTime->QuadPart = LocalTime->QuadPart + TimeOfDay.TimeZoneBias.QuadPart;
 
     return STATUS_SUCCESS;
 }
 
 
-ULONG
-RtlGetTickCount(
-    VOID
-)
+ULONG RtlGetTickCount(VOID)
 /*
-
 Routine Description:
-
     This routine returns the current tick count for the system.
     This routine is provided for compatibility only
-
 Arguments:
-
     None.
-
 Return Value:
-
     System tick count.
-
 */
-
 {
     return NtGetTickCount();
 }
-
