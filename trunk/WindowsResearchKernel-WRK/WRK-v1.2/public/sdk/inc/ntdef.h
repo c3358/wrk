@@ -228,7 +228,7 @@ Abstract:
 
 // Void
 
-typedef void *PVOID;
+typedef void * PVOID;
 typedef void * POINTER_64 PVOID64;
 
 // end_winnt
@@ -281,27 +281,27 @@ typedef long LONG;
 
 typedef wchar_t WCHAR;    // wc,   16-bit UNICODE character
 
-typedef WCHAR *PWCHAR, *LPWCH, *PWCH;
-typedef CONST WCHAR *LPCWCH, *PCWCH;
-typedef __nullterminated WCHAR *NWPSTR, *LPWSTR, *PWSTR;
-typedef __nullterminated PWSTR *PZPWSTR;
-typedef __nullterminated CONST PWSTR *PCZPWSTR;
-typedef __nullterminated WCHAR UNALIGNED *LPUWSTR, *PUWSTR;
-typedef __nullterminated CONST WCHAR *LPCWSTR, *PCWSTR;
-typedef __nullterminated PCWSTR *PZPCWSTR;
-typedef __nullterminated CONST WCHAR UNALIGNED *LPCUWSTR, *PCUWSTR;
+typedef WCHAR * PWCHAR, * LPWCH, * PWCH;
+typedef CONST WCHAR * LPCWCH, * PCWCH;
+typedef __nullterminated WCHAR * NWPSTR, * LPWSTR, * PWSTR;
+typedef __nullterminated PWSTR * PZPWSTR;
+typedef __nullterminated CONST PWSTR * PCZPWSTR;
+typedef __nullterminated WCHAR UNALIGNED * LPUWSTR, * PUWSTR;
+typedef __nullterminated CONST WCHAR * LPCWSTR, * PCWSTR;
+typedef __nullterminated PCWSTR * PZPCWSTR;
+typedef __nullterminated CONST WCHAR UNALIGNED * LPCUWSTR, * PCUWSTR;
 
 
 // ANSI (Multi-byte Character) types
 
-typedef CHAR *PCHAR, *LPCH, *PCH;
-typedef CONST CHAR *LPCCH, *PCCH;
+typedef CHAR * PCHAR, * LPCH, * PCH;
+typedef CONST CHAR * LPCCH, * PCCH;
 
-typedef __nullterminated CHAR *NPSTR, *LPSTR, *PSTR;
-typedef __nullterminated PSTR *PZPSTR;
-typedef __nullterminated CONST PSTR *PCZPSTR;
-typedef __nullterminated CONST CHAR *LPCSTR, *PCSTR;
-typedef __nullterminated PCSTR *PZPCSTR;
+typedef __nullterminated CHAR * NPSTR, * LPSTR, * PSTR;
+typedef __nullterminated PSTR * PZPSTR;
+typedef __nullterminated CONST PSTR * PCZPSTR;
+typedef __nullterminated CONST CHAR * LPCSTR, * PCSTR;
+typedef __nullterminated PCSTR * PZPCSTR;
 
 
 // Neutral ANSI/UNICODE types and macros
@@ -309,8 +309,8 @@ typedef __nullterminated PCSTR *PZPCSTR;
 #ifdef  UNICODE                     // r_winnt
 
 #ifndef _TCHAR_DEFINED
-typedef WCHAR TCHAR, *PTCHAR;
-typedef WCHAR TUCHAR, *PTUCHAR;
+typedef WCHAR TCHAR, * PTCHAR;
+typedef WCHAR TUCHAR, * PTUCHAR;
 #define _TCHAR_DEFINED
 #endif /* !_TCHAR_DEFINED */
 
@@ -325,8 +325,8 @@ typedef LPWSTR LP;
 #else   /* UNICODE */               // r_winnt
 
 #ifndef _TCHAR_DEFINED
-typedef char TCHAR, *PTCHAR;
-typedef unsigned char TUCHAR, *PTUCHAR;
+typedef char TCHAR, * PTCHAR;
+typedef unsigned char TUCHAR, * PTUCHAR;
 #define _TCHAR_DEFINED
 #endif /* !_TCHAR_DEFINED */
 
@@ -360,9 +360,9 @@ typedef struct _QUAD {
 // Pointer to Basics
 
 
-typedef SHORT *PSHORT;  // winnt
-typedef LONG *PLONG;    // winnt
-typedef QUAD *PQUAD;
+typedef SHORT * PSHORT;  // winnt
+typedef LONG * PLONG;    // winnt
+typedef QUAD * PQUAD;
 
 
 // Unsigned Basics
@@ -378,14 +378,14 @@ typedef QUAD UQUAD;
 
 
 // Pointer to Unsigned Basics
-typedef UCHAR *PUCHAR;
-typedef USHORT *PUSHORT;
-typedef ULONG *PULONG;
-typedef UQUAD *PUQUAD;
+typedef UCHAR * PUCHAR;
+typedef USHORT * PUSHORT;
+typedef ULONG * PULONG;
+typedef UQUAD * PUQUAD;
 
 // Signed characters
 typedef signed char SCHAR;
-typedef SCHAR *PSCHAR;
+typedef SCHAR * PSCHAR;
 
 #ifndef NO_STRICT
 #ifndef STRICT
@@ -400,13 +400,13 @@ typedef SCHAR *PSCHAR;
 // begin_winnt
 
 #ifdef STRICT
-typedef void *HANDLE;
+typedef void * HANDLE;
 #define DECLARE_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
 #else
 typedef PVOID HANDLE;
 #define DECLARE_HANDLE(name) typedef HANDLE name
 #endif
-typedef HANDLE *PHANDLE;
+typedef HANDLE * PHANDLE;
 
 
 // Flag (bit) fields
@@ -425,9 +425,9 @@ typedef LONG HRESULT;
 #endif // !_HRESULT_DEFINED
 
 #ifdef __cplusplus
-    #define EXTERN_C    extern "C"
+#define EXTERN_C    extern "C"
 #else
-    #define EXTERN_C    extern
+#define EXTERN_C    extern
 #endif
 
 #if defined(_WIN32)
@@ -484,9 +484,9 @@ typedef char CCHAR;          // winnt
 typedef short CSHORT;
 typedef ULONG CLONG;
 
-typedef CCHAR *PCCHAR;
-typedef CSHORT *PCSHORT;
-typedef CLONG *PCLONG;
+typedef CCHAR * PCCHAR;
+typedef CSHORT * PCSHORT;
+typedef CLONG * PCLONG;
 
 // end_ntminiport end_ntndis end_ntminitape
 
@@ -503,7 +503,7 @@ typedef USHORT LANGID;      // winnt
 
 
 typedef ULONG LOGICAL;
-typedef ULONG *PLOGICAL;
+typedef ULONG * PLOGICAL;
 
 // begin_ntndis begin_windbgkd
 
@@ -512,7 +512,7 @@ typedef ULONG *PLOGICAL;
 
 typedef LONG NTSTATUS;
 /*lint -save -e624 */  // Don't complain about different typedefs.
-typedef NTSTATUS *PNTSTATUS;
+typedef NTSTATUS * PNTSTATUS;
 /*lint -restore */  // Resume checking for different typedefs.
 
 
@@ -611,7 +611,7 @@ typedef struct _FLOAT128 {
     __int64 HighPart;
 } FLOAT128;
 
-typedef FLOAT128 *PFLOAT128;
+typedef FLOAT128 * PFLOAT128;
 
 // end_winnt
 
@@ -636,8 +636,8 @@ typedef double ULONGLONG;
 
 #endif
 
-typedef LONGLONG *PLONGLONG;
-typedef ULONGLONG *PULONGLONG;
+typedef LONGLONG * PLONGLONG;
+typedef ULONGLONG * PULONGLONG;
 
 // Update Sequence Number
 
@@ -659,7 +659,7 @@ typedef union _LARGE_INTEGER {
     LONGLONG QuadPart;
 } LARGE_INTEGER;
 
-typedef LARGE_INTEGER *PLARGE_INTEGER;
+typedef LARGE_INTEGER * PLARGE_INTEGER;
 
 #if defined(MIDL_PASS)
 typedef struct _ULARGE_INTEGER {
@@ -677,7 +677,7 @@ typedef union _ULARGE_INTEGER {
     ULONGLONG QuadPart;
 } ULARGE_INTEGER;
 
-typedef ULARGE_INTEGER *PULARGE_INTEGER;
+typedef ULARGE_INTEGER * PULARGE_INTEGER;
 
 // end_ntminiport end_ntndis end_ntminitape
 
@@ -689,11 +689,11 @@ typedef ULARGE_INTEGER *PULARGE_INTEGER;
 typedef struct _LUID {
     ULONG LowPart;
     LONG HighPart;
-} LUID, *PLUID;
+} LUID, * PLUID;
 
 #define _DWORDLONG_
 typedef ULONGLONG  DWORDLONG;
-typedef DWORDLONG *PDWORDLONG;
+typedef DWORDLONG * PDWORDLONG;
 
 // end_winnt
 
@@ -703,7 +703,7 @@ typedef DWORDLONG *PDWORDLONG;
 // Physical address.
 
 
-typedef LARGE_INTEGER PHYSICAL_ADDRESS, *PPHYSICAL_ADDRESS;
+typedef LARGE_INTEGER PHYSICAL_ADDRESS, * PPHYSICAL_ADDRESS;
 
 // end_ntminiport end_ntndis
 
@@ -743,24 +743,24 @@ typedef LARGE_INTEGER PHYSICAL_ADDRESS, *PPHYSICAL_ADDRESS;
 
 ULONGLONG
 NTAPI
-Int64ShllMod32 (
+Int64ShllMod32(
     ULONGLONG Value,
     ULONG ShiftCount
-    );
+);
 
 LONGLONG
 NTAPI
-Int64ShraMod32 (
+Int64ShraMod32(
     LONGLONG Value,
     ULONG ShiftCount
-    );
+);
 
 ULONGLONG
 NTAPI
-Int64ShrlMod32 (
+Int64ShrlMod32(
     ULONGLONG Value,
     ULONG ShiftCount
-    );
+);
 
 #if _MSC_VER >= 1200
 #pragma warning(push)
@@ -769,15 +769,15 @@ Int64ShrlMod32 (
 
 __inline ULONGLONG
 NTAPI
-Int64ShllMod32 (
+Int64ShllMod32(
     ULONGLONG Value,
     ULONG ShiftCount
-    )
+)
 {
-    __asm    {
+    __asm {
         mov     ecx, ShiftCount
-        mov     eax, dword ptr [Value]
-        mov     edx, dword ptr [Value+4]
+        mov     eax, dword ptr[Value]
+        mov     edx, dword ptr[Value + 4]
         shld    edx, eax, cl
         shl     eax, cl
     }
@@ -785,15 +785,15 @@ Int64ShllMod32 (
 
 __inline LONGLONG
 NTAPI
-Int64ShraMod32 (
+Int64ShraMod32(
     LONGLONG Value,
     ULONG ShiftCount
-    )
+)
 {
     __asm {
         mov     ecx, ShiftCount
-        mov     eax, dword ptr [Value]
-        mov     edx, dword ptr [Value+4]
+        mov     eax, dword ptr[Value]
+        mov     edx, dword ptr[Value + 4]
         shrd    eax, edx, cl
         sar     edx, cl
     }
@@ -801,15 +801,15 @@ Int64ShraMod32 (
 
 __inline ULONGLONG
 NTAPI
-Int64ShrlMod32 (
+Int64ShrlMod32(
     ULONGLONG Value,
     ULONG ShiftCount
-    )
+)
 {
-    __asm    {
+    __asm {
         mov     ecx, ShiftCount
-        mov     eax, dword ptr [Value]
-        mov     edx, dword ptr [Value+4]
+        mov     eax, dword ptr[Value]
+        mov     edx, dword ptr[Value + 4]
         shrd    eax, edx, cl
         shr     edx, cl
     }
@@ -858,33 +858,33 @@ extern "C" {
 #define RotateRight8 _rotr8
 #define RotateRight16 _rotr16
 
-unsigned char
-__cdecl
-_rotl8 (
-    IN unsigned char Value,
-    IN unsigned char Shift
-    );
+    unsigned char
+        __cdecl
+        _rotl8(
+            IN unsigned char Value,
+            IN unsigned char Shift
+        );
 
-unsigned short
-__cdecl
-_rotl16 (
-    IN unsigned short Value,
-    IN unsigned char Shift
-    );
+    unsigned short
+        __cdecl
+        _rotl16(
+            IN unsigned short Value,
+            IN unsigned char Shift
+        );
 
-unsigned char
-__cdecl
-_rotr8 (
-    IN unsigned char Value,
-    IN unsigned char Shift
-    );
+    unsigned char
+        __cdecl
+        _rotr8(
+            IN unsigned char Value,
+            IN unsigned char Shift
+        );
 
-unsigned short
-__cdecl
-_rotr16 (
-    IN unsigned short Value,
-    IN unsigned char Shift
-    );
+    unsigned short
+        __cdecl
+        _rotr16(
+            IN unsigned short Value,
+            IN unsigned char Shift
+        );
 
 #pragma intrinsic(_rotl8)
 #pragma intrinsic(_rotl16)
@@ -900,33 +900,33 @@ _rotr16 (
 #define RotateRight32 _rotr
 #define RotateRight64 _rotr64
 
-unsigned int
-__cdecl
-_rotl (
-    IN unsigned int Value,
-    IN int Shift
-    );
+    unsigned int
+        __cdecl
+        _rotl(
+            IN unsigned int Value,
+            IN int Shift
+        );
 
-unsigned __int64
-__cdecl
-_rotl64 (
-    IN unsigned __int64 Value,
-    IN int Shift
-    );
+    unsigned __int64
+        __cdecl
+        _rotl64(
+            IN unsigned __int64 Value,
+            IN int Shift
+        );
 
-unsigned int
-__cdecl
-_rotr (
-    IN unsigned int Value,
-    IN int Shift
-    );
+    unsigned int
+        __cdecl
+        _rotr(
+            IN unsigned int Value,
+            IN int Shift
+        );
 
-unsigned __int64
-__cdecl
-_rotr64 (
-    IN unsigned __int64 Value,
-    IN int Shift
-    );
+    unsigned __int64
+        __cdecl
+        _rotr64(
+            IN unsigned __int64 Value,
+            IN int Shift
+        );
 
 #pragma intrinsic(_rotl)
 #pragma intrinsic(_rotl64)
@@ -943,37 +943,31 @@ _rotr64 (
 
 
 // Event type
-
-
 typedef enum _EVENT_TYPE {
     NotificationEvent,
     SynchronizationEvent
-    } EVENT_TYPE;
+} EVENT_TYPE;
 
 
 // Timer type
-
-
 typedef enum _TIMER_TYPE {
     NotificationTimer,
     SynchronizationTimer
-    } TIMER_TYPE;
+} TIMER_TYPE;
 
 
 // Wait type
-
-
 typedef enum _WAIT_TYPE {
     WaitAll,
     WaitAny
-    } WAIT_TYPE;
+} WAIT_TYPE;
 
 
 // Pointer to an Asciiz string
 
 
-typedef CHAR *PSZ;
-typedef CONST char *PCSZ;
+typedef CHAR * PSZ;
+typedef CONST char * PCSZ;
 
 // begin_ntndis
 
@@ -986,18 +980,18 @@ typedef struct _STRING {
     USHORT Length;
     USHORT MaximumLength;
 #ifdef MIDL_PASS
-    [size_is(MaximumLength), length_is(Length) ]
+    [size_is(MaximumLength), length_is(Length)]
 #endif // MIDL_PASS
     PCHAR Buffer;
 } STRING;
-typedef STRING *PSTRING;
+typedef STRING * PSTRING;
 
 typedef STRING ANSI_STRING;
 typedef PSTRING PANSI_STRING;
 
 typedef STRING OEM_STRING;
 typedef PSTRING POEM_STRING;
-typedef CONST STRING* PCOEM_STRING;
+typedef CONST STRING * PCOEM_STRING;
 
 
 // CONSTCounted String
@@ -1006,9 +1000,9 @@ typedef CONST STRING* PCOEM_STRING;
 typedef struct _CSTRING {
     USHORT Length;
     USHORT MaximumLength;
-    CONST char *Buffer;
+    CONST char * Buffer;
 } CSTRING;
-typedef CSTRING *PCSTRING;
+typedef CSTRING * PCSTRING;
 #define ANSI_NULL ((CHAR)0)     // winnt
 
 typedef STRING CANSI_STRING;
@@ -1023,13 +1017,13 @@ typedef struct _UNICODE_STRING {
     USHORT Length;
     USHORT MaximumLength;
 #ifdef MIDL_PASS
-    [size_is(MaximumLength / 2), length_is((Length) / 2) ] USHORT * Buffer;
+    [size_is(MaximumLength / 2), length_is((Length) / 2)] USHORT * Buffer;
 #else // MIDL_PASS
     PWSTR  Buffer;
 #endif // MIDL_PASS
 } UNICODE_STRING;
-typedef UNICODE_STRING *PUNICODE_STRING;
-typedef const UNICODE_STRING *PCUNICODE_STRING;
+typedef UNICODE_STRING * PUNICODE_STRING;
+typedef const UNICODE_STRING * PCUNICODE_STRING;
 #define UNICODE_NULL ((WCHAR)0) // winnt
 
 #if _WIN32_WINNT >= 0x0501
@@ -1050,7 +1044,7 @@ const UNICODE_STRING _variablename = { sizeof(_string) - sizeof(WCHAR), sizeof(_
 
 
 typedef UCHAR BOOLEAN;           // winnt
-typedef BOOLEAN *PBOOLEAN;       // winnt
+typedef BOOLEAN * PBOOLEAN;       // winnt
 
 // end_ntminiport end_ntminitape
 
@@ -1061,9 +1055,9 @@ typedef BOOLEAN *PBOOLEAN;       // winnt
 
 
 typedef struct _LIST_ENTRY {
-   struct _LIST_ENTRY *Flink;
-   struct _LIST_ENTRY *Blink;
-} LIST_ENTRY, *PLIST_ENTRY, *RESTRICTED_POINTER PRLIST_ENTRY;
+    struct _LIST_ENTRY * Flink;
+    struct _LIST_ENTRY * Blink;
+} LIST_ENTRY, * PLIST_ENTRY, * RESTRICTED_POINTER PRLIST_ENTRY;
 
 
 //  Singly linked list structure. Can be used as either a list head, or
@@ -1071,8 +1065,8 @@ typedef struct _LIST_ENTRY {
 
 
 typedef struct _SINGLE_LIST_ENTRY {
-    struct _SINGLE_LIST_ENTRY *Next;
-} SINGLE_LIST_ENTRY, *PSINGLE_LIST_ENTRY;
+    struct _SINGLE_LIST_ENTRY * Next;
+} SINGLE_LIST_ENTRY, * PSINGLE_LIST_ENTRY;
 // end_winnt end_ntndis
 
 // begin_winnt
@@ -1085,13 +1079,13 @@ typedef struct LIST_ENTRY32 {
     ULONG Flink;
     ULONG Blink;
 } LIST_ENTRY32;
-typedef LIST_ENTRY32 *PLIST_ENTRY32;
+typedef LIST_ENTRY32 * PLIST_ENTRY32;
 
 typedef struct LIST_ENTRY64 {
     ULONGLONG Flink;
     ULONGLONG Blink;
 } LIST_ENTRY64;
-typedef LIST_ENTRY64 *PLIST_ENTRY64;
+typedef LIST_ENTRY64 * PLIST_ENTRY64;
 
 // end_winnt
 
@@ -1102,7 +1096,7 @@ void
 ListEntry32To64(
     IN PLIST_ENTRY32 l32,
     OUT PLIST_ENTRY64 l64
-    )
+)
 {
     l64->Flink = (ULONGLONG)(LONGLONG)(LONG)l32->Flink;
     l64->Blink = (ULONGLONG)(LONGLONG)(LONG)l32->Blink;
@@ -1113,7 +1107,7 @@ void
 ListEntry64To32(
     IN PLIST_ENTRY64 l64,
     OUT PLIST_ENTRY32 l32
-    )
+)
 {
     l32->Flink = (ULONG)l64->Flink;
     l32->Blink = (ULONG)l64->Blink;
@@ -1125,13 +1119,13 @@ typedef struct _STRING32 {
     USHORT   MaximumLength;
     ULONG  Buffer;
 } STRING32;
-typedef STRING32 *PSTRING32;
+typedef STRING32 * PSTRING32;
 
 typedef STRING32 UNICODE_STRING32;
-typedef UNICODE_STRING32 *PUNICODE_STRING32;
+typedef UNICODE_STRING32 * PUNICODE_STRING32;
 
 typedef STRING32 ANSI_STRING32;
-typedef ANSI_STRING32 *PANSI_STRING32;
+typedef ANSI_STRING32 * PANSI_STRING32;
 
 
 typedef struct _STRING64 {
@@ -1139,13 +1133,13 @@ typedef struct _STRING64 {
     USHORT   MaximumLength;
     ULONGLONG  Buffer;
 } STRING64;
-typedef STRING64 *PSTRING64;
+typedef STRING64 * PSTRING64;
 
 typedef STRING64 UNICODE_STRING64;
-typedef UNICODE_STRING64 *PUNICODE_STRING64;
+typedef UNICODE_STRING64 * PUNICODE_STRING64;
 
 typedef STRING64 ANSI_STRING64;
-typedef ANSI_STRING64 *PANSI_STRING64;
+typedef ANSI_STRING64 * PANSI_STRING64;
 
 
 
@@ -1175,8 +1169,8 @@ typedef struct _OBJECT_ATTRIBUTES64 {
     ULONG64 SecurityDescriptor;
     ULONG64 SecurityQualityOfService;
 } OBJECT_ATTRIBUTES64;
-typedef OBJECT_ATTRIBUTES64 *POBJECT_ATTRIBUTES64;
-typedef CONST OBJECT_ATTRIBUTES64 *PCOBJECT_ATTRIBUTES64;
+typedef OBJECT_ATTRIBUTES64 * POBJECT_ATTRIBUTES64;
+typedef CONST OBJECT_ATTRIBUTES64 * PCOBJECT_ATTRIBUTES64;
 
 typedef struct _OBJECT_ATTRIBUTES32 {
     ULONG Length;
@@ -1186,8 +1180,8 @@ typedef struct _OBJECT_ATTRIBUTES32 {
     ULONG SecurityDescriptor;
     ULONG SecurityQualityOfService;
 } OBJECT_ATTRIBUTES32;
-typedef OBJECT_ATTRIBUTES32 *POBJECT_ATTRIBUTES32;
-typedef CONST OBJECT_ATTRIBUTES32 *PCOBJECT_ATTRIBUTES32;
+typedef OBJECT_ATTRIBUTES32 * POBJECT_ATTRIBUTES32;
+typedef CONST OBJECT_ATTRIBUTES32 * PCOBJECT_ATTRIBUTES32;
 
 typedef struct _OBJECT_ATTRIBUTES {
     ULONG Length;
@@ -1197,8 +1191,8 @@ typedef struct _OBJECT_ATTRIBUTES {
     PVOID SecurityDescriptor;        // Points to type SECURITY_DESCRIPTOR
     PVOID SecurityQualityOfService;  // Points to type SECURITY_QUALITY_OF_SERVICE
 } OBJECT_ATTRIBUTES;
-typedef OBJECT_ATTRIBUTES *POBJECT_ATTRIBUTES;
-typedef CONST OBJECT_ATTRIBUTES *PCOBJECT_ATTRIBUTES;
+typedef OBJECT_ATTRIBUTES * POBJECT_ATTRIBUTES;
+typedef CONST OBJECT_ATTRIBUTES * PCOBJECT_ATTRIBUTES;
 
 
 
@@ -1359,7 +1353,7 @@ typedef struct  _OBJECTID {     // size is 20
 
 extern "C++" // templates cannot be declared to have 'C' linkage
 template <typename T, size_t N>
-char (*RtlpNumberOf( UNALIGNED T (&)[N] ))[N];
+char(*RtlpNumberOf(UNALIGNED T(&)[N]))[N];
 
 #define RTL_NUMBER_OF_V2(A) (sizeof(*RtlpNumberOf(A)))
 
@@ -1481,7 +1475,7 @@ char (*RtlpNumberOf( UNALIGNED T (&)[N] ))[N];
 struct _CONTEXT;
 struct _EXCEPTION_RECORD;
 
-typedef EXCEPTION_DISPOSITION (*PEXCEPTION_ROUTINE) (IN struct _EXCEPTION_RECORD *ExceptionRecord, IN PVOID EstablisherFrame, IN OUT struct _CONTEXT *ContextRecord, IN OUT PVOID DispatcherContext);
+typedef EXCEPTION_DISPOSITION(*PEXCEPTION_ROUTINE) (IN struct _EXCEPTION_RECORD * ExceptionRecord, IN PVOID EstablisherFrame, IN OUT struct _CONTEXT * ContextRecord, IN OUT PVOID DispatcherContext);
 
 // begin_ntminiport begin_ntndis
 
@@ -1489,7 +1483,7 @@ typedef EXCEPTION_DISPOSITION (*PEXCEPTION_ROUTINE) (IN struct _EXCEPTION_RECORD
 
 typedef UCHAR KIRQL;
 
-typedef KIRQL *PKIRQL;
+typedef KIRQL * PKIRQL;
 
 // end_ntminiport end_ntndis
 
@@ -1498,7 +1492,7 @@ typedef enum _NT_PRODUCT_TYPE {
     NtProductWinNt = 1,
     NtProductLanManNt,
     NtProductServer
-} NT_PRODUCT_TYPE, *PNT_PRODUCT_TYPE;
+} NT_PRODUCT_TYPE, * PNT_PRODUCT_TYPE;
 
 
 // the bit mask, SharedUserData->SuiteMask, is a ULONG
