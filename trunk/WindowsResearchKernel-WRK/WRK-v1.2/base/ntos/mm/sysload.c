@@ -41,30 +41,27 @@ PVOID MmPteCodeStart;
 PVOID MmPteCodeEnd;
 
 
-NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID* AddressOfEntryPoint);
+NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID * AddressOfEntryPoint);
 PVOID MiCacheImageSymbols(IN PVOID ImageBase);
-NTSTATUS MiResolveImageReferences(
-    PVOID ImageBase,
-    IN PUNICODE_STRING ImageFileDirectory,
-    IN PUNICODE_STRING NamePrefix OPTIONAL,
-    OUT PCHAR* MissingProcedureName,
-    OUT PWSTR* MissingDriverName,
-    OUT PLOAD_IMPORTS* LoadedImports);
-NTSTATUS MiSnapThunk(
-    IN PVOID DllBase,
-    IN PVOID ImageBase,
-    IN PIMAGE_THUNK_DATA NameThunk,
-    OUT PIMAGE_THUNK_DATA AddrThunk,
-    IN PIMAGE_EXPORT_DIRECTORY ExportDirectory,
-    IN ULONG ExportSize,
-    IN LOGICAL SnapForwarder,
-    OUT PCHAR* MissingProcedureName);
-NTSTATUS MiLoadImageSection(
-    IN OUT PSECTION* InputSectionPointer,
-    OUT PVOID* ImageBase,
-    IN PUNICODE_STRING ImageFileName,
-    IN ULONG LoadInSessionSpace,
-    IN PKLDR_DATA_TABLE_ENTRY FoundDataTableEntry);
+NTSTATUS MiResolveImageReferences(PVOID ImageBase,
+                                  IN PUNICODE_STRING ImageFileDirectory,
+                                  IN PUNICODE_STRING NamePrefix OPTIONAL,
+                                  OUT PCHAR * MissingProcedureName,
+                                  OUT PWSTR * MissingDriverName,
+                                  OUT PLOAD_IMPORTS * LoadedImports);
+NTSTATUS MiSnapThunk(IN PVOID DllBase,
+                     IN PVOID ImageBase,
+                     IN PIMAGE_THUNK_DATA NameThunk,
+                     OUT PIMAGE_THUNK_DATA AddrThunk,
+                     IN PIMAGE_EXPORT_DIRECTORY ExportDirectory,
+                     IN ULONG ExportSize,
+                     IN LOGICAL SnapForwarder,
+                     OUT PCHAR * MissingProcedureName);
+NTSTATUS MiLoadImageSection(IN OUT PSECTION * InputSectionPointer,
+                            OUT PVOID * ImageBase,
+                            IN PUNICODE_STRING ImageFileName,
+                            IN ULONG LoadInSessionSpace,
+                            IN PKLDR_DATA_TABLE_ENTRY FoundDataTableEntry);
 VOID MiEnablePagingOfDriver(IN PVOID ImageHandle);
 VOID MiSetPagingOfDriver(IN PMMPTE PointerPte, IN PMMPTE LastPte);
 PVOID MiLookupImageSectionByName(IN PVOID Base, IN LOGICAL MappedAsImage, IN PCHAR SectionName, OUT PULONG SectionSize);
@@ -81,7 +78,7 @@ VOID MiLocateKernelSections(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 VOID MiCaptureImageExceptionValues(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 VOID MiUpdateThunks(IN PLOADER_PARAMETER_BLOCK LoaderBlock, IN PVOID OldAddress, IN PVOID NewAddress, IN ULONG NumberOfBytes);
 PVOID MiFindExportedRoutineByName(IN PVOID DllBase, IN PANSI_STRING AnsiImageRoutineName);
-LOGICAL MiUseLargeDriverPage(IN ULONG NumberOfPtes, IN OUT PVOID* ImageBaseAddress, IN PUNICODE_STRING PrefixedImageName, IN ULONG Pass);
+LOGICAL MiUseLargeDriverPage(IN ULONG NumberOfPtes, IN OUT PVOID * ImageBaseAddress, IN PUNICODE_STRING PrefixedImageName, IN ULONG Pass);
 VOID MiRundownHotpatchList(PVOID PatchHead);
 VOID MiSessionProcessGlobalSubsections(IN PKLDR_DATA_TABLE_ENTRY DataTableEntry);
 MM_PROTECTION_MASK MiComputeDriverProtection(IN LOGICAL SessionDriver, IN ULONG SectionProtection);
@@ -227,7 +224,7 @@ Environment:
 
 
 LOGICAL MiUseLargeDriverPage(IN ULONG NumberOfPtes,
-                             IN OUT PVOID* ImageBaseAddress,
+                             IN OUT PVOID * ImageBaseAddress,
                              IN PUNICODE_STRING BaseImageName,
                              IN ULONG Pass
 )
@@ -421,8 +418,7 @@ Environment:
                 LoadConfigSize &&
                 LoadConfig->Size >= RTL_SIZEOF_THROUGH_FIELD(IMAGE_LOAD_CONFIG_DIRECTORY32, SEHandlerCount) &&
                 LoadConfig->SEHandlerTable &&
-                LoadConfig->SEHandlerCount
-                ) {
+                LoadConfig->SEHandlerCount) {
                 DataTableEntry->ExceptionTable = (PVOID)LoadConfig->SEHandlerTable;
                 DataTableEntry->ExceptionTableSize = LoadConfig->SEHandlerCount;
             } else {
@@ -444,8 +440,8 @@ NTSTATUS MmLoadSystemImage(IN PUNICODE_STRING ImageFileName,
                            IN PUNICODE_STRING NamePrefix OPTIONAL,
                            IN PUNICODE_STRING LoadedBaseName OPTIONAL,
                            IN ULONG LoadFlags,
-                           OUT PVOID* ImageHandle,
-                           OUT PVOID* ImageBaseAddress
+                           OUT PVOID * ImageHandle,
+                           OUT PVOID * ImageBaseAddress
 )
 /*
 Routine Description:
@@ -738,7 +734,7 @@ ReCheckLoaderList:
                                            SECTION_MAP_EXECUTE,
                                            MmSectionObjectType,
                                            KernelMode,
-                                           (PVOID*)&SectionPointer,
+                                           (PVOID *)&SectionPointer,
                                            (POBJECT_HANDLE_INFORMATION)NULL);
         ZwClose(SectionHandle);
         if (!NT_SUCCESS(Status)) {
@@ -922,10 +918,9 @@ ReCheckLoaderList:
                     if ((DebugDir + i)->AddressOfRawData &&
                         (DebugDir + i)->AddressOfRawData < NtHeaders->OptionalHeader.SizeOfImage &&
                         ((DebugDir + i)->AddressOfRawData + (DebugDir + i)->SizeOfData) < NtHeaders->OptionalHeader.SizeOfImage) {
-                        RtlCopyMemory(
-                            (PUCHAR)(ssHeader + 1) + DebugInfoSize,
-                            (PUCHAR)(*ImageBaseAddress) + (DebugDir + i)->AddressOfRawData,
-                            (DebugDir + i)->SizeOfData);
+                        RtlCopyMemory((PUCHAR)(ssHeader + 1) + DebugInfoSize,
+                                      (PUCHAR)(*ImageBaseAddress) + (DebugDir + i)->AddressOfRawData,
+                                      (DebugDir + i)->SizeOfData);
 
                         // Reset the offset in the debug directory to point to
                         (((PIMAGE_DEBUG_DIRECTORY)(ssHeader + 1)) + i)->AddressOfRawData = DebugInfoSize;
@@ -1018,7 +1013,7 @@ ReCheckLoaderList:
 
             DataTableEntry = NULL;
             goto return1;
-        }
+            }
 
         // Reinitialize the flags and update the loaded imports.
         DataTableEntry->Flags |= (LDRP_SYSTEM_MAPPED | LDRP_ENTRY_PROCESSED | LDRP_MM_LOADED);
@@ -1096,7 +1091,7 @@ ReCheckLoaderList:
             DbgLoadImageSymbols(&AnsiName, *ImageBaseAddress, (ULONG_PTR)-1);
             DataTableEntry->Flags |= LDRP_DEBUG_SYMBOLS_LOADED;
         }
-    }
+        }
 
     // Flush the instruction cache on all systems in the configuration.
     KeSweepIcache(TRUE);
@@ -1136,13 +1131,13 @@ return1:
 #endif
 
             MmUnloadSystemImage((PVOID)DataTableEntry);
-        }
+            }
 
         if ((AlreadyOpen == FALSE) && (SectionPointer != NULL)) {
             // This is needed for failed win32k.sys loads or any session's load of the first instance of a driver.
             ObDereferenceObject(SectionPointer);
         }
-    }
+        }
 
     if (LoadLockOwned == TRUE) {
         KeReleaseMutant(&MmSystemLoadLock, 1, FALSE, FALSE);
@@ -1271,7 +1266,7 @@ return2:
 
     ExFreePool(NameBuffer);
     return Status;
-}
+    }
 
 
 VOID MiReturnFailedSessionPages(IN PMMPTE PointerPte, IN PMMPTE LastPte)
@@ -1310,8 +1305,8 @@ Arguments:
 }
 
 
-NTSTATUS MiLoadImageSection(IN OUT PSECTION* InputSectionPointer,
-                            OUT PVOID* ImageBaseAddress,
+NTSTATUS MiLoadImageSection(IN OUT PSECTION * InputSectionPointer,
+                            OUT PVOID * ImageBaseAddress,
                             IN PUNICODE_STRING ImageFileName,
                             IN ULONG LoadInSessionSpace,
                             IN PKLDR_DATA_TABLE_ENTRY FoundDataTableEntry
@@ -1412,7 +1407,7 @@ Return Value:
 
         *ImageBaseAddress = BaseAddress;
         return Status;
-    }
+        }
 
     ASSERT(FoundDataTableEntry == NULL);
 
@@ -1573,7 +1568,7 @@ Return Value:
     }
 
     return Status;
-}
+    }
 
 
 VOID MmFreeDriverInitialization(IN PVOID ImageHandle)
@@ -1671,7 +1666,7 @@ Return Value:
 }
 
 
-VOID MiFlushPteListFreePfns(IN PVOID* VaFlushList, IN ULONG FlushCount)
+VOID MiFlushPteListFreePfns(IN PVOID * VaFlushList, IN ULONG FlushCount)
 /*
 Routine Description:
     This routine flushes all the PTEs in the PTE flush list.
@@ -1798,12 +1793,12 @@ VOID MiEnablePagingOfDriver(IN PVOID ImageHandle)
         }
         i -= 1;
         FoundSection += 1;
-    }
+        }
 
     if (PointerPte != NULL) {
         MiSetPagingOfDriver(PointerPte, LastPte);
     }
-}
+    }
 
 
 VOID MiSetPagingOfDriver(IN PMMPTE PointerPte, IN PMMPTE LastPte)
@@ -1860,7 +1855,7 @@ Environment:
                 FlushCount += 1;
 
                 if (FlushCount == MM_MAXIMUM_FLUSH_COUNT) {
-                    MiFlushPteListFreePfns((PVOID*)&VaFlushList, FlushCount);
+                    MiFlushPteListFreePfns((PVOID *)&VaFlushList, FlushCount);
                     FlushCount = 0;
                 }
 
@@ -1872,7 +1867,7 @@ Environment:
     }
 
     if (FlushCount != 0) {
-        MiFlushPteListFreePfns((PVOID*)&VaFlushList, FlushCount);
+        MiFlushPteListFreePfns((PVOID *)&VaFlushList, FlushCount);
     }
 
     UNLOCK_WORKING_SET(Thread, &MmSystemCacheWs);
@@ -1988,7 +1983,10 @@ Environment:
     while (i > 0) {
 #if DBG
         if ((*(PULONG)FoundSection->Name == 'tini') || (*(PULONG)FoundSection->Name == 'egap')) {
-            DbgPrintEx(DPFLTR_MM_ID, DPFLTR_INFO_LEVEL, "driver %wZ has lower case sections (init or pagexxx)\n", &DataTableEntry->FullDllName);
+            DbgPrintEx(DPFLTR_MM_ID,
+                       DPFLTR_INFO_LEVEL,
+                       "driver %wZ has lower case sections (init or pagexxx)\n",
+                       &DataTableEntry->FullDllName);
         }
 #endif
 
@@ -2209,7 +2207,10 @@ Environment:
         // Each data page is only freed if there are no other references to it (ie: from any other sessions).
         PointerPte = MiGetPteAddress(BasedAddress);
         LastPte = MiGetPteAddress((PVOID)((ULONG_PTR)BasedAddress + NumberOfBytes));
-        PagesRequired = MiDeleteSystemPageableVm(PointerPte, (PFN_NUMBER)(LastPte - PointerPte), MI_DELETE_FLUSH_TB, &ResidentPages);
+        PagesRequired = MiDeleteSystemPageableVm(PointerPte,
+                                                 (PFN_NUMBER)(LastPte - PointerPte),
+                                                 MI_DELETE_FLUSH_TB,
+                                                 &ResidentPages);
 
         // Note resident available is returned here without waiting for load count to reach zero because it is charged each time a session space
         // driver locks down its code or data regardless of whether it is really the same copy-on-write backing page(s) that some other session has already locked down.
@@ -2374,7 +2375,7 @@ Return Value:
     ULONG i;
     ULONG j;
     ULONG ImageCount;
-    PVOID* ImageReferences;
+    PVOID * ImageReferences;
     PVOID LastImageReference;
     PULONG_PTR ImportThunk;
     ULONG_PTR BaseAddress;
@@ -2435,7 +2436,7 @@ Return Value:
         return STATUS_NOT_FOUND;
     }
 
-    ImageReferences = (PVOID*)ExAllocatePoolWithTag(PagedPool | POOL_COLD_ALLOCATION, ImageCount * sizeof(PVOID), 'TDmM');
+    ImageReferences = (PVOID *)ExAllocatePoolWithTag(PagedPool | POOL_COLD_ALLOCATION, ImageCount * sizeof(PVOID), 'TDmM');
     if (ImageReferences == NULL) {
         return STATUS_INSUFFICIENT_RESOURCES;
     }
@@ -2498,11 +2499,11 @@ Return Value:
 #endif
                     UndoEverything = TRUE;
                     goto finished;
-                }
+            }
 
                 BaseAddress = 0;
-            }
         }
+    }
 
         ImportSize = 0;
 
@@ -2548,7 +2549,7 @@ Return Value:
 
             DataTableEntry->LoadedImports = ImportList;
         }
-    }
+}
 
 finished:
 
@@ -2759,8 +2760,8 @@ Return Value:
                 ASSERT(DataTableEntry->LoadCount == 1);
                 NextEntry = NextEntry->Flink;
                 ImageCount += 1;
-            }
-        }
+    }
+}
 #endif
 
         ASSERT(ImportTableEntry->LoadCount >= 1);
@@ -2785,18 +2786,18 @@ Return Value:
                 ImportTableEntry->LoadedImports = SavedImports;
             }
         }
-    }
+}
 
     return STATUS_SUCCESS;
-}
+    }
 
 
 NTSTATUS MiResolveImageReferences(PVOID ImageBase,
                                   IN PUNICODE_STRING ImageFileDirectory,
                                   IN PUNICODE_STRING NamePrefix OPTIONAL,
-                                  OUT PCHAR* MissingProcedureName,
-                                  OUT PWSTR* MissingDriverName,
-                                  OUT PLOAD_IMPORTS* LoadedImports
+                                  OUT PCHAR * MissingProcedureName,
+                                  OUT PWSTR * MissingDriverName,
+                                  OUT PLOAD_IMPORTS * LoadedImports
 )
 /*
 Routine Description:
@@ -3070,7 +3071,7 @@ Return Value:
                     }
                     ASSERT(TableEntry != (PKLDR_DATA_TABLE_ENTRY)Section);
                     Entry = Entry->Blink;
-                }
+            }
 
                 ASSERT(Entry != &PsLoadedModuleList);
 #endif
@@ -3082,7 +3083,7 @@ Return Value:
                     MmUnloadSystemImage((PVOID)TableEntry);
                     Loaded = FALSE;
                 }
-            }
+        }
 
             if (!NT_SUCCESS(st)) {
                 RtlFreeUnicodeString(&ImportName_U);
@@ -3097,7 +3098,7 @@ Return Value:
             }
 
             goto ReCheck;
-        }
+    }
 
         if ((ReferenceImport == TRUE) && (ImportList)) {
             // Only add the image providing satisfying our imports to the import list if the reference is not circular (ie: the import is not from the original caller).
@@ -3150,7 +3151,7 @@ Return Value:
         }
 
         ImportDescriptor += 1;
-    }
+}
 
     // All the imports are successfully loaded so establish and compact the import unload list.
     if (ImportList) {
@@ -3206,7 +3207,7 @@ NTSTATUS MiSnapThunk(IN PVOID DllBase,
                      IN PIMAGE_EXPORT_DIRECTORY ExportDirectory,
                      IN ULONG ExportSize,
                      IN LOGICAL SnapForwarder,
-                     OUT PCHAR* MissingProcedureName
+                     OUT PCHAR * MissingProcedureName
 )
 /*
 Routine Description:
@@ -3252,7 +3253,9 @@ Return Value:
             NameThunk->u1.AddressOfData = (ULONG_PTR)ImageBase + NameThunk->u1.AddressOfData;
         }
 
-        strncpy(*MissingProcedureName, (const PCHAR)&((PIMAGE_IMPORT_BY_NAME)NameThunk->u1.AddressOfData)->Name[0], MAXIMUM_FILENAME_LENGTH - 1);
+        strncpy(*MissingProcedureName,
+                (const PCHAR)&((PIMAGE_IMPORT_BY_NAME)NameThunk->u1.AddressOfData)->Name[0],
+                MAXIMUM_FILENAME_LENGTH - 1);
 
         // Lookup Name in NameTable
         NameTableBase = (PULONG)((PCHAR)DllBase + (ULONG)ExportDirectory->AddressOfNames);
@@ -3261,7 +3264,8 @@ Return Value:
         // Before dropping into binary search, see if the hint index results in a successful match. If the hint index is zero, then drop into binary search.
         HintIndex = ((PIMAGE_IMPORT_BY_NAME)NameThunk->u1.AddressOfData)->Hint;
         if ((ULONG)HintIndex < ExportDirectory->NumberOfNames &&
-            !strcmp((PSZ)((PIMAGE_IMPORT_BY_NAME)NameThunk->u1.AddressOfData)->Name, (PSZ)((PCHAR)DllBase + NameTableBase[HintIndex]))) {
+            !strcmp((PSZ)((PIMAGE_IMPORT_BY_NAME)NameThunk->u1.AddressOfData)->Name,
+                    (PSZ)((PCHAR)DllBase + NameTableBase[HintIndex]))) {
             OrdinalNumber = NameOrdinalTableBase[HintIndex];
         } else {
             // Lookup the import name in the name table using a binary search.
@@ -3271,7 +3275,8 @@ Return Value:
             while (High >= Low) {
                 // Compute the next probe index and compare the import name with the export name entry.
                 Middle = (Low + High) >> 1;
-                Result = strcmp((const PCHAR)&((PIMAGE_IMPORT_BY_NAME)NameThunk->u1.AddressOfData)->Name[0], (PCHAR)((PCHAR)DllBase + NameTableBase[Middle]));
+                Result = strcmp((const PCHAR)&((PIMAGE_IMPORT_BY_NAME)NameThunk->u1.AddressOfData)->Name[0],
+                                (PCHAR)((PCHAR)DllBase + NameTableBase[Middle]));
                 if (Result < 0) {
                     High = Middle - 1;
                 } else if (Result > 0) {
@@ -3424,7 +3429,7 @@ retry:
     KeStackAttachProcess(&PsInitialSystemProcess->Pcb, &ApcState);
     Status = ZwMapViewOfSection(Section,
                                 NtCurrentProcess(),
-                                (PVOID*)&ViewBase,
+                                (PVOID *)&ViewBase,
                                 0L,
                                 0L,
                                 NULL,
@@ -3504,7 +3509,7 @@ out:
                                             SECTION_MAP_EXECUTE,
                                             MmSectionObjectType,
                                             KernelMode,
-                                            (PVOID*)&SectionPointer,
+                                            (PVOID *)&SectionPointer,
                                             (POBJECT_HANDLE_INFORMATION)NULL);
         if (NT_SUCCESS(Status2)) {
             MmPurgeSection(SectionPointer->Segment->ControlArea->FilePointer->SectionObjectPointer, NULL, 0, FALSE);
@@ -4649,7 +4654,7 @@ Environment:
 
                 if (MmAvailablePages < MM_HIGH_LIMIT) {
                     MiEnsureAvailablePageOrWait(NULL, OldIrql);
-                }
+            }
 
                 PageFrameIndex = MiRemoveAnyPage(MI_GET_PAGE_COLOR_FROM_PTE(PointerPte));
                 if (PageFrameIndex < (16 * 1024 * 1024) / PAGE_SIZE) {
@@ -4672,7 +4677,7 @@ Environment:
                 RtlCopyMemory(RelocatedVa, NonRelocatedVa, PAGE_SIZE);
                 RelocatedVa += PAGE_SIZE;
                 NonRelocatedVa += PAGE_SIZE;
-            } else {
+    } else {
                 MI_MAKE_VALID_KERNEL_PTE(TempPte,
                                          PteContents.u.Hard.PageFrameNumber,
                                          MM_EXECUTE_READWRITE, PointerPte);
@@ -4682,7 +4687,7 @@ Environment:
 
             PointerPte += 1;
             LoaderPte += 1;
-        }
+}
         PointerPte -= NumberOfPtes;
 
     Fixup:
@@ -4698,7 +4703,7 @@ Environment:
 
         if (HasRelocations == TRUE) {
             Status = (NTSTATUS)LdrRelocateImage(NewImageAddress,
-                (CONST PCHAR)"SYSLDR",
+                                                (CONST PCHAR)"SYSLDR",
                                                 (ULONG)STATUS_SUCCESS,
                                                 (ULONG)STATUS_CONFLICTING_ADDRESSES,
                                                 (ULONG)STATUS_INVALID_IMAGE_FORMAT);
@@ -4797,7 +4802,7 @@ Environment:
     }
 
     KeSweepIcache(TRUE);// Flush the instruction cache on all systems in the configuration.
-}
+        }
 
 
 #if defined(_X86_) || defined(_AMD64_)
@@ -4845,7 +4850,7 @@ Environment:
         Span = SectionTableEntry->SizeOfRawData;
         if (Span < SectionTableEntry->Misc.VirtualSize) {
             Span = SectionTableEntry->Misc.VirtualSize;
-        }
+    }
 
 #if defined(_X86_) || defined(_AMD64_)
         if (*(PULONG)SectionTableEntry->Name == 'rsr.') {
@@ -4869,7 +4874,7 @@ Environment:
 
         i -= 1;
         SectionTableEntry += 1;
-    }
+}
 }
 
 
@@ -5266,6 +5271,6 @@ Return Value:
 
     // Forwarders are not used by the kernel and HAL to each other.
     ASSERT((FunctionAddress <= (PVOID)ExportDirectory) ||
-        (FunctionAddress >= (PVOID)((PCHAR)ExportDirectory + ExportSize)));
+           (FunctionAddress >= (PVOID)((PCHAR)ExportDirectory + ExportSize)));
     return FunctionAddress;
 }

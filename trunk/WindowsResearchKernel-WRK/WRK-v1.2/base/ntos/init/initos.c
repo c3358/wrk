@@ -27,17 +27,20 @@ Abstract:
 
 UNICODE_STRING NtSystemRoot;
 
-NTSTATUS RtlFormatBuffer2(PCHAR   Buffer, size_t  BufferLen, PCHAR   FormatString, PVOID   Param0, PVOID   Param1);
+NTSTATUS RtlFormatBuffer2(PCHAR Buffer, size_t  BufferLen, PCHAR   FormatString, PVOID Param0, PVOID Param1);
 VOID ExpInitializeExecutive(IN ULONG Number, IN PLOADER_PARAMETER_BLOCK LoaderBlock);
 NTKERNELAPI BOOLEAN ExpRefreshTimeZoneInformation(IN PLARGE_INTEGER CurrentUniversalTime);
 NTSTATUS CreateSystemRootLink(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
-static USHORT NameToOrdinal(IN PSZ NameOfEntryPoint, IN ULONG_PTR DllBase, IN ULONG NumberOfNames, IN PULONG NameTableBase, IN PUSHORT NameOrdinalTableBase);
-NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID *AddressOfEntryPoint);
-PFN_COUNT ExBurnMemory(
-    IN PLOADER_PARAMETER_BLOCK LoaderBlock,
-    IN PFN_COUNT NumberOfPagesToBurn,
-    IN TYPE_OF_MEMORY MemoryTypeForRemovedPages,
-    IN PMEMORY_ALLOCATION_DESCRIPTOR NewMemoryDescriptor OPTIONAL);
+static USHORT NameToOrdinal(IN PSZ NameOfEntryPoint, 
+                            IN ULONG_PTR DllBase, 
+                            IN ULONG NumberOfNames,
+                            IN PULONG NameTableBase, 
+                            IN PUSHORT NameOrdinalTableBase);
+NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID * AddressOfEntryPoint);
+PFN_COUNT ExBurnMemory(IN PLOADER_PARAMETER_BLOCK LoaderBlock,
+                       IN PFN_COUNT NumberOfPagesToBurn,
+                       IN TYPE_OF_MEMORY MemoryTypeForRemovedPages,
+                       IN PMEMORY_ALLOCATION_DESCRIPTOR NewMemoryDescriptor OPTIONAL);
 BOOLEAN ExpIsLoaderValid(IN PLOADER_PARAMETER_BLOCK LoaderBlock);
 VOID FinalizeBootLogo(VOID);
 VOID DisplayBootBitmap(IN BOOLEAN DisplayOnScreen);
@@ -85,7 +88,7 @@ typedef struct _EXLOCK
 {
     KSPIN_LOCK SpinLock;
     KIRQL Irql;
-} EXLOCK, *PEXLOCK;
+} EXLOCK, * PEXLOCK;
 
 #ifdef ALLOC_PRAGMA
 NTSTATUS ExpInitializeLockRoutine(PEXLOCK Lock);
@@ -167,7 +170,11 @@ Arguments:
     PMEMORY_ALLOCATION_DESCRIPTOR MemoryDescriptor;
 
     if (!ExpIsLoaderValid(LoaderBlock)) {
-        KeBugCheckEx(MISMATCHED_HAL, 3, LoaderBlock->Extension->Size, LoaderBlock->Extension->MajorVersion, LoaderBlock->Extension->MinorVersion);
+        KeBugCheckEx(MISMATCHED_HAL, 
+                     3, 
+                     LoaderBlock->Extension->Size,
+                     LoaderBlock->Extension->MajorVersion,
+                     LoaderBlock->Extension->MinorVersion);
     }
 
     // Initialize PRCB pool lookaside pointers.
@@ -241,8 +248,10 @@ Arguments:
         InitAnsiCodePageDataOffset = 0;
         InitOemCodePageDataOffset = (ULONG)((PUCHAR)LoaderBlock->NlsData->OemCodePageData - (PUCHAR)LoaderBlock->NlsData->AnsiCodePageData);
         InitUnicodeCaseTableDataOffset = (ULONG)((PUCHAR)LoaderBlock->NlsData->UnicodeCaseTableData - (PUCHAR)LoaderBlock->NlsData->AnsiCodePageData);
-        RtlInitNlsTables((PVOID)((PUCHAR)InitNlsTableBase + InitAnsiCodePageDataOffset), (PVOID)((PUCHAR)InitNlsTableBase + InitOemCodePageDataOffset),
-            (PVOID)((PUCHAR)InitNlsTableBase + InitUnicodeCaseTableDataOffset), &InitTableInfo);
+        RtlInitNlsTables((PVOID)((PUCHAR)InitNlsTableBase + InitAnsiCodePageDataOffset),
+                         (PVOID)((PUCHAR)InitNlsTableBase + InitOemCodePageDataOffset),
+                         (PVOID)((PUCHAR)InitNlsTableBase + InitUnicodeCaseTableDataOffset),
+                         &InitTableInfo);
         RtlResetRtlTranslations(&InitTableInfo);
 
         // Initialize the Hardware Architecture Layer (HAL).
@@ -339,7 +348,7 @@ Arguments:
             BufferSizeOk = TRUE;
             if (ImageCount >= 2) {
                 ULONG Count;
-                WCHAR *Filename;
+                WCHAR * Filename;
                 ULONG Length;
 
                 // Get the address of the data table entry for the next component.
@@ -362,7 +371,11 @@ Arguments:
                     if (sizeof(Buffer) < 18 + NtSystemRoot.Length / sizeof(WCHAR) - 2 + DataTableEntry->BaseDllName.Length / sizeof(WCHAR) + sizeof(ANSI_NULL)) {
                         BufferSizeOk = FALSE;// ignore the driver entry, it must have been corrupt.
                     } else {
-                        Status = RtlFormatBuffer2(Buffer, sizeof(Buffer), "%ws\\System32\\Drivers\\%wZ", &SharedUserData->NtSystemRoot[2], &DataTableEntry->BaseDllName);
+                        Status = RtlFormatBuffer2(Buffer, 
+                                                  sizeof(Buffer), 
+                                                  "%ws\\System32\\Drivers\\%wZ", 
+                                                  &SharedUserData->NtSystemRoot[2],
+                                                  &DataTableEntry->BaseDllName);
                         if (!NT_SUCCESS(Status)) {
                             KeBugCheck(PHASE0_INITIALIZATION_FAILED);
                         }
@@ -394,7 +407,8 @@ Arguments:
             HeadlessInit(LoaderBlock);
         }
 
-        // These fields are supported for legacy 3rd party 32-bit software only.  New code should call NtQueryInformationSystem() to get them.
+        // These fields are supported for legacy 3rd party 32-bit software only.  
+        // New code should call NtQueryInformationSystem() to get them.
 #if defined(_WIN64)
         SharedUserData->Reserved1 = 0x7ffeffff; // 2gb HighestUserAddress
         SharedUserData->Reserved3 = 0x80000000; // 2gb SystemRangeStart
@@ -413,7 +427,7 @@ Arguments:
         while (NextMd != &LoaderBlock->MemoryDescriptorListHead) {
             MemoryDescriptor = CONTAINING_RECORD(NextMd, MEMORY_ALLOCATION_DESCRIPTOR, ListEntry);
             if (MemoryDescriptor->MemoryType == LoaderNlsData) {
-                InitNlsTableSize += MemoryDescriptor->PageCount*PAGE_SIZE;
+                InitNlsTableSize += MemoryDescriptor->PageCount * PAGE_SIZE;
             }
 
             NextMd = MemoryDescriptor->ListEntry.Flink;
@@ -427,8 +441,10 @@ Arguments:
         // Copy the NLS data into the dynamic buffer so that we can free the buffers allocated by the loader. 
         // The loader guarantees contiguous buffers and the base of all the tables is the ANSI code page data.
         RtlCopyMemory(InitNlsTableBase, LoaderBlock->NlsData->AnsiCodePageData, InitNlsTableSize);
-        RtlInitNlsTables((PVOID)((PUCHAR)InitNlsTableBase + InitAnsiCodePageDataOffset), (PVOID)((PUCHAR)InitNlsTableBase + InitOemCodePageDataOffset),
-            (PVOID)((PUCHAR)InitNlsTableBase + InitUnicodeCaseTableDataOffset), &InitTableInfo);
+        RtlInitNlsTables((PVOID)((PUCHAR)InitNlsTableBase + InitAnsiCodePageDataOffset),
+                         (PVOID)((PUCHAR)InitNlsTableBase + InitOemCodePageDataOffset),
+                         (PVOID)((PUCHAR)InitNlsTableBase + InitUnicodeCaseTableDataOffset),
+                         &InitTableInfo);
         RtlResetRtlTranslations(&InitTableInfo);
         CmpInitSystemVersion(1, NULL);
 
@@ -588,7 +604,7 @@ VOID Phase1InitializationDiscard(IN PVOID Context)
     // N.B. The control variable is always false.
     if (InitForceInline == TRUE) {
         KGUARDED_MUTEX Mutex;
-        extern ULONG volatile *VpPoolHitTag;
+        extern ULONG volatile * VpPoolHitTag;
 
         KeTryToAcquireGuardedMutex(&Mutex);
         KeEnterGuardedRegion();
@@ -788,7 +804,12 @@ VOID Phase1InitializationDiscard(IN PVOID Context)
         KeBugCheckEx(PHASE1_INITIALIZATION_FAILED, Status, 1, 0, 0);
     }
 
-    Status = ObReferenceObjectByHandle(NlsSection, SECTION_ALL_ACCESS, MmSectionObjectType, KernelMode, &InitNlsSectionPointer, NULL);
+    Status = ObReferenceObjectByHandle(NlsSection,
+                                       SECTION_ALL_ACCESS,
+                                       MmSectionObjectType, 
+                                       KernelMode, 
+                                       &InitNlsSectionPointer,
+                                       NULL);
     ZwClose(NlsSection);
     if (!NT_SUCCESS(Status)) {
         KdPrint(("INIT: Nls Section Reference Failed %x\n", Status));
@@ -809,7 +830,8 @@ VOID Phase1InitializationDiscard(IN PVOID Context)
     // The loader guarantees contiguous buffers and the base of all the tables is the ANSI code page data.
     RtlCopyMemory(SectionBase, InitNlsTableBase, InitNlsTableSize);
 
-    // Unmap the view to remove all pages from memory.  This prevents these tables from consuming memory in the system cache while the system cache is underutilized during bootup.
+    // Unmap the view to remove all pages from memory. 
+    // This prevents these tables from consuming memory in the system cache while the system cache is underutilized during bootup.
     MmUnmapViewInSystemCache(SectionBase, InitNlsSectionPointer, FALSE);
     SectionBase = NULL;
 
@@ -835,7 +857,16 @@ VOID Phase1InitializationDiscard(IN PVOID Context)
     CapturedViewSize = 0;
 
     // Map the system dll into the user part of the address space
-    Status = MmMapViewOfSection(InitNlsSectionPointer, PsGetCurrentProcess(), &ViewBase, 0L, 0L, &SectionOffset, &CapturedViewSize, ViewShare, 0L, PAGE_READWRITE);
+    Status = MmMapViewOfSection(InitNlsSectionPointer, 
+                                PsGetCurrentProcess(),
+                                &ViewBase,
+                                0L, 
+                                0L,
+                                &SectionOffset,
+                                &CapturedViewSize,
+                                ViewShare,
+                                0L, 
+                                PAGE_READWRITE);
     if (!NT_SUCCESS(Status)) {
         KdPrint(("INIT: Map In User Portion Failed %x\n", Status));
         KeBugCheckEx(PHASE1_INITIALIZATION_FAILED, Status, 5, 0, 0);
@@ -1006,9 +1037,14 @@ VOID Phase1InitializationDiscard(IN PVOID Context)
     ProcessParameters->ImagePathName.MaximumLength = DOS_MAX_PATH_LENGTH * sizeof(WCHAR);
 
     if (NtInitialUserProcessBufferType != REG_SZ
-        || (NtInitialUserProcessBufferLength != (ULONG)-1 && (NtInitialUserProcessBufferLength < sizeof(WCHAR)
-                                                              || NtInitialUserProcessBufferLength > sizeof(NtInitialUserProcessBuffer) - sizeof(WCHAR)))) {
-        KeBugCheckEx(SESSION2_INITIALIZATION_FAILED, STATUS_INVALID_PARAMETER, NtInitialUserProcessBufferType, NtInitialUserProcessBufferLength, sizeof(NtInitialUserProcessBuffer));
+        || (NtInitialUserProcessBufferLength != (ULONG)-1 && 
+            (NtInitialUserProcessBufferLength < sizeof(WCHAR)
+             || NtInitialUserProcessBufferLength > sizeof(NtInitialUserProcessBuffer) - sizeof(WCHAR)))) {
+        KeBugCheckEx(SESSION2_INITIALIZATION_FAILED, 
+                     STATUS_INVALID_PARAMETER, 
+                     NtInitialUserProcessBufferType,
+                     NtInitialUserProcessBufferLength, 
+                     sizeof(NtInitialUserProcessBuffer));
     }
 
     // Executable names with spaces don't need to be supported so just find the first space and assume it terminates the process image name.
@@ -1051,7 +1087,16 @@ VOID Phase1InitializationDiscard(IN PVOID Context)
     RtlAppendUnicodeStringToString(&EnvString, &NullString);
 
     SessionManager = ProcessParameters->ImagePathName;
-    Status = RtlCreateUserProcess(&SessionManager, OBJ_CASE_INSENSITIVE, RtlDeNormalizeProcessParams(ProcessParameters), NULL, NULL, NULL, FALSE, NULL, NULL, ProcessInformation);
+    Status = RtlCreateUserProcess(&SessionManager, 
+                                  OBJ_CASE_INSENSITIVE,
+                                  RtlDeNormalizeProcessParams(ProcessParameters),
+                                  NULL,
+                                  NULL, 
+                                  NULL, 
+                                  FALSE, 
+                                  NULL,
+                                  NULL, 
+                                  ProcessInformation);
     if (InbvBootDriverInstalled) {
         FinalizeBootLogo();
     }
@@ -1117,7 +1162,11 @@ NTSTATUS CreateSystemRootLink(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
 
     // Create the root directory object for the \ArcName directory.
     RtlInitUnicodeString(&nameString, L"\\ArcName");
-    InitializeObjectAttributes(&objectAttributes, &nameString, OBJ_CASE_INSENSITIVE | OBJ_PERMANENT, NULL, SePublicDefaultUnrestrictedSd);
+    InitializeObjectAttributes(&objectAttributes,
+                               &nameString, 
+                               OBJ_CASE_INSENSITIVE | OBJ_PERMANENT,
+                               NULL, 
+                               SePublicDefaultUnrestrictedSd);
     status = NtCreateDirectoryObject(&handle, DIRECTORY_ALL_ACCESS, &objectAttributes);
     if (!NT_SUCCESS(status)) {
         KeBugCheckEx(SYMBOLIC_INITIALIZATION_FAILED, status, 1, 0, 0);
@@ -1128,7 +1177,11 @@ NTSTATUS CreateSystemRootLink(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
 
     // Create the root directory object for the \Device directory.
     RtlInitUnicodeString(&nameString, L"\\Device");
-    InitializeObjectAttributes(&objectAttributes, &nameString, OBJ_CASE_INSENSITIVE | OBJ_PERMANENT, NULL, SePublicDefaultUnrestrictedSd);
+    InitializeObjectAttributes(&objectAttributes, 
+                               &nameString, 
+                               OBJ_CASE_INSENSITIVE | OBJ_PERMANENT,
+                               NULL, 
+                               SePublicDefaultUnrestrictedSd);
     status = NtCreateDirectoryObject(&handle, DIRECTORY_ALL_ACCESS, &objectAttributes);
     if (!NT_SUCCESS(status)) {
         KeBugCheckEx(SYMBOLIC_INITIALIZATION_FAILED, status, 2, 0, 0);
@@ -1145,10 +1198,18 @@ NTSTATUS CreateSystemRootLink(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
         return status;
     }
 
-    InitializeObjectAttributes(&objectAttributes, &linkUnicodeString, OBJ_CASE_INSENSITIVE | OBJ_PERMANENT, NULL, SePublicDefaultUnrestrictedSd);
+    InitializeObjectAttributes(&objectAttributes, 
+                               &linkUnicodeString, 
+                               OBJ_CASE_INSENSITIVE | OBJ_PERMANENT,
+                               NULL,
+                               SePublicDefaultUnrestrictedSd);
 
     // Use ARC device name and system path from loader.
-    status = RtlFormatBuffer2(deviceNameBuffer, sizeof(deviceNameBuffer), "\\ArcName\\%s%s", LoaderBlock->ArcBootDeviceName, LoaderBlock->NtBootPathName);
+    status = RtlFormatBuffer2(deviceNameBuffer,
+                              sizeof(deviceNameBuffer),
+                              "\\ArcName\\%s%s", 
+                              LoaderBlock->ArcBootDeviceName,
+                              LoaderBlock->NtBootPathName);
     if (!NT_SUCCESS(status)) {
         KeBugCheckEx(SYMBOLIC_INITIALIZATION_FAILED, status, 3, 1, 0);
     }
@@ -1174,7 +1235,7 @@ NTSTATUS CreateSystemRootLink(IN PLOADER_PARAMETER_BLOCK LoaderBlock)
 }
 
 
-NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID *AddressOfEntryPoint)
+NTSTATUS LookupEntryPoint(IN PVOID DllBase, IN PSZ NameOfEntryPoint, OUT PVOID * AddressOfEntryPoint)
 /*
 Routine Description:
     Returns the address of an entry point given the DllBase and PSZ name of the entry point in question
@@ -1186,7 +1247,10 @@ Routine Description:
     PULONG Addr;
     CHAR NameBuffer[64];
 
-    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase, TRUE, IMAGE_DIRECTORY_ENTRY_EXPORT, &ExportSize);
+    ExportDirectory = (PIMAGE_EXPORT_DIRECTORY)RtlImageDirectoryEntryToData(DllBase, 
+                                                                            TRUE, 
+                                                                            IMAGE_DIRECTORY_ENTRY_EXPORT,
+                                                                            &ExportSize);
 #if DBG
     if (!ExportDirectory) {
         DbgPrint("LookupENtryPoint: Can't locate system Export Directory\n");
@@ -1198,8 +1262,11 @@ Routine Description:
     }
 
     strcpy(NameBuffer, NameOfEntryPoint);
-    Ordinal = NameToOrdinal(NameBuffer, (ULONG_PTR)DllBase, ExportDirectory->NumberOfNames, (PULONG)((ULONG_PTR)DllBase + ExportDirectory->AddressOfNames),
-        (PUSHORT)((ULONG_PTR)DllBase + ExportDirectory->AddressOfNameOrdinals));
+    Ordinal = NameToOrdinal(NameBuffer,
+                            (ULONG_PTR)DllBase, 
+                            ExportDirectory->NumberOfNames,
+                            (PULONG)((ULONG_PTR)DllBase + ExportDirectory->AddressOfNames),
+                            (PUSHORT)((ULONG_PTR)DllBase + ExportDirectory->AddressOfNameOrdinals));
 
     // If Ordinal is not within the Export Address Table, then DLL does not implement function.
     if ((ULONG)Ordinal >= ExportDirectory->NumberOfFunctions) {
@@ -1212,7 +1279,11 @@ Routine Description:
 }
 
 
-static USHORT NameToOrdinal(IN PSZ NameOfEntryPoint, IN ULONG_PTR DllBase, IN ULONG NumberOfNames, IN PULONG NameTableBase, IN PUSHORT NameOrdinalTableBase)
+static USHORT NameToOrdinal(IN PSZ NameOfEntryPoint, 
+                            IN ULONG_PTR DllBase, 
+                            IN ULONG NumberOfNames, 
+                            IN PULONG NameTableBase,
+                            IN PUSHORT NameOrdinalTableBase)
 {
     ULONG SplitIndex;
     LONG CompareResult;
