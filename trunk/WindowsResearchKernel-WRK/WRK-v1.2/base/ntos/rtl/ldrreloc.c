@@ -25,13 +25,7 @@ Abstract:
 
 #define LDRP_RELOCATION_FINAL       0x2
 
-PIMAGE_BASE_RELOCATION
-LdrProcessRelocationBlockLongLong(
-    IN ULONG_PTR VA,
-    IN ULONG SizeOfBlock,
-    IN PUSHORT NextOffset,
-    IN LONGLONG Diff
-);
+PIMAGE_BASE_RELOCATION LdrProcessRelocationBlockLongLong(IN ULONG_PTR VA, IN ULONG SizeOfBlock, IN PUSHORT NextOffset, IN LONGLONG Diff);
 
 #if defined(ALLOC_PRAGMA)
 #pragma alloc_text(PAGE,LdrRelocateImage)
@@ -51,43 +45,22 @@ LdrRelocateImage(
     __in LDR_RELOCATE_IMAGE_RETURN_TYPE Invalid
 )
 /*
-
 Routine Description:
-
-    This routine relocates an image file that was not loaded into memory
-    at the preferred address.
-
+    This routine relocates an image file that was not loaded into memory at the preferred address.
 Arguments:
-
     NewBase - Supplies a pointer to the image base.
-
     LoaderName - Indicates which loader routine is being called from.
-
     Success - Value to return if relocation successful.
-
     Conflict - Value to return if can't relocate.
-
     Invalid - Value to return if relocations are invalid.
-
 Return Value:
-
     Success if image is relocated.
     Conflict if image can't be relocated.
     Invalid if image contains invalid fixups.
-
 */
-
 {
-
     // Just call LdrRelocateImageWithBias() with a zero bias.
-
-
-    return LdrRelocateImageWithBias(NewBase,
-                                    0,
-                                    LoaderName,
-                                    Success,
-                                    Conflict,
-                                    Invalid);
+    return LdrRelocateImageWithBias(NewBase, 0, LoaderName, Success, Conflict, Invalid);
 }
 
 
@@ -101,36 +74,22 @@ LdrRelocateImageWithBias(
     __in LDR_RELOCATE_IMAGE_RETURN_TYPE Invalid
 )
 /*
-
 Routine Description:
-
-    This routine relocates an image file that was not loaded into memory
-    at the preferred address.
-
+    This routine relocates an image file that was not loaded into memory at the preferred address.
 Arguments:
-
     NewBase - Supplies a pointer to the image base.
-
     AdditionalBias - An additional quantity to add to all fixups.  The
                      32-bit X86 loader uses this when loading 64-bit images
                      to specify a NewBase that is actually a 64-bit value.
-
     LoaderName - Indicates which loader routine is being called from.
-
     Success - Value to return if relocation successful.
-
     Conflict - Value to return if can't relocate.
-
     Invalid - Value to return if relocations are invalid.
-
 Return Value:
-
     Success if image is relocated.
     Conflict if image can't be relocated.
     Invalid if image contains invalid fixups.
-
 */
-
 {
     LONGLONG Diff;
     ULONG TotalCountBytes = 0;
@@ -153,49 +112,30 @@ Return Value:
     }
 
     switch (NtHeaders->OptionalHeader.Magic) {
-
     case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
-
-        OldBase =
-            ((PIMAGE_NT_HEADERS32)NtHeaders)->OptionalHeader.ImageBase;
+        OldBase = ((PIMAGE_NT_HEADERS32)NtHeaders)->OptionalHeader.ImageBase;
         break;
-
     case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
-
-        OldBase =
-            ((PIMAGE_NT_HEADERS64)NtHeaders)->OptionalHeader.ImageBase;
+        OldBase = ((PIMAGE_NT_HEADERS64)NtHeaders)->OptionalHeader.ImageBase;
         break;
-
     default:
-
         Status = Invalid;
         goto Exit;
     }
 
-
     // Locate the relocation section.
-
-
-    NextBlock = (PIMAGE_BASE_RELOCATION)RtlImageDirectoryEntryToData(
-        NewBase, TRUE, IMAGE_DIRECTORY_ENTRY_BASERELOC, &TotalCountBytes);
-
+    NextBlock = (PIMAGE_BASE_RELOCATION)RtlImageDirectoryEntryToData(NewBase, TRUE, IMAGE_DIRECTORY_ENTRY_BASERELOC, &TotalCountBytes);
 
     // It is possible for a file to have no relocations, but the relocations
     // must not have been stripped.
 
-
     if (!NextBlock || !TotalCountBytes) {
-
         if (NtHeaders->FileHeader.Characteristics & IMAGE_FILE_RELOCS_STRIPPED) {
-
 #if DBG
-
             DbgPrint("%s: Image can't be relocated, no fixup information.\n", LoaderName);
-
 #endif // DBG
 
             Status = Conflict;
-
         } else {
             Status = Success;
         }
@@ -203,10 +143,7 @@ Return Value:
         goto Exit;
     }
 
-
-    // If the image has a relocation table, then apply the specified fixup
-    // information to the image.
-
+    // If the image has a relocation table, then apply the specified fixup information to the image.
     Diff = (ULONG_PTR)NewBase - OldBase + AdditionalBias;
     while (TotalCountBytes) {
         SizeOfBlock = NextBlock->SizeOfBlock;
@@ -217,10 +154,7 @@ Return Value:
 
         VA = (ULONG_PTR)NewBase + NextBlock->VirtualAddress;
 
-        if (!(NextBlock = LdrProcessRelocationBlockLongLong(VA,
-                                                            SizeOfBlock,
-                                                            NextOffset,
-                                                            Diff))) {
+        if (!(NextBlock = LdrProcessRelocationBlockLongLong(VA, SizeOfBlock, NextOffset, Diff))) {
 #if DBG
             DbgPrint("%s: Unknown base relocation type\n", LoaderName);
 #endif
@@ -230,36 +164,24 @@ Return Value:
     }
 
     Status = Success;
+
 Exit:
     return Status;
 }
 
-PIMAGE_BASE_RELOCATION
-LdrProcessRelocationBlock(
-    IN ULONG_PTR VA,
-    IN ULONG SizeOfBlock,
-    IN PUSHORT NextOffset,
-    IN LONG_PTR Diff
-)
+
+PIMAGE_BASE_RELOCATION LdrProcessRelocationBlock(IN ULONG_PTR VA, IN ULONG SizeOfBlock, IN PUSHORT NextOffset, IN LONG_PTR Diff)
 {
     PIMAGE_BASE_RELOCATION baseRelocation;
 
-    baseRelocation = LdrProcessRelocationBlockLongLong(VA,
-                                                       SizeOfBlock,
-                                                       NextOffset,
-                                                       (LONGLONG)Diff);
+    baseRelocation = LdrProcessRelocationBlockLongLong(VA, SizeOfBlock, NextOffset, (LONGLONG)Diff);
 
     return baseRelocation;
 }
 
+
 // begin_rebase
-PIMAGE_BASE_RELOCATION
-LdrProcessRelocationBlockLongLong(
-    IN ULONG_PTR VA,
-    IN ULONG SizeOfBlock,
-    IN PUSHORT NextOffset,
-    IN LONGLONG Diff
-)
+PIMAGE_BASE_RELOCATION LdrProcessRelocationBlockLongLong(IN ULONG_PTR VA, IN ULONG SizeOfBlock, IN PUSHORT NextOffset, IN LONGLONG Diff)
 {
     PUCHAR FixupVA;
     USHORT Offset;
@@ -271,39 +193,27 @@ LdrProcessRelocationBlockLongLong(
     RTL_PAGED_CODE();
 
     while (SizeOfBlock--) {
-
         Offset = *NextOffset & (USHORT)0xfff;
         FixupVA = (PUCHAR)(VA + Offset);
 
-
         // Apply the fixups.
-
-
         switch ((*NextOffset) >> 12) {
-
         case IMAGE_REL_BASED_HIGHLOW:
-
             // HighLow - (32-bits) relocate the high and low half
             //      of an address.
 
             *(LONG UNALIGNED *)FixupVA += (ULONG)Diff;
             break;
-
         case IMAGE_REL_BASED_HIGH:
-
             // High - (16-bits) relocate the high half of an address.
 
             Temp = *(PUSHORT)FixupVA << 16;
             Temp += (ULONG)Diff;
             *(PUSHORT)FixupVA = (USHORT)(Temp >> 16);
             break;
-
         case IMAGE_REL_BASED_HIGHADJ:
-
             // Adjust high - (16-bits) relocate the high half of an
             //      address and adjust for sign extension of low half.
-
-
 
             // If the address has already been relocated then don't
             // process it again now or information will be lost.
@@ -321,32 +231,21 @@ LdrProcessRelocationBlockLongLong(
             Temp += (ULONG)Diff;
             Temp += 0x8000;
             *(PUSHORT)FixupVA = (USHORT)(Temp >> 16);
-
             break;
-
         case IMAGE_REL_BASED_LOW:
-
             // Low - (16-bit) relocate the low half of an address.
-
             Temp = *(PSHORT)FixupVA;
             Temp += (ULONG)Diff;
             *(PUSHORT)FixupVA = (USHORT)Temp;
             break;
-
         case IMAGE_REL_BASED_IA64_IMM64:
-
-
             // Align it to bundle address before fixing up the
             // 64-bit immediate value of the movl instruction.
-
 
             FixupVA = (PUCHAR)((ULONG_PTR)FixupVA & ~(15));
             Value64 = (ULONGLONG)0;
 
-
             // Extract the lower 32 bits of IMM64 from bundle
-
-
 
             EXT_IMM64(Value64,
                 (PULONG)FixupVA + EMARCH_ENC_I17_IMM7B_INST_WORD_X,
@@ -391,13 +290,9 @@ LdrProcessRelocationBlockLongLong(
                       EMARCH_ENC_I17_SIGN_VAL_POS_X);
 
             // Update 64-bit address
-
-
             Value64 += Diff;
 
-
             // Insert IMM64 into bundle
-
 
             INS_IMM64(Value64,
                 ((PULONG)FixupVA + EMARCH_ENC_I17_IMM7B_INST_WORD_X),
